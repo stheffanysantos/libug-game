@@ -2,15 +2,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/firebase_env.dart';
 import 'core/progress/progress_notifier.dart';
 import 'features/splash/presentation/splash_view.dart';
-import 'firebase_options.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(options: currentFirebaseOptions);
   } catch (_) {
     // Sem projeto configurado corretamente para esta plataforma, ou sem
     // internet no estande — o jogo continua 100% jogável, só o Placar do

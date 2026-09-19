@@ -22,6 +22,11 @@
           "projectId": "debugaomascote",
           "appId": "1:823859588989:android:1599d544e0590e2cb56614",
           "fileOutput": "android/app/google-services.json"
+        },
+        "dev": {
+          "projectId": "debugaomascote-dev",
+          "appId": "1:1040054035723:android:8362d0f2f55d7ed3246e0e",
+          "fileOutput": "android/app/src/dev/google-services.json"
         }
       },
       "dart": {
@@ -31,6 +36,13 @@
             "android": "1:823859588989:android:1599d544e0590e2cb56614",
             "ios": "1:823859588989:ios:f0fbd113a98f3ed9b56614",
             "web": "1:823859588989:web:d29bdad072f04ae4b56614"
+          }
+        },
+        "lib/firebase_options_dev.dart": {
+          "projectId": "debugaomascote-dev",
+          "configurations": {
+            "android": "1:1040054035723:android:8362d0f2f55d7ed3246e0e",
+            "web": "1:1040054035723:web:3b999fd0a97a0a2f246e0e"
           }
         }
       }
