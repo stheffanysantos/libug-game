@@ -11,7 +11,7 @@ part 'progress_state.freezed.dart';
 /// (`players/{uid}`, anônimo ou cadastrado) por `FirestoreProgressRepository`
 /// — ver `.claude/memory/decisions.md`.
 @freezed
-class ProgressState with _$ProgressState {
+abstract class ProgressState with _$ProgressState {
   const factory ProgressState({
     @Default({}) Map<String, LevelProgress> byLevelId,
 
@@ -49,6 +49,14 @@ class ProgressState with _$ProgressState {
     /// em `ProfileEditView` — `null` enquanto ele não editou nada. Ver
     /// `displayAvatarId` abaixo.
     String? avatarId,
+
+    /// `true` depois que o jogador já viu as boas-vindas (`WelcomeView`) —
+    /// atrelado à conta/UID e sincronizado no Firestore (`players/{uid}`),
+    /// fonte durável por conta que complementa o `shared_preferences` local
+    /// (`OnboardingState.seenWelcome`). Resiste à volatilidade do storage
+    /// local na web: mesclado por OR em `mergedWith`, nunca regride
+    /// `true → false` (ver bugfix `boas-vindas-primeira-vez`, issue #3).
+    @Default(false) bool seenWelcome,
   }) = _ProgressState;
 
   const ProgressState._();
@@ -115,6 +123,9 @@ class ProgressState with _$ProgressState {
   /// primeiro, entre os dois lados). `username`/`avatarId`: mesmo critério de
   /// "fica com o deste lado se preenchido, senão o de `other`" — não há
   /// "melhor" nome/avatar, só presença de uma escolha já feita.
+  /// `seenWelcome`: `true` se qualquer um dos dois já viu as boas-vindas
+  /// (mesmo espírito de `hasSubmittedToLeaderboard`/`gameCompleted` — nunca
+  /// regride `true → false`).
   ProgressState mergedWith(ProgressState other) {
     final mergedByLevelId = <String, LevelProgress>{...byLevelId};
     for (final entry in other.byLevelId.entries) {
@@ -145,6 +156,7 @@ class ProgressState with _$ProgressState {
       gameCompletedAt: mergedCompletedAt,
       username: username ?? other.username,
       avatarId: avatarId ?? other.avatarId,
+      seenWelcome: seenWelcome || other.seenWelcome,
     );
   }
 }
