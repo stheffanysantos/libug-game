@@ -45,7 +45,7 @@ class _LeaderboardViewState extends ConsumerState<LeaderboardView> {
 
   @override
   Widget build(BuildContext context) {
-    final progress = ref.watch(progressNotifierProvider);
+    final progress = ref.watch(progressProvider);
     final showJoinCard = progress.sessionScore > 0 && !progress.hasSubmittedToLeaderboard;
     final dataAsync = ref.watch(leaderboardViewModelProvider);
 

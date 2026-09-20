@@ -112,8 +112,8 @@ void main() {
 
   testWidgets('terminar a Trilha 1 sem conta mostra o cadastro obrigatório, com saída pra continuar sem conta', (tester) async {
     final container = createTestContainer(overrides: [authServiceProvider.overrideWithValue(FakeAuthService())]);
-    container.read(onboardingNotifierProvider.notifier).markSeen(2);
-    final progressNotifier = container.read(progressNotifierProvider.notifier);
+    container.read(onboardingProvider.notifier).markSeen(2);
+    final progressNotifier = container.read(progressProvider.notifier);
     for (final level in world2Levels.sublist(0, world2Levels.length - 1)) {
       progressNotifier.recordWin(level.id, stars: 3, blocksUsed: 1, points: 300);
     }
@@ -140,8 +140,8 @@ void main() {
     final container = createTestContainer(
       overrides: [authServiceProvider.overrideWithValue(FakeAuthService(hasAccount: true, displayName: 'jogador@example.com'))],
     );
-    container.read(onboardingNotifierProvider.notifier).markSeen(2);
-    final progressNotifier = container.read(progressNotifierProvider.notifier);
+    container.read(onboardingProvider.notifier).markSeen(2);
+    final progressNotifier = container.read(progressProvider.notifier);
     for (final level in world2Levels.sublist(0, world2Levels.length - 1)) {
       progressNotifier.recordWin(level.id, stars: 3, blocksUsed: 1, points: 300);
     }

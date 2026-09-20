@@ -64,7 +64,7 @@ void main() {
   });
 
   test('vitória depois de responder a pesquisa reenvia a entrada sozinha, com a pontuação atual', () async {
-    container.read(progressNotifierProvider.notifier).submitToLeaderboard(age: 10, hasProgrammedBefore: true);
+    container.read(progressProvider.notifier).submitToLeaderboard(age: 10, hasProgrammedBefore: true);
 
     useCase().call(
       levelId: 'world1_level1',
@@ -95,8 +95,8 @@ void main() {
   });
 
   test('zerar o jogo (100% das 2 Trilhas) marca gameCompleted e tira da lista topOverall', () async {
-    container.read(progressNotifierProvider.notifier).submitToLeaderboard(age: 10, hasProgrammedBefore: true);
-    final progressNotifier = container.read(progressNotifierProvider.notifier);
+    container.read(progressProvider.notifier).submitToLeaderboard(age: 10, hasProgrammedBefore: true);
+    final progressNotifier = container.read(progressProvider.notifier);
 
     // Vence todas as fases de todos os Mundos de todas as Trilhas, exceto a
     // última, direto pelo notifier (mais rápido que rodar o use case 60x) —
@@ -106,7 +106,7 @@ void main() {
     for (final levelId in allLevelIds.sublist(0, allLevelIds.length - 1)) {
       progressNotifier.recordWin(levelId, stars: 3, blocksUsed: 1, points: 300);
     }
-    expect(container.read(progressNotifierProvider).gameCompleted, isFalse);
+    expect(container.read(progressProvider).gameCompleted, isFalse);
 
     final lastWorld = tracks.last.worlds.last;
     useCase().call(
@@ -118,8 +118,8 @@ void main() {
     );
     await flushMicrotasks();
 
-    expect(container.read(progressNotifierProvider).gameCompleted, isTrue);
-    expect(container.read(progressNotifierProvider).gameCompletedAt, isNotNull);
+    expect(container.read(progressProvider).gameCompleted, isTrue);
+    expect(container.read(progressProvider).gameCompletedAt, isNotNull);
     expect(fakeLeaderboard.entries.single.gameCompleted, isTrue);
 
     final overall = await fakeLeaderboard.topOverall();

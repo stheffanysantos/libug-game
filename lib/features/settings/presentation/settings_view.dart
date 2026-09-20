@@ -55,7 +55,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
   /// `ProgressNotifier.resetForNewPlayer`).
   Future<void> _signOut() async {
     await ref.read(authServiceProvider).signOut();
-    ref.read(progressNotifierProvider.notifier).resetForNewPlayer();
+    ref.read(progressProvider.notifier).resetForNewPlayer();
     if (mounted) setState(() {});
   }
 
@@ -64,7 +64,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
     final soundOn = !ref.watch(mutedProvider);
     final authService = ref.watch(authServiceProvider);
     final hasAccount = authService.hasAccount;
-    final progress = ref.watch(progressNotifierProvider);
+    final progress = ref.watch(progressProvider);
     final displayName = progress.username ?? authService.displayName;
 
     return Scaffold(

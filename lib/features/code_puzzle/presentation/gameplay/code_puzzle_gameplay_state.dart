@@ -9,7 +9,7 @@ part 'code_puzzle_gameplay_state.freezed.dart';
 /// tentativa (sem passo a passo), alternando entre `reorder`/`findBug`
 /// conforme `level.type`.
 @freezed
-class CodePuzzleGameplayState with _$CodePuzzleGameplayState {
+abstract class CodePuzzleGameplayState with _$CodePuzzleGameplayState {
   const factory CodePuzzleGameplayState({
     required CodePuzzleLevel level,
 

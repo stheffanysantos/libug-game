@@ -57,7 +57,7 @@ class WorldSelectView extends ConsumerWidget {
   /// código de verdade) esperar a Trilha 1 inteira, não só o mundo anterior
   /// por número — pedido explícito do usuário, ver `.claude/memory/decisions.md`.
   bool _isWorldUnlocked(WidgetRef ref, GameTrack track, GameWorld world) {
-    final progress = ref.watch(progressNotifierProvider);
+    final progress = ref.watch(progressProvider);
     final index = track.worlds.indexWhere((w) => w.number == world.number);
     if (index > 0) {
       final previousWorld = track.worlds[index - 1];
@@ -125,8 +125,8 @@ class WorldSelectView extends ConsumerWidget {
   /// substituído pelo intro de boas-vindas da Splash (`WelcomeView`,
   /// mostrado antes desta tela), ver `.claude/memory/decisions.md`.
   void _enterWorld(BuildContext context, WidgetRef ref, GameWorld world) {
-    final onboardingNotifier = ref.read(onboardingNotifierProvider.notifier);
-    if (ref.read(onboardingNotifierProvider).hasSeen(world.number)) {
+    final onboardingNotifier = ref.read(onboardingProvider.notifier);
+    if (ref.read(onboardingProvider).hasSeen(world.number)) {
       _openWorld(context, world);
       return;
     }

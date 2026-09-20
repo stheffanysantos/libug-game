@@ -18,6 +18,24 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # Regenera os artefatos do build_runner (`*.g.dart`/`*.freezed.dart`) e
+      # falha o CI se algo ficou dessincronizado dos fontes anotados
+      # (`@freezed`/`@riverpod`). Os gerados são versionados (ver
+      # `.claude/rules/git-workflow.md`), então `git diff` acusa se o commit
+      # esqueceu de regenerar. `--delete-conflicting-outputs` foi removido no
+      # build_runner recente (agora é o comportamento padrão).
+      - name: Codegen (build_runner)
+        run: dart run build_runner build
+
+      - name: Verifica gerados em dia
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::Arquivos gerados desatualizados. Rode 'dart run build_runner build' e commite os *.g.dart/*.freezed.dart."
+            git status --porcelain
+            git diff
+            exit 1
+          fi
+
       # Em Dart, a checagem de tipos faz parte da análise estática — `flutter
       # analyze` é lint + typecheck num comando só (não há passo separado tipo
       # `tsc --noEmit`). `--fatal-infos` faz qualquer info/warning derrubar o CI.

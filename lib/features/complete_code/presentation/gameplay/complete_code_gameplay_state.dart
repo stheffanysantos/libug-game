@@ -8,7 +8,7 @@ part 'complete_code_gameplay_state.freezed.dart';
 /// `PredictOutputGameplayState` (Mundo 5): veredito único por tentativa,
 /// sem passo a passo.
 @freezed
-class CompleteCodeGameplayState with _$CompleteCodeGameplayState {
+abstract class CompleteCodeGameplayState with _$CompleteCodeGameplayState {
   const factory CompleteCodeGameplayState({
     required CompleteCodeLevel level,
     int? selectedOptionIndex,
