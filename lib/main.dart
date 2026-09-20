@@ -31,13 +31,13 @@ Future<void> main() async {
   }
 
   // Container criado explicitamente (em vez de deixar o 1º `ConsumerWidget`
-  // criar um implícito) só pra poder ler `progressNotifierProvider` uma vez
+  // criar um implícito) só pra poder ler `progressProvider` uma vez
   // aqui — isso já dispara a hidratação fire-and-forget do progresso
   // (`ProgressNotifier.build()`) o mais cedo possível, sem travar o
   // primeiro frame — mesmo comportamento de antes da migração pra
   // Riverpod (`unawaited(ProgressSync.instance.hydrate())`).
   final container = ProviderContainer();
-  container.read(progressNotifierProvider);
+  container.read(progressProvider);
 
   runApp(UncontrolledProviderScope(container: container, child: const DebugaOMascoteApp()));
 }

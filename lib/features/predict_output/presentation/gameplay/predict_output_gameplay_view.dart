@@ -46,7 +46,7 @@ void _onResultPrimaryAction(BuildContext context, WidgetRef ref, PredictOutputRe
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => PredictOutputGameplayView(levelId: data.nextLevel!.id)));
     return;
   }
-  if (data.worldJustCompleted && !ref.read(onboardingNotifierProvider).hasSeenRecap(data.worldNumber)) {
+  if (data.worldJustCompleted && !ref.read(onboardingProvider).hasSeenRecap(data.worldNumber)) {
     final recap = recapSlidesFor(data.worldNumber);
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TutorialView(
@@ -54,7 +54,7 @@ void _onResultPrimaryAction(BuildContext context, WidgetRef ref, PredictOutputRe
         narrationAssets: recap.narrationAssets,
         finalLabel: 'Concluir',
         onFinish: () {
-          ref.read(onboardingNotifierProvider.notifier).markRecapSeen(data.worldNumber);
+          ref.read(onboardingProvider.notifier).markRecapSeen(data.worldNumber);
           _returnToLevelSelect(context, ref, worldNumber: data.worldNumber, worldJustCompleted: data.worldJustCompleted);
         },
       ),

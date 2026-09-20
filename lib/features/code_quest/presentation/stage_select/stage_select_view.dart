@@ -31,7 +31,7 @@ class CodeQuestStageSelectView extends ConsumerWidget {
   List<CodeQuestLevel> get _levels => world.levels.cast<CodeQuestLevel>();
 
   List<StageTileData> _stages(WidgetRef ref) {
-    final progress = ref.watch(progressNotifierProvider);
+    final progress = ref.watch(progressProvider);
     var currentAssigned = false;
     return _levels.map((level) {
       if (progress.isCompleted(level.id)) {
@@ -57,7 +57,7 @@ class CodeQuestStageSelectView extends ConsumerWidget {
         slides: content.slides,
         narrationAssets: content.narrationAssets,
         onFinish: () {
-          ref.read(onboardingNotifierProvider.notifier).markSeen(world.number);
+          ref.read(onboardingProvider.notifier).markSeen(world.number);
           Navigator.of(context).pop();
         },
       ),
@@ -66,7 +66,7 @@ class CodeQuestStageSelectView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final totalStars = ref.watch(progressNotifierProvider).totalStars(_levels.map((l) => l.id));
+    final totalStars = ref.watch(progressProvider).totalStars(_levels.map((l) => l.id));
     final maxStars = _levels.length * 3;
 
     return Scaffold(

@@ -22,7 +22,7 @@ const levelSelectRouteName = 'level-select';
 /// sua própria tela equivalente, `ConveyorStageSelectScreen`
 /// (`lib/screens/conveyor_stage_select_screen.dart`) — ver
 /// `.claude/models/level.dart`. Sem lógica de orquestração própria (só lê
-/// `progressNotifierProvider` e monta a grade) — `ConsumerWidget`, sem
+/// `progressProvider` e monta a grade) — `ConsumerWidget`, sem
 /// ViewModel/State dedicados, ver a tabela de convenções do plano de
 /// migração (seção 6).
 class StageSelectView extends ConsumerWidget {
@@ -36,7 +36,7 @@ class StageSelectView extends ConsumerWidget {
   List<Level> get _levels => world.levels.cast<Level>();
 
   List<StageTileData> _stages(WidgetRef ref) {
-    final progress = ref.watch(progressNotifierProvider);
+    final progress = ref.watch(progressProvider);
     var currentAssigned = false;
     return _levels.map((level) {
       if (progress.isCompleted(level.id)) {
@@ -67,7 +67,7 @@ class StageSelectView extends ConsumerWidget {
         slides: content.slides,
         narrationAssets: content.narrationAssets,
         onFinish: () {
-          ref.read(onboardingNotifierProvider.notifier).markSeen(world.number);
+          ref.read(onboardingProvider.notifier).markSeen(world.number);
           Navigator.of(context).pop();
         },
       ),
@@ -76,7 +76,7 @@ class StageSelectView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final totalStars = ref.watch(progressNotifierProvider).totalStars(_levels.map((l) => l.id));
+    final totalStars = ref.watch(progressProvider).totalStars(_levels.map((l) => l.id));
     final maxStars = _levels.length * 3;
 
     return Scaffold(
