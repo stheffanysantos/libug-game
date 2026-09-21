@@ -4,7 +4,7 @@ import '../models/block.dart';
 /// Traduz o Programa do motor de labirinto (Mundos 1 "Primeiros passos", 2
 /// "Resgate de Personagens" e 3 "Desenho no Tabuleiro" — todos `Level`/
 /// `ProgramExecutor`, `WorldGameType.maze`) para linhas de pseudo-código
-/// Dart-like, mostradas no painel "Tradutor de Blocos" da Gameplay
+/// Dart-like, mostradas na aba "Código" de "Seu Programa" na Gameplay
 /// (`GameplayView`). Mesma ideia de `codeLinesFor`/`codeLineFor`
 /// (`lib/widgets/block_program_chip_style.dart`, Mundo 4), mas para este
 /// motor — tradução deliberadamente pedagógica, não um transpilador de

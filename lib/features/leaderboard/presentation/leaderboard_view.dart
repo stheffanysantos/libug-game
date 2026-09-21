@@ -14,6 +14,7 @@ import '../../../widgets/dotted_background_widget.dart';
 import '../../../widgets/hard_shadow_box_widget.dart';
 import '../../../widgets/icon_action_button_widget.dart';
 import '../../../widgets/primary_pill_button_widget.dart';
+import '../../../widgets/tab_toggle_button_widget.dart';
 import '../../auth/presentation/register/register_view.dart';
 import '../../survey/presentation/survey_view.dart';
 import 'leaderboard_view_model.dart';
@@ -105,9 +106,9 @@ class _LeaderboardViewState extends ConsumerState<LeaderboardView> {
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      Expanded(child: _TabButton(label: 'Geral', selected: _selectedTab == 0, onTap: () => setState(() => _selectedTab = 0))),
+                      Expanded(child: TabToggleButton(label: 'Geral', selected: _selectedTab == 0, onTap: () => setState(() => _selectedTab = 0))),
                       const SizedBox(width: 10),
-                      Expanded(child: _TabButton(label: 'Zeraram o Jogo', selected: _selectedTab == 1, onTap: () => setState(() => _selectedTab = 1))),
+                      Expanded(child: TabToggleButton(label: 'Zeraram o Jogo', selected: _selectedTab == 1, onTap: () => setState(() => _selectedTab = 1))),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -141,37 +142,6 @@ class _LeaderboardViewState extends ConsumerState<LeaderboardView> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Alterna entre as abas "Geral"/"Zeraram o Jogo" — mesmo padrão visual de
-/// `_YesNoOption` (`survey_view.dart`): preenchido em `yellowNeon` quando
-/// selecionado, contorno neutro quando não.
-class _TabButton extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _TabButton({required this.label, required this.selected, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected ? AppColors.yellowNeon : AppColors.panel,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: selected ? AppColors.yellowNeon : AppColors.grayButton, width: 2),
-        ),
-        child: Text(
-          label,
-          style: AppText.style(size: 14, weight: FontWeight.w900, color: selected ? AppColors.purpleDark : AppColors.white),
-        ),
       ),
     );
   }

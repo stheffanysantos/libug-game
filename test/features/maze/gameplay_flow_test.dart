@@ -25,8 +25,8 @@ Future<void> _pumpUntilFound(WidgetTester tester, Finder finder, {int maxSteps =
 
 void main() {
   testWidgets('vencer de verdade navega direto para a Vitória com os dados reais da partida', (tester) async {
-    // Tela alta o bastante para tudo (tabuleiro + painel "TRADUTOR DE
-    // BLOCOS" + comandos + Play) ficar visível sem precisar rolar — a tela
+    // Tela alta o bastante para tudo (tabuleiro + "Seu Programa" com abas +
+    // comandos + Play) ficar visível sem precisar rolar — a tela
     // real rola (ver GameplayView), mas aqui simplifica o teste a
     // interagir sem `ensureVisible` a cada toque.
     await tester.binding.setSurfaceSize(const Size(400, 1700));
