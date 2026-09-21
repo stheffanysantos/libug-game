@@ -48,28 +48,33 @@ class CommandButton extends StatelessWidget {
           final box = math.min(constraints.maxWidth, constraints.maxHeight);
           final iconSize = (box * 0.36).clamp(16.0, 30.0);
           final fontSize = (box * 0.17).clamp(10.0, 14.0);
+          // Rótulos mais longos (ex. "Se tiver, resgate" do Mundo 2, bem mais
+          // longo que "Andar"/"Virar ←" do Mundo 1) quebram em até 2 linhas
+          // em vez de encolher a fonte até ficar ilegível — a grade pode ter
+          // 5 botões lado a lado (células estreitas). O texto não é truncado
+          // (nada de reticências): o jogador precisa ler o comando inteiro.
+          // A largura fixa do `SizedBox` é o que faz o texto quebrar dentro
+          // do `FittedBox`, que só entra como rede de segurança: se ícone +
+          // 2 linhas ainda passarem da altura da célula, o conjunto encolhe
+          // em vez de estourar.
           return Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  iconBuilder(iconSize),
-                  SizedBox(height: box * 0.045),
-                  // `FittedBox` em vez de um `Text` cru: rótulos mais longos
-                  // (ex. "Se Amarelo → A" do Mundo 2, bem mais longo que
-                  // "Andar"/"Virar ←" do Mundo 1) encolhem para caber em vez
-                  // de quebrar linha e estourar a altura fixa da célula.
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: SizedBox(
+                width: math.max(0, constraints.maxWidth - 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    iconBuilder(iconSize),
+                    SizedBox(height: box * 0.045),
+                    Text(
                       label,
-                      maxLines: 1,
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
                       style: AppText.style(size: fontSize, weight: FontWeight.w900, color: foreground),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );

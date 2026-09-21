@@ -28,6 +28,7 @@ import '../../../../widgets/program_block_chip_widget.dart';
 import '../../../../widgets/program_chip_grid_widget.dart';
 import '../../../../widgets/program_code_translator.dart';
 import '../../../../widgets/pulse_tap_widget.dart';
+import '../../../../widgets/tab_toggle_button_widget.dart';
 import '../../../../widgets/tutorial_content.dart';
 import '../../../result/presentation/failure_view.dart';
 import '../../../result/presentation/victory_view.dart';
@@ -238,27 +239,36 @@ class GameplayView extends ConsumerWidget {
     );
   }
 
-  /// Celular: tudo empilhado (tabuleiro em cima, comandos embaixo), com
-  /// scroll — evita estourar em celulares baixos em vez de forçar caber.
+  /// Celular: cabeçalho, tabuleiro e "Seu Programa" rolam juntos (evita
+  /// estourar em celulares baixos em vez de forçar caber); os comandos e o
+  /// PLAY ficam fixos no rodapé, sempre ao alcance do polegar, sem o jogador
+  /// precisar rolar de volta até eles depois de montar o Programa.
   Widget _buildPhoneLayout(BuildContext context, WidgetRef ref, GameplayState state) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildHeader(context, state),
-          const SizedBox(height: 10),
-          _buildRescuePanel(state),
-          _buildBoard(state, maxSize: 340),
-          const SizedBox(height: 14),
-          _buildCodeTranslator(state),
-          _buildProgramArea(context, ref, state),
-        ],
-      ),
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildHeader(context, state),
+                const SizedBox(height: 10),
+                _buildRescuePanel(state),
+                _buildBoard(state, maxSize: 340),
+                const SizedBox(height: 14),
+                _buildProgramView(state, ref),
+                const SizedBox(height: 14),
+              ],
+            ),
+          ),
+        ),
+        _buildControls(state, ref),
+      ],
     );
   }
 
-  /// Tablet: tabuleiro (maior) à esquerda, "Seu Programa" + comandos + Play
-  /// à direita — aproveita a largura extra sem precisar de scroll (ver
-  /// `.claude/plans/Roadmap.md`).
+  /// Tablet: tabuleiro (maior) à esquerda, "Seu Programa" à direita com os
+  /// comandos + Play fixos no rodapé da coluna — aproveita a largura extra
+  /// sem precisar de scroll (ver `.claude/plans/Roadmap.md`).
   Widget _buildTabletLayout(BuildContext context, WidgetRef ref, GameplayState state) {
     return Column(
       children: [
@@ -280,31 +290,40 @@ class GameplayView extends ConsumerWidget {
               const SizedBox(width: 24),
               Expanded(
                 flex: 4,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      // Centraliza verticalmente quando sobra altura (comum
-                      // em tablet retrato, onde a coluna fica bem mais alta
-                      // que o conteúdo) — sem isso tudo ficava colado no
-                      // topo, com um vão vazio embaixo do Play (achado do
-                      // UX Reviewer). `Column` (não `Center`) preserva a
-                      // largura travada que `SingleChildScrollView` já dá
-                      // ao filho — `Center` a soltaria e quebraria o
-                      // `crossAxisAlignment: stretch` de `_buildProgramArea`.
-                      // Ainda rola normalmente se não couber (tablet baixo).
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _buildCodeTranslator(state),
-                            _buildProgramArea(context, ref, state),
-                          ],
-                        ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            // Centraliza "Seu Programa" verticalmente quando
+                            // sobra altura (comum em tablet retrato, onde a
+                            // coluna fica bem mais alta que o conteúdo) —
+                            // sem isso ficava colado no topo, com um vão
+                            // vazio entre ele e os comandos (achado do UX
+                            // Reviewer). `Column` (não `Center`) preserva a
+                            // largura travada que `SingleChildScrollView` já
+                            // dá ao filho — `Center` a soltaria e quebraria
+                            // o `crossAxisAlignment: stretch`. Ainda rola
+                            // normalmente se não couber (tablet baixo).
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  _buildProgramView(state, ref),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+                    const SizedBox(height: 14),
+                    _buildControls(state, ref),
+                  ],
                 ),
               ),
             ],
@@ -432,93 +451,42 @@ class GameplayView extends ConsumerWidget {
     );
   }
 
-  /// Painel "TRADUTOR DE BLOCOS" — mostra o Programa montado como
-  /// pseudo-código Dart-like (`programCodeLinesFor`), atualizando ao vivo a
-  /// cada bloco adicionado/removido. Aparece nos 3 mundos deste motor
-  /// (Mundos 1, 2 e 3) — a mesma "porta de entrada" visual para código que
-  /// o Mundo 4 já tem (`codeLinesFor`/`block_program_chip_style.dart`), sem
-  /// duplicar a regra de pareamento de `Repetir` (`resolveProgramEntries`,
-  /// ver `.claude/docs/GAME_DESIGN.md`). Altura limitada com scroll próprio
-  /// — Programas grandes (até 8 blocos, alguns virando 3 linhas com
-  /// `Repetir`) não empurram o resto do layout pra baixo.
-  Widget _buildCodeTranslator(GameplayState state) {
-    final lines = programCodeLinesFor(state.program);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Container(
-        key: const Key('mazeCodeTranslator'),
-        width: double.infinity,
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(color: AppColors.purpleDark, borderRadius: BorderRadius.circular(18)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('TRADUTOR DE BLOCOS', style: AppText.eyebrow(size: 11)),
-            const SizedBox(height: 8),
-            if (lines.isEmpty)
-              Text(
-                '// monte um Programa para ver o código aqui',
+  /// "Seu Programa" com duas visões do mesmo Programa, alternáveis por aba
+  /// (`_ProgramTabs`): os Cards (chips só com ícone) ou o Código (pseudo-código
+  /// Dart-like, `programCodeLinesFor`). Substitui o antigo painel "TRADUTOR DE
+  /// BLOCOS" empilhado junto dos chips — as duas visões nunca aparecem juntas,
+  /// então a área ocupa bem menos altura. Aparece nos 3 mundos deste motor
+  /// (Mundos 1, 2 e 3).
+  Widget _buildProgramView(GameplayState state, WidgetRef ref) {
+    final notifier = ref.read(gameplayViewModelProvider(levelId).notifier);
+    return _ProgramTabs(
+      running: state.running,
+      onClear: notifier.clearProgram,
+      codeLines: programCodeLinesFor(state.program),
+      cardsView: state.program.isEmpty
+          ? Center(
+              child: Text(
+                'Toque nos blocos abaixo para montar',
                 style: AppText.style(size: 14, weight: FontWeight.w800, color: AppColors.grayLockIcon),
-              )
-            else
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 160),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (final line in lines)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: RichText(text: TextSpan(children: highlightCodeLine(line))),
-                        ),
-                    ],
-                  ),
-                ),
               ),
-          ],
-        ),
-      ),
+            )
+          : ProgramChipGrid(
+              chips: [
+                for (var i = 0; i < state.program.length; i++)
+                  _blockChip(state, notifier, i),
+              ],
+            ),
     );
   }
 
-  Widget _buildProgramArea(BuildContext context, WidgetRef ref, GameplayState state) {
+  /// Paleta de comandos + PLAY — sempre fixos no rodapé (fora do scroll), no
+  /// celular e no tablet: o jogador monta o Programa rolando o resto da tela
+  /// sem perder os botões de vista.
+  Widget _buildControls(GameplayState state, WidgetRef ref) {
     final notifier = ref.read(gameplayViewModelProvider(levelId).notifier);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('SEU PROGRAMA', style: AppText.eyebrow(size: 11)),
-            TextButton(
-              onPressed: state.running ? null : notifier.clearProgram,
-              child: Text('LIMPAR', style: AppText.eyebrow(size: 11)),
-            ),
-          ],
-        ),
-        Container(
-          constraints: const BoxConstraints(minHeight: 66),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.grayDashedBorder, width: 3),
-          ),
-          child: state.program.isEmpty
-              ? Center(
-                  child: Text(
-                    'Toque nos blocos abaixo para montar',
-                    style: AppText.style(size: 14, weight: FontWeight.w800, color: AppColors.grayLockIcon),
-                  ),
-                )
-              : ProgramChipGrid(
-                  chips: [
-                    for (var i = 0; i < state.program.length; i++)
-                      _blockChip(state, notifier, i),
-                  ],
-                ),
-        ),
-        const SizedBox(height: 14),
         _buildCommandGrid(state, notifier),
         const SizedBox(height: 10),
         PrimaryPillButton(
@@ -536,15 +504,15 @@ class GameplayView extends ConsumerWidget {
   /// Paleta de comandos derivada de `availableBlockTypesForWorld` — Mundos 1
   /// ("Primeiros passos") e 3 ("Desenho no Tabuleiro") continuam com os
   /// mesmos 4 comandos básicos; Mundo 2 ("Resgate de Personagens") ganha o
-  /// bloco condicional de resgate (`rescueIfCharacterHere`), 5 no total. 3
-  /// colunas quando há mais de 4 comandos para caberem 2 linhas sem
-  /// espremer — mesmo critério já usado por outros motores com 5-6
-  /// comandos.
+  /// bloco condicional de resgate (`rescueIfCharacterHere`), 5 no total.
+  /// Todos os comandos ficam lado a lado numa única linha (uma coluna por
+  /// comando), com botões compactos — a paleta é fixa no rodapé, então quanto
+  /// menos altura ela ocupa, mais sobra para o tabuleiro e "Seu Programa".
   Widget _buildCommandGrid(GameplayState state, GameplayViewModel notifier) {
     final availableTypes = availableBlockTypesForWorld(state.level.world);
     return CommandButtonGrid(
-      crossAxisCount: availableTypes.length > 4 ? 3 : 4,
-      maxCellHeight: 100,
+      crossAxisCount: availableTypes.length,
+      maxCellHeight: 72,
       buttons: [
         for (final type in availableTypes) _commandButtonFor(type, notifier),
       ],
@@ -583,6 +551,121 @@ class GameplayView extends ConsumerWidget {
       // ver `.claude/memory/decisions.md`.
       icon: style.icon(programBlockChipIconSize),
       showLabel: false,
+    );
+  }
+}
+
+/// Cabeçalho ("SEU PROGRAMA" + LIMPAR), abas Cards/Código e a caixa com a
+/// visão escolhida. A aba selecionada é estado puramente de apresentação
+/// (some ao sair da tela, não afeta a partida), então mora aqui e não no
+/// `GameplayViewModel`. Começa em Cards — os blocos que o jogador toca vêm
+/// primeiro; o código é uma visão opcional.
+class _ProgramTabs extends StatefulWidget {
+  final Widget cardsView;
+  final List<String> codeLines;
+  final bool running;
+  final VoidCallback onClear;
+
+  const _ProgramTabs({
+    required this.cardsView,
+    required this.codeLines,
+    required this.running,
+    required this.onClear,
+  });
+
+  @override
+  State<_ProgramTabs> createState() => _ProgramTabsState();
+}
+
+class _ProgramTabsState extends State<_ProgramTabs> {
+  static const _tabVerticalPadding = 8.0;
+
+  bool _showCode = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('SEU PROGRAMA', style: AppText.eyebrow(size: 11)),
+            TextButton(
+              onPressed: widget.running ? null : widget.onClear,
+              child: Text('LIMPAR', style: AppText.eyebrow(size: 11)),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: TabToggleButton(
+                key: const Key('programTabCards'),
+                label: 'Cards',
+                selected: !_showCode,
+                verticalPadding: _tabVerticalPadding,
+                onTap: () => setState(() => _showCode = false),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TabToggleButton(
+                key: const Key('programTabCode'),
+                label: 'Código',
+                selected: _showCode,
+                verticalPadding: _tabVerticalPadding,
+                onTap: () => setState(() => _showCode = true),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Container(
+          constraints: const BoxConstraints(minHeight: 66),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            // Fundo roxo escuro só na visão de código (mesmo fundo do antigo
+            // painel "TRADUTOR DE BLOCOS") — o destaque de sintaxe foi
+            // pensado sobre ele.
+            color: _showCode ? AppColors.purpleDark : null,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppColors.grayDashedBorder, width: 3),
+          ),
+          child: _showCode ? _buildCode() : widget.cardsView,
+        ),
+      ],
+    );
+  }
+
+  /// Altura limitada com scroll próprio — Programas grandes (até 8 blocos,
+  /// alguns virando 3 linhas com `Repetir`) não empurram o resto do layout
+  /// pra baixo.
+  Widget _buildCode() {
+    if (widget.codeLines.isEmpty) {
+      return Center(
+        key: const Key('mazeCodeTranslator'),
+        child: Text(
+          '// monte um Programa para ver o código aqui',
+          style: AppText.style(size: 14, weight: FontWeight.w800, color: AppColors.grayLockIcon),
+        ),
+      );
+    }
+    return ConstrainedBox(
+      key: const Key('mazeCodeTranslator'),
+      constraints: const BoxConstraints(maxHeight: 160),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final line in widget.codeLines)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: RichText(text: TextSpan(children: highlightCodeLine(line))),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

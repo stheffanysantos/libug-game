@@ -50,7 +50,7 @@ void main() {
     // fase 12 nunca chega a ser construída e `find.text('12')` não acha
     // nada (mesmo cuidado de `tutorial_flow_test.dart`, `winLastWorld1Level`).
     // Também alta o bastante para a Gameplay (tabuleiro + painel
-    // "Resgatados"/"TRADUTOR DE BLOCOS" + 5 comandos + Play) caber sem
+    // "Resgatados"/abas de "Seu Programa" + 5 comandos + Play) caber sem
     // rolar, já que os toques abaixo não usam `ensureVisible`.
     await tester.binding.setSurfaceSize(const Size(400, 1700));
     addTearDown(() => tester.binding.setSurfaceSize(null));
