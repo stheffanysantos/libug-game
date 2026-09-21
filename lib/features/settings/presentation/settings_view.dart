@@ -25,9 +25,9 @@ import 'profile_edit_view.dart';
 /// pedido explícito do usuário: sem conta, o lápis não aparece (editar
 /// "quem eu sou" sem persistir em lugar nenhum não faz sentido, e essa
 /// escolha só é salva no Firestore da conta via `ProgressNotifier`).
-/// Estando logado, um link "Sair da conta" aparece no fim da tela (não mais
-/// escondido dentro da linha "Conectado como" — pedido explícito do
-/// usuário, ver `.claude/memory/decisions.md`).
+/// Estando logado, um link "Sair da conta" aparece no fim da tela, e o card
+/// "Conta" (com "Criar conta") some — a linha "Conectado como" saiu por
+/// enquanto, a tela está sendo repensada (ver `.claude/memory/decisions.md`).
 ///
 /// Aberta pelo botão de engrenagem da Seleção de Mundo via `Navigator.push`
 /// (era `showDialog`). `ConsumerStatefulWidget` pelo mesmo motivo de antes:
@@ -156,30 +156,33 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          HardShadowBox(
-                            color: AppColors.panel,
-                            shadows: AppShadows.hard(AppColors.black, dy: 4),
-                            borderRadius: BorderRadius.circular(18),
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    hasAccount ? 'Conectado como ${authService.displayName}' : 'Conta',
-                                    style: AppText.style(size: 17, weight: FontWeight.w800, color: AppColors.white),
+                          // Card "Conta" só existe sem conta ("Criar conta").
+                          // Com conta ele ficaria só com o título, sem ação
+                          // nenhuma (a linha "Conectado como" saiu enquanto a
+                          // tela é repensada — ver
+                          // `.claude/memory/decisions.md`); o nome de quem
+                          // está logado continua embaixo do avatar.
+                          if (!hasAccount) ...[
+                            const SizedBox(height: 16),
+                            HardShadowBox(
+                              color: AppColors.panel,
+                              shadows: AppShadows.hard(AppColors.black, dy: 4),
+                              borderRadius: BorderRadius.circular(18),
+                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text('Conta', style: AppText.style(size: 17, weight: FontWeight.w800, color: AppColors.white)),
                                   ),
-                                ),
-                                if (!hasAccount)
                                   GestureDetector(
                                     onTap: () => _openRegister(context),
                                     child: Text('Criar conta', style: AppText.style(size: 15, weight: FontWeight.w900, color: AppColors.lilac)),
                                   ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          // "Sair da conta" — no fim da tela, não mais um
-                          // link pequeno dentro da linha "Conectado como"
+                          ],
+                          // "Sair da conta" — no fim da tela, só com conta
                           // (pedido explícito do usuário, ver
                           // `.claude/memory/decisions.md`).
                           if (hasAccount) ...[
