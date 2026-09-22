@@ -197,21 +197,22 @@ class CodePuzzleGameplayView extends ConsumerWidget {
         ),
         const SizedBox(height: 14),
         Text('LINHAS DISPONÍVEIS', style: AppText.eyebrow(size: 11)),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (var i = 0; i < shuffledLines.length; i++)
-              if (!state.sequenceIndices.contains(i))
-                ProgramBlockChip(
-                  label: shuffledLines[i].text,
-                  background: AppColors.lilac,
-                  foreground: AppColors.purpleDark,
-                  onTap: () => notifier.addToSequence(i),
-                ),
-          ],
-        ),
+        // Um card por linha, na largura toda e com o texto à esquerda —
+        // lê como um trecho de código e dá a mesma área de toque para
+        // linhas curtas (`}`) e longas.
+        for (var i = 0; i < shuffledLines.length; i++)
+          if (!state.sequenceIndices.contains(i))
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: ProgramBlockChip(
+                key: Key('availableLine$i'),
+                label: shuffledLines[i].text,
+                background: AppColors.lilac,
+                foreground: AppColors.purpleDark,
+                fullWidth: true,
+                onTap: () => notifier.addToSequence(i),
+              ),
+            ),
       ],
     );
   }

@@ -44,6 +44,12 @@ class ProgramBlockChip extends StatelessWidget {
   /// um `icon` em `programBlockChipCompactIconSize`.
   final bool compact;
 
+  /// Ocupa toda a largura que recebe, com o conteúdo alinhado à esquerda —
+  /// usado nas linhas de código do Mundo 7 ("LINHAS DISPONÍVEIS"), para
+  /// ficarem empilhadas como num editor. Sem o teto de largura calculado
+  /// pela tela: quem decide a largura é o pai.
+  final bool fullWidth;
+
   const ProgramBlockChip({
     super.key,
     required this.label,
@@ -57,13 +63,14 @@ class ProgramBlockChip extends StatelessWidget {
     this.showLabel = true,
     this.border,
     this.compact = false,
+    this.fullWidth = false,
   });
 
   @override
   Widget build(BuildContext context) {
     // Teto de largura + `label` dentro de `Flexible` (quebra linha em vez
     // de estourar) — sem isso, rótulos curtos (Mundo 1/2: "Andar") sempre
-    // couberam, mas o Mundo 5 reaproveita este chip para uma linha de
+    // couberam, mas o Mundo 7 reaproveita este chip para uma linha de
     // código inteira ("for (int i = 0; i < 3; i++) {"), que sem limite
     // algum estourava o `Wrap` pai (achado do Code Reviewer). Não usa
     // `TextOverflow.ellipsis`/`FittedBox` de propósito — truncar ou
@@ -79,12 +86,12 @@ class ProgramBlockChip extends StatelessWidget {
       constraints: BoxConstraints(
         minHeight: compact ? 30 : 44,
         minWidth: showLabel ? 0 : (compact ? 34 : 44),
-        maxWidth: maxChipWidth,
+        maxWidth: fullWidth ? double.infinity : maxChipWidth,
       ),
       padding: compact
           ? const EdgeInsets.symmetric(horizontal: 4, vertical: 3)
           : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      alignment: Alignment.center,
+      alignment: fullWidth ? Alignment.centerLeft : Alignment.center,
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(compact ? 8 : 12),

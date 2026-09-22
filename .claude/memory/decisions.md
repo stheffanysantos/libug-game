@@ -1520,3 +1520,14 @@ Nenhum `collectibles` cai na célula `start` de sua fase (célula inicial nunca 
 **Por quê:** pedido do usuário (verificar e-mail já existente; nome do login por e-mail sem o domínio). "Senha incorreta." para um e-mail sem conta confundia o jogador.
 
 **Como aplicar:** testes em `test/core/auth/account_display_name_test.dart`. Não foi conferido no console se a proteção contra enumeração de e-mail está ativa no projeto `debugaomascote` — a mensagem nova serve para os dois casos.
+
+---
+
+## 2026-09-22 — Mundo 7: cards de "LINHAS DISPONÍVEIS" na largura toda
+
+**Decisão:** nas fases de reordenar do Mundo 7 ("Modo Debug"), cada linha de "LINHAS DISPONÍVEIS" virou um card na largura toda da área, empilhado, com o texto à esquerda (`_buildReorderContent`, `code_puzzle_gameplay_view.dart`). Antes era um `Wrap` com cards do tamanho do texto. `ProgramBlockChip` ganhou `fullWidth` (sem o teto de largura calculado pela tela, conteúdo alinhado à esquerda); os outros usos do chip não mudam. Linhas longas continuam quebrando, sem corte.
+
+**Por quê:** pedido do usuário. Cards de tamanhos diferentes lado a lado não pareciam código e deixavam linhas curtas (`}`) com área de toque pequena. A tarefa pedia "Mundo 5", mas a seção só existe no Mundo 7 (o último mundo).
+
+**Como aplicar:** a área "SUA SEQUÊNCIA" (código montado pelo jogador) continua com o `Wrap` de cards do tamanho do texto — ficou em aberto na tarefa se ela também deve ir para a largura toda. Teste em `test/features/code_puzzle/available_lines_full_width_test.dart`.
+
