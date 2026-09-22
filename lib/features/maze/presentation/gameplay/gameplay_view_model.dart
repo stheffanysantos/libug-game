@@ -53,6 +53,7 @@ class GameplayViewModel extends _$GameplayViewModel {
 
   void addBlock(BlockType type) {
     if (state.running || state.program.length >= state.level.maxBlocks) return;
+    if (type == BlockType.repeat && !canAddRepeat(state.program, state.level.maxBlocks)) return;
     state = state.copyWith(program: [...state.program, Block(type)]);
   }
 

@@ -1481,3 +1481,15 @@ Nenhum `collectibles` cai na célula `start` de sua fase (célula inicial nunca 
 - Os 12 `hintText` do Mundo 2, o slide do tutorial (`worldTutorials[2]`) e a recapitulação foram reescritos. O texto de narração em `tool/generate_tutorial_narration.py` (`world2_*`, `recap2_0`) foi atualizado, mas **os `.mp3` não foram regerados** (sem `edge-tts` instalado nesta máquina) — rodar `pip install edge-tts` e `python tool/generate_tutorial_narration.py`.
 - Duas perguntas do Mundo 4 (`world4_level7` e `world4_level12`) usavam o bloco como opção. A do nível 7 virou uma pergunta de código sobre `else`; a do nível 12 agora tem `Andar` como resposta certa.
 - `BlockChipStyle.border` foi removido (só o bloco de resgate usava); `availableBlockTypesForWorld` devolve os 4 básicos para qualquer mundo; o flash curto de "passo sem efeito" (`_noEffectFlashDuration`) saiu do `GameplayViewModel`.
+
+---
+
+## 2026-09-22 — `Repetir 3×` fica desabilitado enquanto espera o comando que vai repetir
+
+**Decisão:** nos Mundos 1/2/3 (motor de labirinto), o botão `Repetir 3×` da paleta fica desabilitado (apagado, sem toque) quando o último bloco de "Seu Programa" já é um `Repetir`, ou quando só resta 1 vaga no `maxBlocks`. Volta a ficar habilitado assim que o jogador escolhe outro comando ou apaga o `Repetir`. A regra é a função pura `canAddRepeat` (`lib/game/program_executor.dart`), usada pelo botão (`GameplayView._commandButtonFor`) e por `GameplayViewModel.addBlock`, que recusa o bloco mesmo se a UI deixasse passar.
+
+**Por quê:** pedido explícito do usuário. O jogador tocava `Repetir` várias vezes seguidas sem entender que ele só repete o comando seguinte, e só descobria ao apertar Play. Das duas perguntas em aberto na tarefa, decidi: (1) a última vaga também desabilita o `Repetir`, porque ele ficaria sem comando para repetir; (2) só o visual apagado, sem mensagem ao tocar no botão desabilitado.
+
+**Complemento (mesmo pedido):** em "Seu Programa", o `Repetir 3×` e o comando que ele repete viraram um card só (`_repeatGroup` em `gameplay_view.dart`), do tamanho de um chip comum (1 coluna, mesma altura): "3×" à esquerda e o comando repetido ao lado, na mesma linha, no chip compacto (`ProgramBlockChip(compact: true)`: ícone de 14 px, mínimo 34×30, selo de seta menor). O ícone do `Repetir` não aparece no card — o amarelo e o "3×" já dizem que é repetição, e com ele o card não cabia numa coluna. Sem comando ainda, o card mostra um espaço vazio "?". Quem fica dentro de quem vem de `resolveProgramEntries`, a mesma regra do motor. Tocar no card remove o `Repetir`; tocar no comando de dentro remove só ele. O layout foi ajustado com o usuário em várias rodadas (2 colunas → vertical → em linha). No celular de 390 px o card cabe sem encolher (só o `Virar`, com selo, fica em 94%); no de 320 px ele encolhe para 70–79%.
+
+**Como aplicar:** `CommandButton` ganhou `enabled` (mesmo visual de `PrimaryPillButton`: opacidade reduzida e `onTap` nulo) e perdeu o `border`, que não tinha mais nenhum uso. Testes em `test/game/program_executor_test.dart` (`canAddRepeat`) e `test/features/maze/gameplay_repeat_lock_test.dart`.
