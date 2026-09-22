@@ -61,11 +61,9 @@ class StageSelectView extends ConsumerWidget {
   /// estava) e fecha a tela, sem navegar de novo.
   void _openTutorial(BuildContext context, WidgetRef ref) {
     if (worldTutorials[world.number] == null) return;
-    final content = tutorialSlidesFor(world.number);
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TutorialView(
-        slides: content.slides,
-        narrationAssets: content.narrationAssets,
+        slides: tutorialSlidesFor(world.number),
         onFinish: () {
           ref.read(onboardingProvider.notifier).markSeen(world.number);
           Navigator.of(context).pop();

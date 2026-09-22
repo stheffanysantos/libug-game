@@ -307,7 +307,7 @@ void main() {
 
         await tester.pumpWidget(wrapForTest(
           container,
-          TutorialView(slides: [slideEntry.value], narrationAssets: const [], onFinish: () {}),
+          TutorialView(slides: [slideEntry.value], onFinish: () {}),
         ));
         await tester.pump();
         // Texto completo revelado na hora (sem esperar a máquina de

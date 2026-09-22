@@ -58,7 +58,6 @@ class WelcomeView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return TutorialView(
       slides: welcomeSlides,
-      narrationAssets: const [],
       onFinish: () => _finish(context, ref),
       finalActionsBuilder: (context) => _AccountChoices(
         onCreateAccount: () => _openRegister(context, ref, AuthMode.register),

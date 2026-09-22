@@ -41,11 +41,9 @@ void _onResultPrimaryAction(BuildContext context, WidgetRef ref, CompleteCodeRes
     return;
   }
   if (data.worldJustCompleted && !ref.read(onboardingProvider).hasSeenRecap(data.worldNumber)) {
-    final recap = recapSlidesFor(data.worldNumber);
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TutorialView(
-        slides: recap.slides,
-        narrationAssets: recap.narrationAssets,
+        slides: recapSlidesFor(data.worldNumber),
         finalLabel: 'Concluir',
         onFinish: () {
           ref.read(onboardingProvider.notifier).markRecapSeen(data.worldNumber);

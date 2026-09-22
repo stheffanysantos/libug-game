@@ -136,11 +136,9 @@ void _onVictoryPrimaryAction(BuildContext context, WidgetRef ref, GameplayVictor
     return;
   }
   if (data.worldJustCompleted && !ref.read(onboardingProvider).hasSeenRecap(data.worldNumber)) {
-    final recap = recapSlidesFor(data.worldNumber);
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TutorialView(
-        slides: recap.slides,
-        narrationAssets: recap.narrationAssets,
+        slides: recapSlidesFor(data.worldNumber),
         finalLabel: 'Continuar',
         onFinish: () {
           ref.read(onboardingProvider.notifier).markRecapSeen(data.worldNumber);

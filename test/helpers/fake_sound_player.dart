@@ -6,15 +6,8 @@ import 'package:debuga_o_mascote/core/audio/sound_player.dart';
 class FakeSoundPlayer implements SoundPlayer {
   final List<String> playedAssets = [];
 
-  bool stopped = false;
-
   @override
   Future<void> play(String assetPath) async {
     playedAssets.add(assetPath);
-  }
-
-  @override
-  Future<void> stop() async {
-    stopped = true;
   }
 }

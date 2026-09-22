@@ -137,11 +137,9 @@ class WorldSelectView extends ConsumerWidget {
       _openWorld(context, world);
       return;
     }
-    final content = tutorialSlidesFor(world.number);
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TutorialView(
-        slides: content.slides,
-        narrationAssets: content.narrationAssets,
+        slides: tutorialSlidesFor(world.number),
         onFinish: () {
           onboardingNotifier.markSeen(world.number);
           Navigator.of(context).pop();

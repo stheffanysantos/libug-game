@@ -58,21 +58,6 @@ class AppSoundsService {
     unawaited(_vibrate(HapticFeedback.lightImpact));
   }
 
-  /// Narração de um slide da `TutorialView` — `assetPath` relativo a
-  /// `assets/audio/` (ex.: `'tutorial/intro_0.mp3'`).
-  Future<void> playNarration(String assetPath) => _play(assetPath);
-
-  /// Interrompe a narração em andamento — chamado ao "Pular"/terminar o
-  /// Tutorial, senão o áudio do slide atual continua tocando por cima da
-  /// tela seguinte (achado real do usuário).
-  Future<void> stopNarration() async {
-    try {
-      await _player.stop();
-    } catch (_) {
-      // Idem — áudio nunca pode derrubar o fluxo.
-    }
-  }
-
   Future<void> _play(String assetPath) async {
     if (_muted) return;
     try {

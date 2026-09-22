@@ -4,9 +4,4 @@
 abstract class SoundPlayer {
   /// `assetPath` é relativo a `assets/audio/` (ex.: `'walk.wav'`).
   Future<void> play(String assetPath);
-
-  /// Interrompe o áudio em andamento, se houver — usado hoje só pela
-  /// narração do Tutorial (`AppSoundsService.stopNarration`), que pode
-  /// continuar tocando depois que o jogador já saiu da tela (ex.: "Pular").
-  Future<void> stop();
 }
