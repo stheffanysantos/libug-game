@@ -132,9 +132,6 @@ flutter:
     # Rostinho da Lili (closeup, substitui assets/images/mascot.png como
     # avatar de perfil) + 3 personagens novos (Bit, Chip, Loopy), gerados
     # por IA a partir de prompt do usuário — ver .claude/memory/decisions.md.
-    - assets/audio/tutorial/
-    # Narração gravada por slide do tutorial (TutorialScreen) — gerada por
-    # tool/generate_tutorial_narration.py, ver .claude/memory/decisions.md.
     - assets/audio/walk.wav
     - assets/audio/turn.wav
     - assets/audio/play.wav

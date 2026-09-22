@@ -53,7 +53,7 @@ lib/
     audio/
       sound_player.dart             # interface SoundPlayer — permite fake nos testes
       audioplayers_sound_player.dart # implementação real (package:audioplayers)
-      audio_providers.dart          # soundPlayerProvider, mutedProvider (Muted notifier), appSoundsProvider (AppSoundsService — walk/turn/run/victory/failure/playNarration)
+      audio_providers.dart          # soundPlayerProvider, mutedProvider (Muted notifier), appSoundsProvider (AppSoundsService — walk/turn/run/victory/failure)
 
   features/                        # um diretório por mundo de jogo ou tela transversal
     maze/presentation/{gameplay,stage_select}/          # Mundo 1 (labirinto) — vertical de referência da migração
@@ -111,7 +111,6 @@ lib/
 
 tool/
   generate_sfx.py                   # gera os 5 .wav de assets/audio/ por síntese (placeholder, ver .claude/memory/decisions.md)
-  generate_tutorial_narration.py    # gera assets/audio/tutorial/*.mp3 via edge-tts (voz neural pt-BR-FranciscaNeural), ver .claude/memory/decisions.md
 
 test/
   widget_test.dart                  # smoke test da Splash (via DebugaOMascoteApp/main.dart)

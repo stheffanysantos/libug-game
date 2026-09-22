@@ -1493,3 +1493,16 @@ Nenhum `collectibles` cai na célula `start` de sua fase (célula inicial nunca 
 **Complemento (mesmo pedido):** em "Seu Programa", o `Repetir 3×` e o comando que ele repete viraram um card só (`_repeatGroup` em `gameplay_view.dart`), do tamanho de um chip comum (1 coluna, mesma altura): "3×" à esquerda e o comando repetido ao lado, na mesma linha, no chip compacto (`ProgramBlockChip(compact: true)`: ícone de 14 px, mínimo 34×30, selo de seta menor). O ícone do `Repetir` não aparece no card — o amarelo e o "3×" já dizem que é repetição, e com ele o card não cabia numa coluna. Sem comando ainda, o card mostra um espaço vazio "?". Quem fica dentro de quem vem de `resolveProgramEntries`, a mesma regra do motor. Tocar no card remove o `Repetir`; tocar no comando de dentro remove só ele. O layout foi ajustado com o usuário em várias rodadas (2 colunas → vertical → em linha). No celular de 390 px o card cabe sem encolher (só o `Virar`, com selo, fica em 94%); no de 320 px ele encolhe para 70–79%.
 
 **Como aplicar:** `CommandButton` ganhou `enabled` (mesmo visual de `PrimaryPillButton`: opacidade reduzida e `onTap` nulo) e perdeu o `border`, que não tinha mais nenhum uso. Testes em `test/game/program_executor_test.dart` (`canAddRepeat`) e `test/features/maze/gameplay_repeat_lock_test.dart`.
+
+---
+
+## 2026-09-22 — Narração em voz dos tutoriais removida
+
+**Decisão:** os tutoriais de cada Mundo e as recapitulações de fim de Mundo (`TutorialView`) não tocam mais narração em áudio. Os slides continuam iguais (arte, título, texto em máquina de escrever, "Próximo"/"Pular"). Os efeitos sonoros do jogo (andar, virar, play, vitória, falha) continuam.
+
+**Por quê:** pedido explícito do usuário. A narração já estava dessincronizada do texto em vários slides (os áudios do Mundo 2 ainda falavam da antiga "Esteira"), e regerar a cada mudança de texto dependia de ferramenta externa (`edge-tts`) e internet.
+
+**Como aplicar:**
+- Removidos: `assets/audio/tutorial/` (40 `.mp3`, ~1,5 MB) e a linha no `pubspec.yaml`; `tool/generate_tutorial_narration.py`; `AppSoundsService.playNarration`/`stopNarration`; `SoundPlayer.stop()` (só a narração usava).
+- `tutorialSlidesFor`/`recapSlidesFor` (`lib/widgets/tutorial_content.dart`) devolvem só a lista de slides; `TutorialView` perdeu o parâmetro `narrationAssets` e virou `StatefulWidget` comum (não usava mais o Riverpod).
+- As entradas anteriores deste arquivo que falam da narração (SAPI/`edge-tts`, "narração continuava tocando depois de Pular") ficam como histórico.
