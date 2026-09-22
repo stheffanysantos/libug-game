@@ -1543,3 +1543,17 @@ Nenhum `collectibles` cai na célula `start` de sua fase (célula inicial nunca 
 
 **Como aplicar:** testes em `test/core/progress/record_level_win_usecase_test.dart` (grupo "rejogar uma fase já concluída"), um rejogando pior e outro rejogando melhor. Conferido que falham se `recordWin` sobrescrever o resultado ou se os pontos de sessão forem somados em toda vitória. Fora do escopo "rejogar" (não corrigido): `FirebaseLeaderboardRepository.submit` grava a pontuação enviada sem comparar com a já salva — se um aparelho enviar uma `sessionScore` menor antes de hidratar o progresso da conta, o Placar pode baixar.
 
+---
+
+## 2026-09-22 — Placar Geral nunca regride (issue #28)
+
+**Decisão:** a entrada de um jogador no Placar Geral (`scores/{uid}`) não pode mais baixar a pontuação nem "des-zerar" o jogo por causa de um envio com valores antigos.
+- Regra pura `mergeLeaderboardEntries` (`lib/models/leaderboard_entry.dart`): pontuação = maior entre a salva e a enviada; `gameCompleted` fica `true` se já estava; `completedAt` mantém a data da 1ª vez; nome, avatar, idade e `updatedAt` vêm do envio mais novo.
+- `FirebaseLeaderboardRepository.submit` lê e grava numa transação (`runTransaction`) aplicando essa regra — dois aparelhos da mesma conta não se atropelam. Documento salvo ilegível (formato antigo) conta como inexistente. Sem internet a transação falha e o envio se perde (antes o `set` ficava na fila offline do Firestore); a próxima vitória reenvia.
+- `LocalLeaderboardRepository` e o `FakeLeaderboardRepository` dos testes usam a mesma regra.
+- `firestore.rules`, em `scores/{uid}`: `create` como antes; `update` só se `score` não diminuir e se não tirar `gameCompleted` de quem já zerou (`resource.data.get(...)` com padrão, para documentos antigos sem esses campos).
+
+**Por quê:** issue #28, risco achado na validação da #6: um aparelho que ainda não carregou o progresso da conta (`ProgressNotifier._hydrate`) podia enviar uma `sessionScore` menor, e o `set(merge: true)` gravava por cima.
+
+**Como aplicar:** testes em `test/core/leaderboard/leaderboard_never_regresses_test.dart`. **As regras só valem depois de publicadas** (`firebase deploy --only firestore:rules --project debugaomascote`, exige `firebase login`); não foram publicadas nem validadas pela CLI nesta sessão (CLI sem login). Sem o deploy, a proteção vem só do app.
+
