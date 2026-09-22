@@ -99,12 +99,12 @@ void main() {
   testWidgets('com conta, não mostra "Conectado como" nem o card "Conta"; mostra o nome sob o avatar, o lápis e "Sair da conta"', (tester) async {
     await pumpWorldSelectAndOpenSettings(
       tester,
-      overrides: [authServiceProvider.overrideWithValue(FakeAuthService(hasAccount: true, displayName: 'ana@example.com'))],
+      overrides: [authServiceProvider.overrideWithValue(FakeAuthService(hasAccount: true, displayName: 'ana'))],
     );
 
     expect(find.textContaining('Conectado como'), findsNothing);
     expect(find.text('Conta'), findsNothing, reason: 'sem ação dentro, o card "Conta" só existe sem conta');
-    expect(find.text('ana@example.com'), findsOneWidget, reason: 'o nome sob o avatar continua sendo a indicação de quem está logado');
+    expect(find.text('ana'), findsOneWidget, reason: 'o nome sob o avatar continua sendo a indicação de quem está logado');
     expect(find.text('Criar conta'), findsNothing);
     expect(find.byIcon(Icons.edit), findsOneWidget);
     expect(find.text('Sair da conta'), findsOneWidget);
@@ -113,7 +113,7 @@ void main() {
   testWidgets('"Sair da conta" sai da conta e zera o progresso local', (tester) async {
     final container = await pumpWorldSelectAndOpenSettings(
       tester,
-      overrides: [authServiceProvider.overrideWithValue(FakeAuthService(hasAccount: true, displayName: 'ana@example.com'))],
+      overrides: [authServiceProvider.overrideWithValue(FakeAuthService(hasAccount: true, displayName: 'ana'))],
     );
     container.read(progressProvider.notifier).addSessionPoints(300);
     expect(container.read(progressProvider).sessionScore, 300);
