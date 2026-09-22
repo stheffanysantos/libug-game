@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../game/leaderboard_scoring.dart';
@@ -40,8 +39,8 @@ class RecordLevelWinUseCase {
     required int blocksUsedOrAttempts,
     required int elapsedSeconds,
   }) {
-    final progressNotifier = _ref.read(progressNotifierProvider.notifier);
-    final progressBefore = _ref.read(progressNotifierProvider);
+    final progressNotifier = _ref.read(progressProvider.notifier);
+    final progressBefore = _ref.read(progressProvider);
     final levelIds = world.levels.map((l) => l.id);
     // Calculado antes de `recordWin` marcar esta fase como concluída — só
     // assim dá pra saber se o Mundo/o jogo acabou de ficar 100% completo
@@ -55,7 +54,7 @@ class RecordLevelWinUseCase {
       progressNotifier.addSessionPoints(computeSessionPoints(worldNumber: world.number, elapsedSeconds: elapsedSeconds));
     }
 
-    final progressAfter = _ref.read(progressNotifierProvider);
+    final progressAfter = _ref.read(progressProvider);
     final worldJustCompleted = !wasWorldCompleteBefore && progressAfter.isWorldCompleted(levelIds);
     // "Zerar o jogo" (100% das 2 Trilhas) tira o jogador do Placar Geral e
     // coloca na lista separada de quem zerou — pedido explícito do usuário,

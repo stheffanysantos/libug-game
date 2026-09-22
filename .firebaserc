@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "debugaomascote"
+    "default": "debugaomascote",
+    "prod": "debugaomascote",
+    "dev": "debugaomascote-dev"
   }
 }

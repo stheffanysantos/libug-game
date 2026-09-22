@@ -50,15 +50,13 @@ void _onResultPrimaryAction(BuildContext context, WidgetRef ref, CodePuzzleGamep
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => CodePuzzleGameplayView(levelId: data.nextLevel!.id)));
     return;
   }
-  if (data.worldJustCompleted && !ref.read(onboardingNotifierProvider).hasSeenRecap(data.worldNumber)) {
-    final recap = recapSlidesFor(data.worldNumber);
+  if (data.worldJustCompleted && !ref.read(onboardingProvider).hasSeenRecap(data.worldNumber)) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TutorialView(
-        slides: recap.slides,
-        narrationAssets: recap.narrationAssets,
+        slides: recapSlidesFor(data.worldNumber),
         finalLabel: 'Concluir',
         onFinish: () {
-          ref.read(onboardingNotifierProvider.notifier).markRecapSeen(data.worldNumber);
+          ref.read(onboardingProvider.notifier).markRecapSeen(data.worldNumber);
           _returnToLevelSelect(context, ref, worldNumber: data.worldNumber, worldJustCompleted: data.worldJustCompleted);
         },
       ),
@@ -84,12 +82,6 @@ class CodePuzzleGameplayView extends ConsumerWidget {
     notifier.clearEffect();
     switch (effect) {
       case ShowCodePuzzleGameplayResult(:final data):
-        final correctOrderChips = data.correctOrder == null
-            ? null
-            : [
-                for (final line in data.correctOrder!)
-                  ProgramBlockChip(label: line.text, background: AppColors.lilac, foreground: AppColors.purpleDark),
-              ];
         await Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => CodePuzzleResultView(
             won: data.won,
@@ -98,7 +90,7 @@ class CodePuzzleGameplayView extends ConsumerWidget {
             stars: data.stars,
             points: data.points,
             explanationText: data.explanationText,
-            correctOrderChips: correctOrderChips,
+            hintText: data.hintText,
             hasNext: data.nextLevel != null,
             onPrimaryAction: () => _onResultPrimaryAction(context, ref, data),
             onBackToMenu: () => Navigator.of(context).popUntil((route) => route.settings.name == codePuzzleStageSelectRouteName),
@@ -205,21 +197,22 @@ class CodePuzzleGameplayView extends ConsumerWidget {
         ),
         const SizedBox(height: 14),
         Text('LINHAS DISPONÍVEIS', style: AppText.eyebrow(size: 11)),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (var i = 0; i < shuffledLines.length; i++)
-              if (!state.sequenceIndices.contains(i))
-                ProgramBlockChip(
-                  label: shuffledLines[i].text,
-                  background: AppColors.lilac,
-                  foreground: AppColors.purpleDark,
-                  onTap: () => notifier.addToSequence(i),
-                ),
-          ],
-        ),
+        // Um card por linha, na largura toda e com o texto à esquerda —
+        // lê como um trecho de código e dá a mesma área de toque para
+        // linhas curtas (`}`) e longas.
+        for (var i = 0; i < shuffledLines.length; i++)
+          if (!state.sequenceIndices.contains(i))
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: ProgramBlockChip(
+                key: Key('availableLine$i'),
+                label: shuffledLines[i].text,
+                background: AppColors.lilac,
+                foreground: AppColors.purpleDark,
+                fullWidth: true,
+                onTap: () => notifier.addToSequence(i),
+              ),
+            ),
       ],
     );
   }

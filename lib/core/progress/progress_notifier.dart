@@ -85,6 +85,16 @@ class ProgressNotifier extends _$ProgressNotifier {
     _syncNow();
   }
 
+  /// Marca que esta conta já viu as boas-vindas — sincronizado por conta no
+  /// Firestore (`players/{uid}`), complementando o `seenWelcome` local do
+  /// `shared_preferences` que é volátil na web. Idempotente: se já está
+  /// `true`, não regrava (mesmo espírito de `markGameCompleted`).
+  void markWelcomeSeen() {
+    if (state.seenWelcome) return;
+    state = state.copyWith(seenWelcome: true);
+    _syncNow();
+  }
+
   /// Registra o resultado de uma vitória, mantendo o melhor resultado já
   /// obtido (mais estrelas, menos blocos, mais pontos) se a fase já tinha
   /// sido vencida.

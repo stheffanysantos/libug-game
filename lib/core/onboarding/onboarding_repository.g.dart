@@ -6,23 +6,53 @@ part of 'onboarding_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(onboardingRepository)
+const onboardingRepositoryProvider = OnboardingRepositoryProvider._();
+
+final class OnboardingRepositoryProvider
+    extends
+        $FunctionalProvider<
+          OnboardingRepository,
+          OnboardingRepository,
+          OnboardingRepository
+        >
+    with $Provider<OnboardingRepository> {
+  const OnboardingRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'onboardingRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$onboardingRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<OnboardingRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  OnboardingRepository create(Ref ref) {
+    return onboardingRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(OnboardingRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<OnboardingRepository>(value),
+    );
+  }
+}
+
 String _$onboardingRepositoryHash() =>
     r'a33bdfe33b800da127863bc9edeee119b7148d76';
-
-/// See also [onboardingRepository].
-@ProviderFor(onboardingRepository)
-final onboardingRepositoryProvider = Provider<OnboardingRepository>.internal(
-  onboardingRepository,
-  name: r'onboardingRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$onboardingRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef OnboardingRepositoryRef = ProviderRef<OnboardingRepository>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

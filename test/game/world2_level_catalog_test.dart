@@ -64,4 +64,11 @@ void main() {
       },
     );
   }
+
+  test('toda fase de world2Levels tem dica escrita (hintText) curta', () {
+    for (final level in world2Levels) {
+      expect(level.hintText.trim(), isNotEmpty, reason: '${level.id} está sem hintText');
+      expect(level.hintText.length, lessThanOrEqualTo(100), reason: '${level.id}: a dica deve ser curta, não a resposta');
+    }
+  });
 }

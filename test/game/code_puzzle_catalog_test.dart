@@ -67,4 +67,15 @@ void main() {
     final secondHalf = world7Levels.skip(6);
     expect(secondHalf.any((l) => l.type == CodePuzzleType.findBug), isTrue);
   });
+
+  test('toda fase reorder de world7Levels tem dica escrita curta; findBug não usa hintText', () {
+    for (final level in world7Levels) {
+      if (level.type == CodePuzzleType.reorder) {
+        expect(level.hintText.trim(), isNotEmpty, reason: '${level.id} está sem hintText');
+        expect(level.hintText.length, lessThanOrEqualTo(100), reason: '${level.id}: a dica deve ser curta, não a resposta');
+      } else {
+        expect(level.hintText, isEmpty, reason: '${level.id}: findBug explica pelo bugExplanation');
+      }
+    }
+  });
 }
