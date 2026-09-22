@@ -74,10 +74,9 @@ class Level implements GameLevel {
   /// modelo) — só Mundo 2 ("Resgate de Personagens"), desde que o Mundo 3
   /// trocou de mecânica para "Desenho no Tabuleiro" (ver `paintTarget`
   /// abaixo e `.claude/memory/decisions.md`, entrada de 2026-09-18). Vazio
-  /// (default) em fases sem personagem perdido. O bloco
-  /// `BlockType.rescueIfCharacterHere` é a única forma de resgatar (andar
-  /// por cima não basta mais — ver `.claude/memory/decisions.md`, entrada
-  /// de 2026-09-18, "Mundo 2 v4").
+  /// (default) em fases sem personagem perdido. `Andar` até a casa resgata
+  /// o personagem automaticamente — ver `.claude/memory/decisions.md`,
+  /// entrada de 2026-09-22.
   final Set<GridPosition> collectibles;
 
   /// Quantos personagens o jogador precisa ter resgatado ao chegar no
@@ -418,34 +417,18 @@ final world1Levels = <Level>[
 /// instância de `world1Levels[5]` ("Fase 6").
 final demoLevel = world1Levels[5];
 
-/// As 12 fases do Mundo 2 ("Resgate de Personagens"): mesmo motor do Mundo 1
-/// (`Level`/`ProgramExecutor`), acrescentando **decisão** (`Se`) via
-/// personagens perdidos nas células (`collectibles`/`collectTarget`) — o
-/// jogador precisa usar o bloco condicional `rescueIfCharacterHere` (em
-/// geral combinado com `Repetir 3×`) para resgatar quem está no caminho.
-/// Substitui a antiga mecânica de Placa colorida (`Level.signs`/
-/// `SignColor`, `turnLeftIfYellow`/`turnRightIfPurple`) — ver
-/// `.claude/memory/decisions.md`, entrada de 2026-09-18 ("Mundo 2 v4").
-///
-/// `Andar` nunca resgata por si só (só `rescueIfCharacterHere` resgata, e só
-/// na célula em que ele entra) — por isso todo `collectibles` abaixo cai
-/// numa célula visitada por um bloco `rescueIfCharacterHere` no
-/// `hintProgram` (nunca na célula `start`, que não é alcançada por nenhum
-/// bloco). Progressão: Fase 1 já combina 1 corredor de resgate com
-/// `Repetir 3×` **e** uma virada de verdade (pedido explícito do usuário —
-/// "um pouco mais difícil" que um primeiro contato isolado, mesmo padrão já
-/// usado ao redesenhar os Mundos 1/3); Fases 2-4 isolam o conceito num único
-/// corredor de 3 células (via `Repetir 3× + rescueIfCharacterHere`) com
-/// personagens espalhados de forma irregular (nem toda célula do corredor
-/// tem um); Fases 5-9 encadeiam 2 corredores em sequência, com uma virada
-/// entre eles; Fases 10-12 encadeiam 2 corredores **e** um resgate solto
-/// (fora de `Repetir`) no mesmo Programa, preenchendo exatamente os 8
-/// blocos do `maxBlocks` — as 3 fases mais difíceis do mundo, sem espaço pra
-/// errar, com a Fase 12 sendo a mais densa (todas as 3 células do 2º
-/// corredor têm personagem). `maxBlocks: 8` constante em todas (convenção
-/// do projeto). Dados verificados em `test/game/world2_level_catalog_test.dart`.
-/// Ver `.claude/docs/GAME_DESIGN.md` e `.claude/memory/decisions.md`
-/// (entrada de 2026-09-18).
+/// As 12 fases do Mundo 2 ("Resgate de Personagens"): mesmo motor e mesmos
+/// 4 blocos do Mundo 1 (`Level`/`ProgramExecutor`), com personagens perdidos
+/// nas células (`collectibles`/`collectTarget`). `Andar` até a casa de um
+/// personagem resgata ele automaticamente; o desafio é planejar um caminho
+/// que passe por todos e termine no alvo com a contagem certa. Nenhum
+/// `collectibles` cai na célula `start` (ela nunca é alcançada por `Andar`).
+/// Progressão: Fase 1 já combina 1 corredor com `Repetir 3×` e uma virada;
+/// Fases 2-4 isolam um único corredor; Fases 5-9 encadeiam 2 corredores com
+/// virada entre eles; Fases 10-12 somam um personagem fora dos corredores,
+/// preenchendo os 8 blocos do `maxBlocks`. Dados verificados em
+/// `test/game/world2_level_catalog_test.dart`. Ver `.claude/docs/GAME_DESIGN.md`
+/// e `.claude/memory/decisions.md` (entradas de 2026-09-18 e 2026-09-22).
 final world2Levels = <Level>[
   Level(
     id: 'world2_level1',
@@ -459,10 +442,10 @@ final world2Levels = <Level>[
     goal: const GridPosition(3, 2),
     maxBlocks: 8,
     optimalBlocks: 5,
-    hintText: 'O resgate também anda uma casa e só resgata se houver alguém ali. Repetir cobre o corredor.',
+    hintText: 'Quem estiver no seu caminho é resgatado. Siga o corredor e só depois vire.',
     hintProgram: const [
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnRight),
       Block(BlockType.walk),
       Block(BlockType.walk),
@@ -482,10 +465,10 @@ final world2Levels = <Level>[
     goal: const GridPosition(4, 0),
     maxBlocks: 8,
     optimalBlocks: 3,
-    hintText: 'Combine Repetir com o resgate para percorrer o corredor de uma vez.',
+    hintText: 'Repetir com Andar percorre o corredor inteiro de uma vez.',
     hintProgram: const [
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.walk),
     ],
     collectibles: {GridPosition(1, 0), GridPosition(3, 0)},
@@ -503,10 +486,10 @@ final world2Levels = <Level>[
     goal: const GridPosition(4, 5),
     maxBlocks: 8,
     optimalBlocks: 3,
-    hintText: 'Mesma ideia da fase anterior: Repetir com o resgate resolve o corredor.',
+    hintText: 'Mesma ideia da fase anterior: Repetir com Andar resolve o corredor.',
     hintProgram: const [
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.walk),
     ],
     collectibles: {GridPosition(1, 5), GridPosition(3, 5)},
@@ -524,10 +507,10 @@ final world2Levels = <Level>[
     goal: const GridPosition(0, 4),
     maxBlocks: 8,
     optimalBlocks: 3,
-    hintText: 'O resgate funciona em qualquer direção, inclusive descendo.',
+    hintText: 'Andar resgata em qualquer direção, inclusive descendo.',
     hintProgram: const [
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.walk),
     ],
     collectibles: {GridPosition(0, 2)},
@@ -545,13 +528,13 @@ final world2Levels = <Level>[
     goal: const GridPosition(3, 3),
     maxBlocks: 8,
     optimalBlocks: 5,
-    hintText: 'São dois corredores: resgate no primeiro, vire e resgate no segundo.',
+    hintText: 'São dois corredores: percorra o primeiro, vire e percorra o segundo.',
     hintProgram: const [
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnRight),
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
     ],
     collectibles: {
       GridPosition(1, 0),
@@ -576,10 +559,10 @@ final world2Levels = <Level>[
     hintText: 'Dois corredores de novo, mas a curva agora é para cima.',
     hintProgram: const [
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnLeft),
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
     ],
     collectibles: {
       GridPosition(2, 5),
@@ -603,10 +586,10 @@ final world2Levels = <Level>[
     hintText: 'Depois dos dois corredores, ainda falta um trecho até o alvo.',
     hintProgram: const [
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnRight),
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnLeft),
       Block(BlockType.walk),
     ],
@@ -632,10 +615,10 @@ final world2Levels = <Level>[
     hintText: 'Parecido com a fase anterior, só que espelhado.',
     hintProgram: const [
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnLeft),
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnRight),
       Block(BlockType.walk),
     ],
@@ -658,13 +641,13 @@ final world2Levels = <Level>[
     goal: const GridPosition(3, 4),
     maxBlocks: 8,
     optimalBlocks: 6,
-    hintText: 'O último passo até o alvo não precisa resgatar ninguém.',
+    hintText: 'Depois do segundo corredor ainda falta andar um pouco até o alvo.',
     hintProgram: const [
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnRight),
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.walk),
     ],
     collectibles: {
@@ -686,15 +669,15 @@ final world2Levels = <Level>[
     goal: const GridPosition(5, 3),
     maxBlocks: 8,
     optimalBlocks: 8,
-    hintText: 'Um personagem fica fora dos corredores. Resgate esse sozinho, sem Repetir.',
+    hintText: 'Um personagem fica fora dos corredores. Um Andar solto chega até ele.',
     hintProgram: const [
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnRight),
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnLeft),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.walk),
     ],
     collectibles: {
@@ -718,15 +701,15 @@ final world2Levels = <Level>[
     goal: const GridPosition(5, 2),
     maxBlocks: 8,
     optimalBlocks: 8,
-    hintText: 'Tem um personagem fora dos corredores. Um resgate solto pega ele.',
+    hintText: 'Tem um personagem fora dos corredores. Não esqueça de passar por ele.',
     hintProgram: const [
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnLeft),
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnRight),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.walk),
     ],
     collectibles: {
@@ -752,12 +735,12 @@ final world2Levels = <Level>[
     hintText: 'Quase toda casa do caminho tem alguém. Não deixe nenhuma passar.',
     hintProgram: const [
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnLeft),
       Block(BlockType.repeat),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.turnRight),
-      Block(BlockType.rescueIfCharacterHere),
+      Block(BlockType.walk),
       Block(BlockType.walk),
     ],
     collectibles: {

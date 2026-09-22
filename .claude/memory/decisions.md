@@ -1467,3 +1467,17 @@ Nenhum `collectibles` cai na célula `start` de sua fase (célula inicial nunca 
 **Por quê:** pedido explícito da tarefa — os chips da solução ocupavam muito espaço na tela de falha (já precisavam de `ProgramChipGrid` com 2 colunas para não estourar) e entregavam a resposta pronta, em vez de orientar. Uma dica é "como passar", não "a resposta".
 
 **Como aplicar:** `hintProgram` continua no `Level` porque os testes de catálogo o usam para provar que cada fase é solucionável, mas não vai mais para a UI. Fase nova precisa de `hintText` (o compilador obriga em `Level` e em `CodePuzzleLevel.reorder`), com no máximo 100 caracteres e sem dar a sequência exata — os testes de catálogo (`level_catalog_test`, `world2_level_catalog_test`, `world3_level_catalog_test`, `code_puzzle_catalog_test`) conferem preenchimento e tamanho. As 44 frases são um primeiro rascunho, pensadas para revisão de conteúdo. **Escopo:** Mundo 4 ("Missão de Código"), Mundo 5 ("Preveja a Saída"), Mundo 6 ("Complete o Código") e as fases `findBug` do Mundo 7 nunca tiveram dica em blocos — hoje explicam o resultado por texto (`explanation`/`bugExplanation`) — e não foram alteradas; se for desejada uma dica escrita também neles, é um campo novo por modelo, fora desta mudança.
+
+---
+
+## 2026-09-22 — Mundo 2: resgate automático ao `Andar`; bloco "Se tiver, resgate" removido (issue #10)
+
+**Decisão:** o bloco `BlockType.rescueIfCharacterHere` ("Se tiver um personagem aqui, resgate") saiu do jogo. Agora `Andar` resgata automaticamente o personagem perdido da casa onde chega, só na 1ª visita àquela casa (`ProgramExecutor.applyStep`, caso `walk`). O Mundo 2 passa a ter os mesmos 4 blocos dos Mundos 1 e 3, e o desafio vira planejar um caminho que passe por todos os personagens e termine no Alvo com a contagem certa (`collectTarget`/`GameOutcome.wrongCollectCount` continuam iguais).
+
+**Por quê:** issue #10. O bloco sempre andava 1 casa **e** resgatava, então o nome não batia com o comportamento e o jogador não entendia por que o mascote se movia. Foram apresentadas 4 opções ao usuário (renomear; separar em "Andar" + "Resgatar" parado; resgate automático; `Repetir` com vários blocos dentro). Ele escolheu o resgate automático, sabendo que o mundo perde a ideia de condição ("Se") em troca de ficar óbvio. Isso reverte a regra de 2026-09-18 ("Mundo 2 v4") de que `Andar` não resgatava.
+
+**Como aplicar:**
+- As 12 soluções de `world2Levels` trocaram o bloco de resgate por `Andar`. A geometria das fases não mudou, e uma busca exaustiva confirmou que `optimalBlocks` continua sendo o mínimo em todas.
+- Os 12 `hintText` do Mundo 2, o slide do tutorial (`worldTutorials[2]`) e a recapitulação foram reescritos. O texto de narração em `tool/generate_tutorial_narration.py` (`world2_*`, `recap2_0`) foi atualizado, mas **os `.mp3` não foram regerados** (sem `edge-tts` instalado nesta máquina) — rodar `pip install edge-tts` e `python tool/generate_tutorial_narration.py`.
+- Duas perguntas do Mundo 4 (`world4_level7` e `world4_level12`) usavam o bloco como opção. A do nível 7 virou uma pergunta de código sobre `else`; a do nível 12 agora tem `Andar` como resposta certa.
+- `BlockChipStyle.border` foi removido (só o bloco de resgate usava); `availableBlockTypesForWorld` devolve os 4 básicos para qualquer mundo; o flash curto de "passo sem efeito" (`_noEffectFlashDuration`) saiu do `GameplayViewModel`.

@@ -488,10 +488,8 @@ class GameplayView extends ConsumerWidget {
     );
   }
 
-  /// Paleta de comandos derivada de `availableBlockTypesForWorld` — Mundos 1
-  /// ("Primeiros passos") e 3 ("Desenho no Tabuleiro") continuam com os
-  /// mesmos 4 comandos básicos; Mundo 2 ("Resgate de Personagens") ganha o
-  /// bloco condicional de resgate (`rescueIfCharacterHere`), 5 no total.
+  /// Paleta de comandos derivada de `availableBlockTypesForWorld` — os
+  /// mesmos 4 comandos básicos nos Mundos 1, 2 e 3.
   /// Todos os comandos ficam lado a lado numa única linha (uma coluna por
   /// comando), com botões compactos — a paleta é fixa no rodapé, então quanto
   /// menos altura ela ocupa, mais sobra para o tabuleiro e "Seu Programa".
@@ -517,7 +515,6 @@ class GameplayView extends ConsumerWidget {
       background: style.background,
       foreground: style.foreground,
       shadowColor: style.shadowColor,
-      border: style.border,
       onTap: () => notifier.addBlock(type),
     );
   }
@@ -530,7 +527,6 @@ class GameplayView extends ConsumerWidget {
       foreground: style.foreground,
       repeatCount: style.repeatCount,
       badgeText: style.badgeText,
-      border: style.border,
       highlighted: state.currentStepBlockIndex == index,
       onTap: () => notifier.removeBlockAt(index),
       // "Seu Programa" mostra só o ícone (rótulo continua nos
@@ -666,7 +662,7 @@ class _BoardCell extends StatelessWidget {
   final bool hasCollectible;
 
   /// `true` quando o mascote já resgatou o personagem desta célula nesta
-  /// Execução (via `rescueIfCharacterHere`) — dispara a animação de "poof"
+  /// Execução (`Andar` chegou na casa dele) — dispara a animação de "poof"
   /// (fade + encolher) em vez de o personagem simplesmente desaparecer.
   final bool collected;
 
@@ -759,7 +755,7 @@ class _PaintMarker extends StatelessWidget {
 
 /// Indicador visual de um personagem perdido (Mundo 2, "Resgate de
 /// Personagens") — desaparece com um "poof" (encolher + esmaecer, ~260ms)
-/// quando `rescueIfCharacterHere` resgata de verdade, em vez de só sumir de
+/// quando `Andar` chega na casa dele e o resgata, em vez de só sumir de
 /// repente. `avatarId` cicla entre os personagens do jogo (exceto Lili, o
 /// próprio Mascote) — ver `_avatarIdsForCollectibles`.
 class _CharacterMarker extends StatelessWidget {

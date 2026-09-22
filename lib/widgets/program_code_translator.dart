@@ -40,8 +40,6 @@ String programCodeLineFor(BlockType type) {
       return 'virarEsquerda();';
     case BlockType.turnRight:
       return 'virarDireita();';
-    case BlockType.rescueIfCharacterHere:
-      return 'seTiverPersonagem() { resgatar(); }';
     case BlockType.repeat:
       // Não deveria ocorrer isolado — `programCodeLinesFor` sempre consome
       // `repeat` junto do bloco seguinte antes de chamar esta função para

@@ -48,10 +48,9 @@ class CommandButton extends StatelessWidget {
           final box = math.min(constraints.maxWidth, constraints.maxHeight);
           final iconSize = (box * 0.36).clamp(16.0, 30.0);
           final fontSize = (box * 0.17).clamp(10.0, 14.0);
-          // Rótulos mais longos (ex. "Se tiver, resgate" do Mundo 2, bem mais
-          // longo que "Andar"/"Virar ←" do Mundo 1) quebram em até 2 linhas
-          // em vez de encolher a fonte até ficar ilegível — a grade pode ter
-          // 5 botões lado a lado (células estreitas). O texto não é truncado
+          // Rótulos mais longos que "Andar"/"Virar ←" quebram em até 2
+          // linhas em vez de encolher a fonte até ficar ilegível — a grade
+          // pode ter vários botões lado a lado (células estreitas). O texto não é truncado
           // (nada de reticências): o jogador precisa ler o comando inteiro.
           // A largura fixa do `SizedBox` é o que faz o texto quebrar dentro
           // do `FittedBox`, que só entra como rede de segurança: se ícone +

@@ -179,26 +179,10 @@ class ProgramExecutor {
       case BlockType.walk:
         final destination = _forward(cursor);
         if (destination == null) return StepOutcome(cursor: cursor, crashed: true);
-        return StepOutcome(
-          cursor: cursor.copyWith(
-            x: destination.x,
-            y: destination.y,
-            paintedTiles: {...cursor.paintedTiles, destination},
-          ),
-          crashed: false,
-        );
-      case BlockType.rescueIfCharacterHere:
-        // A ação-base ("andar") sempre acontece, com as mesmas regras de
-        // colisão de `walk` — só o resgate em si (`collectedCount`) é
-        // condicional, nunca a movimentação. Mesmo princípio de
-        // `BlockProgramBlockType.addToTotalIfEven`
-        // (`lib/game/block_program_executor.dart`): a ação-base
-        // ("consumir o próximo número") sempre roda; só o bônus condicional
-        // é que pode não fazer nada. Ver `.claude/memory/decisions.md`,
-        // entrada de 2026-09-18.
-        final destination = _forward(cursor);
-        if (destination == null) return StepOutcome(cursor: cursor, crashed: true);
         final paintedTiles = {...cursor.paintedTiles, destination};
+        // Mundo 2: chegar numa casa com personagem perdido resgata ele
+        // automaticamente, só na 1ª vez que a casa é visitada. Ver
+        // `.claude/memory/decisions.md`, entrada de 2026-09-22.
         if (level.collectibles.contains(destination) &&
             !cursor.collectedTiles.contains(destination)) {
           return StepOutcome(
@@ -228,10 +212,7 @@ class ProgramExecutor {
 
   /// Posição 1 casa na frente do cursor, na direção atual — `null` quando
   /// esse movimento colidiria com uma parede ou saísse do tabuleiro (quem
-  /// chama trata isso como `crashed: true`). Extraído porque `walk` e
-  /// `rescueIfCharacterHere` compartilham exatamente a mesma regra de
-  /// movimento/colisão — só o que acontece depois de chegar na casa de
-  /// destino é diferente.
+  /// chama trata isso como `crashed: true`).
   GridPosition? _forward(GameCursor cursor) {
     final dx = _dx[cursor.direction.index];
     final dy = _dy[cursor.direction.index];

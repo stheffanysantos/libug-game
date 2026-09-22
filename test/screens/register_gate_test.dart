@@ -74,17 +74,16 @@ void main() {
     await tester.pump();
     await pumpTransition(tester);
 
-    // `hintProgram` de `world2_level12`: Repetir 3×, Se tiver resgate,
-    // Virar ←, Repetir 3×, Se tiver resgate, Virar →, Se tiver resgate,
-    // Andar (8 blocos == maxBlocks).
+    // `hintProgram` de `world2_level12`: Repetir 3×, Andar, Virar ←,
+    // Repetir 3×, Andar, Virar →, Andar, Andar (8 blocos == maxBlocks).
     for (final label in [
       'Repetir 3×',
-      'Se tiver, resgate',
+      'Andar',
       'Virar ←',
       'Repetir 3×',
-      'Se tiver, resgate',
+      'Andar',
       'Virar →',
-      'Se tiver, resgate',
+      'Andar',
       'Andar',
     ]) {
       await tester.tap(find.widgetWithText(CommandButton, label));

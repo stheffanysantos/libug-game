@@ -67,7 +67,7 @@ const worldTutorials = <int, List<TutorialSlide>>{
     TutorialSlide(title: 'Como jogar: Resgate de Personagens', body: 'Vamos aprender rapidinho:'),
     TutorialSlide(body: 'Pelo caminho tem personagens perdidos — Bit, Chip, Loopy e Libug estão esperando por você!'),
     TutorialSlide(
-      body: "O bloco 'Se tiver, resgate' anda 1 casa e resgata quem estiver lá — combine com Repetir 3× pra resgatar um corredor inteiro de uma vez, sem precisar saber exatamente onde cada um está.",
+      body: 'Pra resgatar alguém, é só Andar até a casa dele. Planeje um caminho que passe por todos até chegar no alvo.',
     ),
     TutorialSlide(body: "Chegar no alvo com a quantidade errada de resgates também é falha — o painel 'Resgatados: X/Y' mostra quantos você já tem."),
   ],
@@ -120,7 +120,7 @@ const worldRecapSlides = <int, List<TutorialSlide>>{
   2: [
     TutorialSlide(
       title: 'Trilha 1 completa!',
-      body: 'Você aprendeu Decisão — resgatar personagens perdidos pelo caminho. Agora vem a Trilha Construtores de Lógica: pintar desenhos no tabuleiro e montar programas que resolvem contas de verdade!',
+      body: 'Você aprendeu a planejar o caminho — passar por todos os personagens perdidos antes de chegar. Agora vem a Trilha Construtores de Lógica: pintar desenhos no tabuleiro e montar programas que resolvem contas de verdade!',
     ),
   ],
   3: [
