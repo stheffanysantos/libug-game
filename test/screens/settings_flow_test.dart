@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:debuga_o_mascote/core/audio/audio_providers.dart';
@@ -76,6 +77,7 @@ void main() {
   testWidgets('sem conta, mostra "Criar conta" — tocar abre a RegisterView (voluntária)', (tester) async {
     await pumpWorldSelectAndOpenSettings(tester, overrides: [authServiceProvider.overrideWithValue(FakeAuthService())]);
 
+    expect(find.text('Conta'), findsOneWidget);
     expect(find.text('Criar conta'), findsOneWidget);
 
     await tester.tap(find.text('Criar conta'));
@@ -94,13 +96,15 @@ void main() {
     expect(find.text('Sair da conta'), findsNothing);
   });
 
-  testWidgets('com conta, mostra "Conectado como <nome>", o lápis de editar avatar e "Sair da conta"', (tester) async {
+  testWidgets('com conta, não mostra "Conectado como" nem o card "Conta"; mostra o nome sob o avatar, o lápis e "Sair da conta"', (tester) async {
     await pumpWorldSelectAndOpenSettings(
       tester,
-      overrides: [authServiceProvider.overrideWithValue(FakeAuthService(hasAccount: true, displayName: 'ana@example.com'))],
+      overrides: [authServiceProvider.overrideWithValue(FakeAuthService(hasAccount: true, displayName: 'ana'))],
     );
 
-    expect(find.text('Conectado como ana@example.com'), findsOneWidget);
+    expect(find.textContaining('Conectado como'), findsNothing);
+    expect(find.text('Conta'), findsNothing, reason: 'sem ação dentro, o card "Conta" só existe sem conta');
+    expect(find.text('ana'), findsOneWidget, reason: 'o nome sob o avatar continua sendo a indicação de quem está logado');
     expect(find.text('Criar conta'), findsNothing);
     expect(find.byIcon(Icons.edit), findsOneWidget);
     expect(find.text('Sair da conta'), findsOneWidget);
@@ -109,18 +113,18 @@ void main() {
   testWidgets('"Sair da conta" sai da conta e zera o progresso local', (tester) async {
     final container = await pumpWorldSelectAndOpenSettings(
       tester,
-      overrides: [authServiceProvider.overrideWithValue(FakeAuthService(hasAccount: true, displayName: 'ana@example.com'))],
+      overrides: [authServiceProvider.overrideWithValue(FakeAuthService(hasAccount: true, displayName: 'ana'))],
     );
-    container.read(progressNotifierProvider.notifier).addSessionPoints(300);
-    expect(container.read(progressNotifierProvider).sessionScore, 300);
+    container.read(progressProvider.notifier).addSessionPoints(300);
+    expect(container.read(progressProvider).sessionScore, 300);
 
     await tester.tap(find.text('Sair da conta'));
     await tester.pump();
 
-    expect(find.text('Conectado como ana@example.com'), findsNothing);
+    expect(find.text('Conta'), findsOneWidget, reason: 'o card "Conta" reaparece depois de sair');
     expect(find.text('Criar conta'), findsOneWidget, reason: 'volta a mostrar o link de criar conta, agora sem conta');
     expect(find.byIcon(Icons.edit), findsNothing, reason: 'sem conta, o lápis de editar avatar some de novo');
-    expect(container.read(progressNotifierProvider).sessionScore, 0, reason: 'progresso local reseta — "próximo jogador" no estande');
+    expect(container.read(progressProvider).sessionScore, 0, reason: 'progresso local reseta — "próximo jogador" no estande');
   });
 
   testWidgets('com conta, tocar o lápis do avatar abre a ProfileEditView', (tester) async {
@@ -151,13 +155,13 @@ void main() {
     expect(find.byType(SettingsView), findsOneWidget);
     expect(find.byType(ProfileEditView), findsNothing);
     expect(find.text('Capitã Debug'), findsOneWidget);
-    expect(container.read(progressNotifierProvider).username, 'Capitã Debug');
-    expect(container.read(progressNotifierProvider).avatarId, 'libug');
+    expect(container.read(progressProvider).username, 'Capitã Debug');
+    expect(container.read(progressProvider).avatarId, 'libug');
   });
 
   testWidgets('ProfileEditView pré-preenche com o nome/avatar já salvos', (tester) async {
     final container = createTestContainer();
-    container.read(progressNotifierProvider.notifier)
+    container.read(progressProvider.notifier)
       ..setUsername('Já Salvo')
       ..setAvatarId('libug');
     await tester.pumpWidget(wrapForTest(container, const ProfileEditView()));

@@ -6,7 +6,21 @@ part of 'progress_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$progressNotifierHash() => r'330f5e444eaf93b03d743b45994a2f03f3352e75';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Progresso do jogador — vive em memória durante a sessão, mas é
+/// sincronizado com o Firestore por `ProgressRepository`. `build()` devolve
+/// um `ProgressState` vazio **sincronamente** e dispara a hidratação como
+/// `Future` fire-and-forget (`_hydrate`) — o jogo é 100% jogável antes/sem
+/// hidratação (resiliência de estande: sem internet no evento é um caso
+/// real). Ver `.claude/memory/decisions.md`.
+///
+/// `keepAlive: true` — é o progresso do jogador inteiro, não pode ser
+/// descartado/reiniciado só porque nenhuma tela está observando no
+/// momento (o padrão de `@riverpod` sem essa flag é `autoDispose`).
+
+@ProviderFor(ProgressNotifier)
+const progressProvider = ProgressNotifierProvider._();
 
 /// Progresso do jogador — vive em memória durante a sessão, mas é
 /// sincronizado com o Firestore por `ProgressRepository`. `build()` devolve
@@ -18,20 +32,73 @@ String _$progressNotifierHash() => r'330f5e444eaf93b03d743b45994a2f03f3352e75';
 /// `keepAlive: true` — é o progresso do jogador inteiro, não pode ser
 /// descartado/reiniciado só porque nenhuma tela está observando no
 /// momento (o padrão de `@riverpod` sem essa flag é `autoDispose`).
-///
-/// Copied from [ProgressNotifier].
-@ProviderFor(ProgressNotifier)
-final progressNotifierProvider =
-    NotifierProvider<ProgressNotifier, ProgressState>.internal(
-      ProgressNotifier.new,
-      name: r'progressNotifierProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$progressNotifierHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final class ProgressNotifierProvider
+    extends $NotifierProvider<ProgressNotifier, ProgressState> {
+  /// Progresso do jogador — vive em memória durante a sessão, mas é
+  /// sincronizado com o Firestore por `ProgressRepository`. `build()` devolve
+  /// um `ProgressState` vazio **sincronamente** e dispara a hidratação como
+  /// `Future` fire-and-forget (`_hydrate`) — o jogo é 100% jogável antes/sem
+  /// hidratação (resiliência de estande: sem internet no evento é um caso
+  /// real). Ver `.claude/memory/decisions.md`.
+  ///
+  /// `keepAlive: true` — é o progresso do jogador inteiro, não pode ser
+  /// descartado/reiniciado só porque nenhuma tela está observando no
+  /// momento (o padrão de `@riverpod` sem essa flag é `autoDispose`).
+  const ProgressNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'progressProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-typedef _$ProgressNotifier = Notifier<ProgressState>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+  @override
+  String debugGetCreateSourceHash() => _$progressNotifierHash();
+
+  @$internal
+  @override
+  ProgressNotifier create() => ProgressNotifier();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ProgressState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ProgressState>(value),
+    );
+  }
+}
+
+String _$progressNotifierHash() => r'adfae2bc06f0304fe13171468184541089543575';
+
+/// Progresso do jogador — vive em memória durante a sessão, mas é
+/// sincronizado com o Firestore por `ProgressRepository`. `build()` devolve
+/// um `ProgressState` vazio **sincronamente** e dispara a hidratação como
+/// `Future` fire-and-forget (`_hydrate`) — o jogo é 100% jogável antes/sem
+/// hidratação (resiliência de estande: sem internet no evento é um caso
+/// real). Ver `.claude/memory/decisions.md`.
+///
+/// `keepAlive: true` — é o progresso do jogador inteiro, não pode ser
+/// descartado/reiniciado só porque nenhuma tela está observando no
+/// momento (o padrão de `@riverpod` sem essa flag é `autoDispose`).
+
+abstract class _$ProgressNotifier extends $Notifier<ProgressState> {
+  ProgressState build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<ProgressState, ProgressState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<ProgressState, ProgressState>,
+              ProgressState,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}

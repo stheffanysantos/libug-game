@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'character_avatar.dart';
 
 /// Um registro no Placar Geral — um por jogador (não um histórico por
@@ -65,4 +67,25 @@ class LeaderboardEntry {
         completedAt: json['completedAt'] != null ? DateTime.parse(json['completedAt'] as String) : null,
         avatarId: json['avatarId'] as String? ?? defaultAvatarId,
       );
+}
+
+/// Junta a entrada que está sendo enviada (`incoming`) com a que já está
+/// salva no Placar (`saved`), sem deixar o Placar regredir: a pontuação fica
+/// com o maior dos dois valores, e quem já zerou o jogo continua zerado (com
+/// a data da 1ª vez). O resto (nome, avatar, idade, data de atualização) vem
+/// do envio mais novo. Evita que um aparelho que ainda não carregou o
+/// progresso da conta baixe a pontuação da pessoa — ver
+/// `.claude/memory/decisions.md` (issue #28).
+LeaderboardEntry mergeLeaderboardEntries({required LeaderboardEntry? saved, required LeaderboardEntry incoming}) {
+  if (saved == null) return incoming;
+  return LeaderboardEntry(
+    name: incoming.name,
+    age: incoming.age,
+    hasProgrammedBefore: incoming.hasProgrammedBefore,
+    score: math.max(saved.score, incoming.score),
+    updatedAt: incoming.updatedAt,
+    gameCompleted: saved.gameCompleted || incoming.gameCompleted,
+    completedAt: saved.gameCompleted ? (saved.completedAt ?? incoming.completedAt) : incoming.completedAt,
+    avatarId: incoming.avatarId,
+  );
 }

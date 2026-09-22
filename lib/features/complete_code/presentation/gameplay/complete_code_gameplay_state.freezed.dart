@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,485 +9,547 @@ part of 'complete_code_gameplay_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$CompleteCodeGameplayState {
-  CompleteCodeLevel get level => throw _privateConstructorUsedError;
-  int? get selectedOptionIndex => throw _privateConstructorUsedError;
-  int get attempts => throw _privateConstructorUsedError;
-  CompleteCodeGameplayEffect? get pendingEffect =>
-      throw _privateConstructorUsedError;
 
-  /// Create a copy of CompleteCodeGameplayState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $CompleteCodeGameplayStateCopyWith<CompleteCodeGameplayState> get copyWith =>
-      throw _privateConstructorUsedError;
+ CompleteCodeLevel get level; int? get selectedOptionIndex; int get attempts; CompleteCodeGameplayEffect? get pendingEffect;
+/// Create a copy of CompleteCodeGameplayState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CompleteCodeGameplayStateCopyWith<CompleteCodeGameplayState> get copyWith => _$CompleteCodeGameplayStateCopyWithImpl<CompleteCodeGameplayState>(this as CompleteCodeGameplayState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CompleteCodeGameplayState&&(identical(other.level, level) || other.level == level)&&(identical(other.selectedOptionIndex, selectedOptionIndex) || other.selectedOptionIndex == selectedOptionIndex)&&(identical(other.attempts, attempts) || other.attempts == attempts)&&(identical(other.pendingEffect, pendingEffect) || other.pendingEffect == pendingEffect));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,level,selectedOptionIndex,attempts,pendingEffect);
+
+@override
+String toString() {
+  return 'CompleteCodeGameplayState(level: $level, selectedOptionIndex: $selectedOptionIndex, attempts: $attempts, pendingEffect: $pendingEffect)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $CompleteCodeGameplayStateCopyWith<$Res> {
-  factory $CompleteCodeGameplayStateCopyWith(
-    CompleteCodeGameplayState value,
-    $Res Function(CompleteCodeGameplayState) then,
-  ) = _$CompleteCodeGameplayStateCopyWithImpl<$Res, CompleteCodeGameplayState>;
-  @useResult
-  $Res call({
-    CompleteCodeLevel level,
-    int? selectedOptionIndex,
-    int attempts,
-    CompleteCodeGameplayEffect? pendingEffect,
-  });
+abstract mixin class $CompleteCodeGameplayStateCopyWith<$Res>  {
+  factory $CompleteCodeGameplayStateCopyWith(CompleteCodeGameplayState value, $Res Function(CompleteCodeGameplayState) _then) = _$CompleteCodeGameplayStateCopyWithImpl;
+@useResult
+$Res call({
+ CompleteCodeLevel level, int? selectedOptionIndex, int attempts, CompleteCodeGameplayEffect? pendingEffect
+});
 
-  $CompleteCodeGameplayEffectCopyWith<$Res>? get pendingEffect;
+
+$CompleteCodeGameplayEffectCopyWith<$Res>? get pendingEffect;
+
 }
-
 /// @nodoc
-class _$CompleteCodeGameplayStateCopyWithImpl<
-  $Res,
-  $Val extends CompleteCodeGameplayState
->
+class _$CompleteCodeGameplayStateCopyWithImpl<$Res>
     implements $CompleteCodeGameplayStateCopyWith<$Res> {
-  _$CompleteCodeGameplayStateCopyWithImpl(this._value, this._then);
+  _$CompleteCodeGameplayStateCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final CompleteCodeGameplayState _self;
+  final $Res Function(CompleteCodeGameplayState) _then;
 
-  /// Create a copy of CompleteCodeGameplayState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? level = null,
-    Object? selectedOptionIndex = freezed,
-    Object? attempts = null,
-    Object? pendingEffect = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            level: null == level
-                ? _value.level
-                : level // ignore: cast_nullable_to_non_nullable
-                      as CompleteCodeLevel,
-            selectedOptionIndex: freezed == selectedOptionIndex
-                ? _value.selectedOptionIndex
-                : selectedOptionIndex // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            attempts: null == attempts
-                ? _value.attempts
-                : attempts // ignore: cast_nullable_to_non_nullable
-                      as int,
-            pendingEffect: freezed == pendingEffect
-                ? _value.pendingEffect
-                : pendingEffect // ignore: cast_nullable_to_non_nullable
-                      as CompleteCodeGameplayEffect?,
-          )
-          as $Val,
-    );
-  }
-
-  /// Create a copy of CompleteCodeGameplayState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $CompleteCodeGameplayEffectCopyWith<$Res>? get pendingEffect {
-    if (_value.pendingEffect == null) {
-      return null;
-    }
-
-    return $CompleteCodeGameplayEffectCopyWith<$Res>(_value.pendingEffect!, (
-      value,
-    ) {
-      return _then(_value.copyWith(pendingEffect: value) as $Val);
-    });
-  }
+/// Create a copy of CompleteCodeGameplayState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? level = null,Object? selectedOptionIndex = freezed,Object? attempts = null,Object? pendingEffect = freezed,}) {
+  return _then(_self.copyWith(
+level: null == level ? _self.level : level // ignore: cast_nullable_to_non_nullable
+as CompleteCodeLevel,selectedOptionIndex: freezed == selectedOptionIndex ? _self.selectedOptionIndex : selectedOptionIndex // ignore: cast_nullable_to_non_nullable
+as int?,attempts: null == attempts ? _self.attempts : attempts // ignore: cast_nullable_to_non_nullable
+as int,pendingEffect: freezed == pendingEffect ? _self.pendingEffect : pendingEffect // ignore: cast_nullable_to_non_nullable
+as CompleteCodeGameplayEffect?,
+  ));
 }
+/// Create a copy of CompleteCodeGameplayState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CompleteCodeGameplayEffectCopyWith<$Res>? get pendingEffect {
+    if (_self.pendingEffect == null) {
+    return null;
+  }
 
-/// @nodoc
-abstract class _$$CompleteCodeGameplayStateImplCopyWith<$Res>
-    implements $CompleteCodeGameplayStateCopyWith<$Res> {
-  factory _$$CompleteCodeGameplayStateImplCopyWith(
-    _$CompleteCodeGameplayStateImpl value,
-    $Res Function(_$CompleteCodeGameplayStateImpl) then,
-  ) = __$$CompleteCodeGameplayStateImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    CompleteCodeLevel level,
-    int? selectedOptionIndex,
-    int attempts,
-    CompleteCodeGameplayEffect? pendingEffect,
+  return $CompleteCodeGameplayEffectCopyWith<$Res>(_self.pendingEffect!, (value) {
+    return _then(_self.copyWith(pendingEffect: value));
   });
+}
+}
 
-  @override
-  $CompleteCodeGameplayEffectCopyWith<$Res>? get pendingEffect;
+
+/// Adds pattern-matching-related methods to [CompleteCodeGameplayState].
+extension CompleteCodeGameplayStatePatterns on CompleteCodeGameplayState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CompleteCodeGameplayState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CompleteCodeGameplayState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CompleteCodeGameplayState value)  $default,){
+final _that = this;
+switch (_that) {
+case _CompleteCodeGameplayState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CompleteCodeGameplayState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CompleteCodeGameplayState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( CompleteCodeLevel level,  int? selectedOptionIndex,  int attempts,  CompleteCodeGameplayEffect? pendingEffect)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CompleteCodeGameplayState() when $default != null:
+return $default(_that.level,_that.selectedOptionIndex,_that.attempts,_that.pendingEffect);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( CompleteCodeLevel level,  int? selectedOptionIndex,  int attempts,  CompleteCodeGameplayEffect? pendingEffect)  $default,) {final _that = this;
+switch (_that) {
+case _CompleteCodeGameplayState():
+return $default(_that.level,_that.selectedOptionIndex,_that.attempts,_that.pendingEffect);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( CompleteCodeLevel level,  int? selectedOptionIndex,  int attempts,  CompleteCodeGameplayEffect? pendingEffect)?  $default,) {final _that = this;
+switch (_that) {
+case _CompleteCodeGameplayState() when $default != null:
+return $default(_that.level,_that.selectedOptionIndex,_that.attempts,_that.pendingEffect);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-class __$$CompleteCodeGameplayStateImplCopyWithImpl<$Res>
-    extends
-        _$CompleteCodeGameplayStateCopyWithImpl<
-          $Res,
-          _$CompleteCodeGameplayStateImpl
-        >
-    implements _$$CompleteCodeGameplayStateImplCopyWith<$Res> {
-  __$$CompleteCodeGameplayStateImplCopyWithImpl(
-    _$CompleteCodeGameplayStateImpl _value,
-    $Res Function(_$CompleteCodeGameplayStateImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of CompleteCodeGameplayState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? level = null,
-    Object? selectedOptionIndex = freezed,
-    Object? attempts = null,
-    Object? pendingEffect = freezed,
-  }) {
-    return _then(
-      _$CompleteCodeGameplayStateImpl(
-        level: null == level
-            ? _value.level
-            : level // ignore: cast_nullable_to_non_nullable
-                  as CompleteCodeLevel,
-        selectedOptionIndex: freezed == selectedOptionIndex
-            ? _value.selectedOptionIndex
-            : selectedOptionIndex // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        attempts: null == attempts
-            ? _value.attempts
-            : attempts // ignore: cast_nullable_to_non_nullable
-                  as int,
-        pendingEffect: freezed == pendingEffect
-            ? _value.pendingEffect
-            : pendingEffect // ignore: cast_nullable_to_non_nullable
-                  as CompleteCodeGameplayEffect?,
-      ),
-    );
+
+class _CompleteCodeGameplayState implements CompleteCodeGameplayState {
+  const _CompleteCodeGameplayState({required this.level, this.selectedOptionIndex, this.attempts = 0, this.pendingEffect});
+  
+
+@override final  CompleteCodeLevel level;
+@override final  int? selectedOptionIndex;
+@override@JsonKey() final  int attempts;
+@override final  CompleteCodeGameplayEffect? pendingEffect;
+
+/// Create a copy of CompleteCodeGameplayState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CompleteCodeGameplayStateCopyWith<_CompleteCodeGameplayState> get copyWith => __$CompleteCodeGameplayStateCopyWithImpl<_CompleteCodeGameplayState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CompleteCodeGameplayState&&(identical(other.level, level) || other.level == level)&&(identical(other.selectedOptionIndex, selectedOptionIndex) || other.selectedOptionIndex == selectedOptionIndex)&&(identical(other.attempts, attempts) || other.attempts == attempts)&&(identical(other.pendingEffect, pendingEffect) || other.pendingEffect == pendingEffect));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,level,selectedOptionIndex,attempts,pendingEffect);
+
+@override
+String toString() {
+  return 'CompleteCodeGameplayState(level: $level, selectedOptionIndex: $selectedOptionIndex, attempts: $attempts, pendingEffect: $pendingEffect)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$CompleteCodeGameplayStateCopyWith<$Res> implements $CompleteCodeGameplayStateCopyWith<$Res> {
+  factory _$CompleteCodeGameplayStateCopyWith(_CompleteCodeGameplayState value, $Res Function(_CompleteCodeGameplayState) _then) = __$CompleteCodeGameplayStateCopyWithImpl;
+@override @useResult
+$Res call({
+ CompleteCodeLevel level, int? selectedOptionIndex, int attempts, CompleteCodeGameplayEffect? pendingEffect
+});
+
+
+@override $CompleteCodeGameplayEffectCopyWith<$Res>? get pendingEffect;
+
+}
+/// @nodoc
+class __$CompleteCodeGameplayStateCopyWithImpl<$Res>
+    implements _$CompleteCodeGameplayStateCopyWith<$Res> {
+  __$CompleteCodeGameplayStateCopyWithImpl(this._self, this._then);
+
+  final _CompleteCodeGameplayState _self;
+  final $Res Function(_CompleteCodeGameplayState) _then;
+
+/// Create a copy of CompleteCodeGameplayState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? level = null,Object? selectedOptionIndex = freezed,Object? attempts = null,Object? pendingEffect = freezed,}) {
+  return _then(_CompleteCodeGameplayState(
+level: null == level ? _self.level : level // ignore: cast_nullable_to_non_nullable
+as CompleteCodeLevel,selectedOptionIndex: freezed == selectedOptionIndex ? _self.selectedOptionIndex : selectedOptionIndex // ignore: cast_nullable_to_non_nullable
+as int?,attempts: null == attempts ? _self.attempts : attempts // ignore: cast_nullable_to_non_nullable
+as int,pendingEffect: freezed == pendingEffect ? _self.pendingEffect : pendingEffect // ignore: cast_nullable_to_non_nullable
+as CompleteCodeGameplayEffect?,
+  ));
+}
+
+/// Create a copy of CompleteCodeGameplayState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CompleteCodeGameplayEffectCopyWith<$Res>? get pendingEffect {
+    if (_self.pendingEffect == null) {
+    return null;
   }
-}
 
-/// @nodoc
-
-class _$CompleteCodeGameplayStateImpl implements _CompleteCodeGameplayState {
-  const _$CompleteCodeGameplayStateImpl({
-    required this.level,
-    this.selectedOptionIndex,
-    this.attempts = 0,
-    this.pendingEffect,
+  return $CompleteCodeGameplayEffectCopyWith<$Res>(_self.pendingEffect!, (value) {
+    return _then(_self.copyWith(pendingEffect: value));
   });
-
-  @override
-  final CompleteCodeLevel level;
-  @override
-  final int? selectedOptionIndex;
-  @override
-  @JsonKey()
-  final int attempts;
-  @override
-  final CompleteCodeGameplayEffect? pendingEffect;
-
-  @override
-  String toString() {
-    return 'CompleteCodeGameplayState(level: $level, selectedOptionIndex: $selectedOptionIndex, attempts: $attempts, pendingEffect: $pendingEffect)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$CompleteCodeGameplayStateImpl &&
-            (identical(other.level, level) || other.level == level) &&
-            (identical(other.selectedOptionIndex, selectedOptionIndex) ||
-                other.selectedOptionIndex == selectedOptionIndex) &&
-            (identical(other.attempts, attempts) ||
-                other.attempts == attempts) &&
-            (identical(other.pendingEffect, pendingEffect) ||
-                other.pendingEffect == pendingEffect));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    level,
-    selectedOptionIndex,
-    attempts,
-    pendingEffect,
-  );
-
-  /// Create a copy of CompleteCodeGameplayState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$CompleteCodeGameplayStateImplCopyWith<_$CompleteCodeGameplayStateImpl>
-  get copyWith =>
-      __$$CompleteCodeGameplayStateImplCopyWithImpl<
-        _$CompleteCodeGameplayStateImpl
-      >(this, _$identity);
 }
-
-abstract class _CompleteCodeGameplayState implements CompleteCodeGameplayState {
-  const factory _CompleteCodeGameplayState({
-    required final CompleteCodeLevel level,
-    final int? selectedOptionIndex,
-    final int attempts,
-    final CompleteCodeGameplayEffect? pendingEffect,
-  }) = _$CompleteCodeGameplayStateImpl;
-
-  @override
-  CompleteCodeLevel get level;
-  @override
-  int? get selectedOptionIndex;
-  @override
-  int get attempts;
-  @override
-  CompleteCodeGameplayEffect? get pendingEffect;
-
-  /// Create a copy of CompleteCodeGameplayState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$CompleteCodeGameplayStateImplCopyWith<_$CompleteCodeGameplayStateImpl>
-  get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 mixin _$CompleteCodeGameplayEffect {
-  CompleteCodeResultData get data => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(CompleteCodeResultData data) showResult,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(CompleteCodeResultData data)? showResult,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(CompleteCodeResultData data)? showResult,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(ShowCompleteCodeResult value) showResult,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(ShowCompleteCodeResult value)? showResult,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(ShowCompleteCodeResult value)? showResult,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
 
-  /// Create a copy of CompleteCodeGameplayEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $CompleteCodeGameplayEffectCopyWith<CompleteCodeGameplayEffect>
-  get copyWith => throw _privateConstructorUsedError;
+ CompleteCodeResultData get data;
+/// Create a copy of CompleteCodeGameplayEffect
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CompleteCodeGameplayEffectCopyWith<CompleteCodeGameplayEffect> get copyWith => _$CompleteCodeGameplayEffectCopyWithImpl<CompleteCodeGameplayEffect>(this as CompleteCodeGameplayEffect, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CompleteCodeGameplayEffect&&(identical(other.data, data) || other.data == data));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,data);
+
+@override
+String toString() {
+  return 'CompleteCodeGameplayEffect(data: $data)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $CompleteCodeGameplayEffectCopyWith<$Res> {
-  factory $CompleteCodeGameplayEffectCopyWith(
-    CompleteCodeGameplayEffect value,
-    $Res Function(CompleteCodeGameplayEffect) then,
-  ) =
-      _$CompleteCodeGameplayEffectCopyWithImpl<
-        $Res,
-        CompleteCodeGameplayEffect
-      >;
-  @useResult
-  $Res call({CompleteCodeResultData data});
-}
+abstract mixin class $CompleteCodeGameplayEffectCopyWith<$Res>  {
+  factory $CompleteCodeGameplayEffectCopyWith(CompleteCodeGameplayEffect value, $Res Function(CompleteCodeGameplayEffect) _then) = _$CompleteCodeGameplayEffectCopyWithImpl;
+@useResult
+$Res call({
+ CompleteCodeResultData data
+});
 
+
+
+
+}
 /// @nodoc
-class _$CompleteCodeGameplayEffectCopyWithImpl<
-  $Res,
-  $Val extends CompleteCodeGameplayEffect
->
+class _$CompleteCodeGameplayEffectCopyWithImpl<$Res>
     implements $CompleteCodeGameplayEffectCopyWith<$Res> {
-  _$CompleteCodeGameplayEffectCopyWithImpl(this._value, this._then);
+  _$CompleteCodeGameplayEffectCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final CompleteCodeGameplayEffect _self;
+  final $Res Function(CompleteCodeGameplayEffect) _then;
 
-  /// Create a copy of CompleteCodeGameplayEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? data = null}) {
-    return _then(
-      _value.copyWith(
-            data: null == data
-                ? _value.data
-                : data // ignore: cast_nullable_to_non_nullable
-                      as CompleteCodeResultData,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of CompleteCodeGameplayEffect
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? data = null,}) {
+  return _then(_self.copyWith(
+data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
+as CompleteCodeResultData,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [CompleteCodeGameplayEffect].
+extension CompleteCodeGameplayEffectPatterns on CompleteCodeGameplayEffect {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ShowCompleteCodeResult value)?  showResult,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case ShowCompleteCodeResult() when showResult != null:
+return showResult(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ShowCompleteCodeResult value)  showResult,}){
+final _that = this;
+switch (_that) {
+case ShowCompleteCodeResult():
+return showResult(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ShowCompleteCodeResult value)?  showResult,}){
+final _that = this;
+switch (_that) {
+case ShowCompleteCodeResult() when showResult != null:
+return showResult(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( CompleteCodeResultData data)?  showResult,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case ShowCompleteCodeResult() when showResult != null:
+return showResult(_that.data);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( CompleteCodeResultData data)  showResult,}) {final _that = this;
+switch (_that) {
+case ShowCompleteCodeResult():
+return showResult(_that.data);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( CompleteCodeResultData data)?  showResult,}) {final _that = this;
+switch (_that) {
+case ShowCompleteCodeResult() when showResult != null:
+return showResult(_that.data);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-abstract class _$$ShowCompleteCodeResultImplCopyWith<$Res>
-    implements $CompleteCodeGameplayEffectCopyWith<$Res> {
-  factory _$$ShowCompleteCodeResultImplCopyWith(
-    _$ShowCompleteCodeResultImpl value,
-    $Res Function(_$ShowCompleteCodeResultImpl) then,
-  ) = __$$ShowCompleteCodeResultImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({CompleteCodeResultData data});
+
+
+class ShowCompleteCodeResult implements CompleteCodeGameplayEffect {
+  const ShowCompleteCodeResult({required this.data});
+  
+
+@override final  CompleteCodeResultData data;
+
+/// Create a copy of CompleteCodeGameplayEffect
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ShowCompleteCodeResultCopyWith<ShowCompleteCodeResult> get copyWith => _$ShowCompleteCodeResultCopyWithImpl<ShowCompleteCodeResult>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ShowCompleteCodeResult&&(identical(other.data, data) || other.data == data));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,data);
+
+@override
+String toString() {
+  return 'CompleteCodeGameplayEffect.showResult(data: $data)';
+}
+
+
 }
 
 /// @nodoc
-class __$$ShowCompleteCodeResultImplCopyWithImpl<$Res>
-    extends
-        _$CompleteCodeGameplayEffectCopyWithImpl<
-          $Res,
-          _$ShowCompleteCodeResultImpl
-        >
-    implements _$$ShowCompleteCodeResultImplCopyWith<$Res> {
-  __$$ShowCompleteCodeResultImplCopyWithImpl(
-    _$ShowCompleteCodeResultImpl _value,
-    $Res Function(_$ShowCompleteCodeResultImpl) _then,
-  ) : super(_value, _then);
+abstract mixin class $ShowCompleteCodeResultCopyWith<$Res> implements $CompleteCodeGameplayEffectCopyWith<$Res> {
+  factory $ShowCompleteCodeResultCopyWith(ShowCompleteCodeResult value, $Res Function(ShowCompleteCodeResult) _then) = _$ShowCompleteCodeResultCopyWithImpl;
+@override @useResult
+$Res call({
+ CompleteCodeResultData data
+});
 
-  /// Create a copy of CompleteCodeGameplayEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? data = null}) {
-    return _then(
-      _$ShowCompleteCodeResultImpl(
-        data: null == data
-            ? _value.data
-            : data // ignore: cast_nullable_to_non_nullable
-                  as CompleteCodeResultData,
-      ),
-    );
-  }
+
+
+
 }
-
 /// @nodoc
+class _$ShowCompleteCodeResultCopyWithImpl<$Res>
+    implements $ShowCompleteCodeResultCopyWith<$Res> {
+  _$ShowCompleteCodeResultCopyWithImpl(this._self, this._then);
 
-class _$ShowCompleteCodeResultImpl implements ShowCompleteCodeResult {
-  const _$ShowCompleteCodeResultImpl({required this.data});
+  final ShowCompleteCodeResult _self;
+  final $Res Function(ShowCompleteCodeResult) _then;
 
-  @override
-  final CompleteCodeResultData data;
-
-  @override
-  String toString() {
-    return 'CompleteCodeGameplayEffect.showResult(data: $data)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ShowCompleteCodeResultImpl &&
-            (identical(other.data, data) || other.data == data));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, data);
-
-  /// Create a copy of CompleteCodeGameplayEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ShowCompleteCodeResultImplCopyWith<_$ShowCompleteCodeResultImpl>
-  get copyWith =>
-      __$$ShowCompleteCodeResultImplCopyWithImpl<_$ShowCompleteCodeResultImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(CompleteCodeResultData data) showResult,
-  }) {
-    return showResult(data);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(CompleteCodeResultData data)? showResult,
-  }) {
-    return showResult?.call(data);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(CompleteCodeResultData data)? showResult,
-    required TResult orElse(),
-  }) {
-    if (showResult != null) {
-      return showResult(data);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(ShowCompleteCodeResult value) showResult,
-  }) {
-    return showResult(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(ShowCompleteCodeResult value)? showResult,
-  }) {
-    return showResult?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(ShowCompleteCodeResult value)? showResult,
-    required TResult orElse(),
-  }) {
-    if (showResult != null) {
-      return showResult(this);
-    }
-    return orElse();
-  }
+/// Create a copy of CompleteCodeGameplayEffect
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? data = null,}) {
+  return _then(ShowCompleteCodeResult(
+data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
+as CompleteCodeResultData,
+  ));
 }
 
-abstract class ShowCompleteCodeResult implements CompleteCodeGameplayEffect {
-  const factory ShowCompleteCodeResult({
-    required final CompleteCodeResultData data,
-  }) = _$ShowCompleteCodeResultImpl;
 
-  @override
-  CompleteCodeResultData get data;
-
-  /// Create a copy of CompleteCodeGameplayEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ShowCompleteCodeResultImplCopyWith<_$ShowCompleteCodeResultImpl>
-  get copyWith => throw _privateConstructorUsedError;
 }
+
+// dart format on

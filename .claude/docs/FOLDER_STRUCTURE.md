@@ -53,7 +53,7 @@ lib/
     audio/
       sound_player.dart             # interface SoundPlayer — permite fake nos testes
       audioplayers_sound_player.dart # implementação real (package:audioplayers)
-      audio_providers.dart          # soundPlayerProvider, mutedProvider (Muted notifier), appSoundsProvider (AppSoundsService — walk/turn/run/victory/failure/playNarration)
+      audio_providers.dart          # soundPlayerProvider, mutedProvider (Muted notifier), appSoundsProvider (AppSoundsService — walk/turn/run/victory/failure)
 
   features/                        # um diretório por mundo de jogo ou tela transversal
     maze/presentation/{gameplay,stage_select}/          # Mundo 1 (labirinto) — vertical de referência da migração
@@ -63,7 +63,7 @@ lib/
     code_puzzle/presentation/{gameplay,stage_select}/    # Mundo 5 (Modo Debug) — "veredito único", reorder/findBug
     result/presentation/
       victory_view.dart             # genérica entre Mundo 1/2 — recebe levelNumber/blocksUsed/maxBlocks/optimalBlocks/hasNext + onPrimaryAction (não navega sozinha)
-      failure_view.dart             # genérica entre Mundo 1/2 — recebe levelNumber/attempt/reasonText/maxBlocks/hintChips + onBackToMenu (não navega sozinha)
+      failure_view.dart             # genérica entre Mundo 1/2 — recebe levelNumber/attempt/reasonText/hintText + onBackToMenu (não navega sozinha)
       code_puzzle_result_view.dart  # genérica entre Mundo 3/4/5 (veredito único) — uma tela só, parametrizada por won: bool
     world_select/presentation/world_select_view.dart     # Seleção de Mundo — sem ViewModel; uma seção por GameTrack, roteia por WorldGameType
     tutorial/presentation/tutorial_view.dart              # tela cheia paginada (slides + narração); ConsumerStatefulWidget com estado local (índice do slide, máquina de escrever) — não é estado de app, não ganhou ViewModel
@@ -111,7 +111,6 @@ lib/
 
 tool/
   generate_sfx.py                   # gera os 5 .wav de assets/audio/ por síntese (placeholder, ver .claude/memory/decisions.md)
-  generate_tutorial_narration.py    # gera assets/audio/tutorial/*.mp3 via edge-tts (voz neural pt-BR-FranciscaNeural), ver .claude/memory/decisions.md
 
 test/
   widget_test.dart                  # smoke test da Splash (via DebugaOMascoteApp/main.dart)

@@ -87,7 +87,9 @@ void main() {
     expect(find.byType(CodePuzzleResultView), findsOneWidget);
     expect(onResult(find.text('FASE 1 · TENTATIVA 1')), findsOneWidget);
     expect(onResult(find.text('Quase lá!')), findsOneWidget);
-    expect(onResult(find.text('DICA')), findsOneWidget, reason: 'reorder perdido mostra a ordem certa como Dica');
+    expect(onResult(find.text('DICA')), findsOneWidget, reason: 'reorder perdido mostra a Dica escrita');
+    expect(onResult(find.text(reorderLevel.hintText)), findsOneWidget, reason: 'a Dica é o texto da fase, não os blocos da solução');
+    expect(onResult(find.text('int x = 5;')), findsNothing, reason: 'a Dica não entrega a ordem certa');
   });
 
   testWidgets('tocar a linha certa num puzzle findBug navega para o Resultado com vitória e a explicação', (tester) async {
