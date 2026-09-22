@@ -1531,3 +1531,15 @@ Nenhum `collectibles` cai na célula `start` de sua fase (célula inicial nunca 
 
 **Como aplicar:** a área "SUA SEQUÊNCIA" (código montado pelo jogador) continua com o `Wrap` de cards do tamanho do texto — ficou em aberto na tarefa se ela também deve ir para a largura toda. Teste em `test/features/code_puzzle/available_lines_full_width_test.dart`.
 
+---
+
+## 2026-09-22 — Rejogar uma fase mantém sempre a maior pontuação (issue #6, validação)
+
+**Decisão:** o comportamento atual já atendia a issue #6; nada no código de jogo mudou, só entraram testes de regressão. Ao rejogar uma fase concluída:
+- por fase, `ProgressNotifier.recordWin` fica com o melhor de cada campo (mais estrelas, menos blocos, mais pontos) — o total de pontos do mundo (usado no desbloqueio de 60%) nunca cai;
+- no Placar Geral, `RecordLevelWinUseCase` só soma pontos de sessão na 1ª vitória da fase (`isFirstWin`), então rejogar não baixa nem infla a pontuação do Placar. Rejogar melhor atualiza a fase, mas não aumenta o Placar (decisão já existente, para não dar para "farmar" pontos rejogando).
+
+**Por quê:** issue #6 pedia confirmar em teste; a leitura do código indicava que já funcionava.
+
+**Como aplicar:** testes em `test/core/progress/record_level_win_usecase_test.dart` (grupo "rejogar uma fase já concluída"), um rejogando pior e outro rejogando melhor. Conferido que falham se `recordWin` sobrescrever o resultado ou se os pontos de sessão forem somados em toda vitória. Fora do escopo "rejogar" (não corrigido): `FirebaseLeaderboardRepository.submit` grava a pontuação enviada sem comparar com a já salva — se um aparelho enviar uma `sessionScore` menor antes de hidratar o progresso da conta, o Placar pode baixar.
+

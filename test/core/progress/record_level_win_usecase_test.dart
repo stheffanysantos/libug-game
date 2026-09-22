@@ -127,4 +127,56 @@ void main() {
     expect(overall, isEmpty, reason: 'quem zerou some do Placar Geral');
     expect(completed, hasLength(1));
   });
+
+  // Issue #6 — rejogar uma fase já concluída: a pontuação que fica é sempre
+  // a melhor, por fase e no Placar Geral.
+  group('rejogar uma fase já concluída', () {
+    void win({required int stars, required int points, required int blocks, required int seconds}) {
+      useCase().call(
+        levelId: 'world1_level1',
+        world: worlds[0],
+        score: ScoreResult(stars: stars, points: points),
+        blocksUsedOrAttempts: blocks,
+        elapsedSeconds: seconds,
+      );
+    }
+
+    test('rejogar pior não baixa a fase, o total do mundo, a sessão nem o Placar', () async {
+      container.read(progressProvider.notifier).submitToLeaderboard(age: 10, hasProgrammedBefore: true);
+      win(stars: 3, points: 300, blocks: 2, seconds: 10);
+      await flushMicrotasks();
+      final sessionAfterFirstWin = container.read(progressProvider).sessionScore;
+      final placarAfterFirstWin = fakeLeaderboard.entries.single.score;
+
+      win(stars: 1, points: 50, blocks: 6, seconds: 120);
+      await flushMicrotasks();
+
+      final progress = container.read(progressProvider);
+      final level = progress.byLevelId['world1_level1']!;
+      expect(level.stars, 3);
+      expect(level.bestPoints, 300);
+      expect(level.bestBlocks, 2);
+      expect(progress.totalPoints(worlds[0].levels.map((l) => l.id)), 300);
+      expect(progress.sessionScore, sessionAfterFirstWin);
+      expect(fakeLeaderboard.entries.single.score, placarAfterFirstWin);
+    });
+
+    test('rejogar melhor sobe o resultado da fase, sem somar pontos de sessão de novo', () async {
+      container.read(progressProvider.notifier).submitToLeaderboard(age: 10, hasProgrammedBefore: true);
+      win(stars: 1, points: 50, blocks: 6, seconds: 120);
+      await flushMicrotasks();
+      final sessionAfterFirstWin = container.read(progressProvider).sessionScore;
+
+      win(stars: 3, points: 300, blocks: 2, seconds: 10);
+      await flushMicrotasks();
+
+      final progress = container.read(progressProvider);
+      final level = progress.byLevelId['world1_level1']!;
+      expect(level.stars, 3);
+      expect(level.bestPoints, 300);
+      expect(level.bestBlocks, 2);
+      expect(progress.sessionScore, sessionAfterFirstWin, reason: 'rejogar não infla o Placar');
+      expect(fakeLeaderboard.entries.single.score, sessionAfterFirstWin);
+    });
+  });
 }
