@@ -1457,3 +1457,13 @@ Nenhum `collectibles` cai na célula `start` de sua fase (célula inicial nunca 
 **Por quê:** não deixar uma caixa vazia na tela. O nome mostrado embaixo do avatar (`progress.username ?? authService.displayName`) é outro elemento e **ficou** — hoje é a única indicação de quem está logado.
 
 **Como aplicar:** as menções antigas a "Conectado como" neste arquivo (cadastro voluntário, `SettingsView` tela cheia) são histórico e continuam como estavam. Se a tela for redesenhada e voltar a precisar mostrar a conta conectada, reintroduzir a informação num lugar que não dependa de um card só com título.
+
+---
+
+## 2026-09-21 — Dica das fases vira frase escrita (`hintText`), nunca os blocos da solução
+
+**Decisão:** a Dica mostrada quando o jogador erra deixou de reproduzir a solução com os próprios chips/blocos e passou a ser uma **frase curta escrita por fase**. `Level` (Mundos 1/2/3) ganhou `hintText` (obrigatório, uma frase por fase — 36 no total) e `CodePuzzleLevel.reorder` (Mundo 7) ganhou `hintText` (8 fases; as `findBug` continuam explicando pelo `bugExplanation`, com `hintText` vazio). `FailureView` passou a receber `hintText: String` no lugar de `hintChips` (e perdeu `maxBlocks`, que só servia ao texto "dentro do limite de N blocos"); `CodePuzzleResultView` passou a receber `hintText: String?` no lugar de `correctOrderChips`. `CodePuzzleGameplayResultData.correctOrder` virou `hintText`, e `GameplayView`/`CodePuzzleGameplayView` deixaram de montar chips só para a Dica.
+
+**Por quê:** pedido explícito da tarefa — os chips da solução ocupavam muito espaço na tela de falha (já precisavam de `ProgramChipGrid` com 2 colunas para não estourar) e entregavam a resposta pronta, em vez de orientar. Uma dica é "como passar", não "a resposta".
+
+**Como aplicar:** `hintProgram` continua no `Level` porque os testes de catálogo o usam para provar que cada fase é solucionável, mas não vai mais para a UI. Fase nova precisa de `hintText` (o compilador obriga em `Level` e em `CodePuzzleLevel.reorder`), com no máximo 100 caracteres e sem dar a sequência exata — os testes de catálogo (`level_catalog_test`, `world2_level_catalog_test`, `world3_level_catalog_test`, `code_puzzle_catalog_test`) conferem preenchimento e tamanho. As 44 frases são um primeiro rascunho, pensadas para revisão de conteúdo. **Escopo:** Mundo 4 ("Missão de Código"), Mundo 5 ("Preveja a Saída"), Mundo 6 ("Complete o Código") e as fases `findBug` do Mundo 7 nunca tiveram dica em blocos — hoje explicam o resultado por texto (`explanation`/`bugExplanation`) — e não foram alteradas; se for desejada uma dica escrita também neles, é um campo novo por modelo, fora desta mudança.

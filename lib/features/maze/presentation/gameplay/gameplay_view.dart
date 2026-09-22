@@ -190,25 +190,12 @@ class GameplayView extends ConsumerWidget {
         ));
       case NavigateToFailure(:final data):
         final level = ref.read(gameplayViewModelProvider(levelId)).level;
-        final hintChips = [
-          for (final block in level.hintProgram)
-            Builder(builder: (context) {
-              final style = styleForBlock(block);
-              return ProgramBlockChip(
-                label: style.label,
-                background: style.background,
-                foreground: style.foreground,
-                repeatCount: style.repeatCount,
-              );
-            }),
-        ];
         Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => FailureView(
             levelNumber: data.levelNumber,
             attempt: data.attempt,
             reasonText: _reasonTextFor(data),
-            maxBlocks: data.maxBlocks,
-            hintChips: hintChips,
+            hintText: level.hintText,
             onBackToMenu: () => Navigator.of(context).popUntil((route) => route.settings.name == levelSelectRouteName),
           ),
         ));

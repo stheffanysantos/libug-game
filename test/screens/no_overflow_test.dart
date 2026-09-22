@@ -30,10 +30,7 @@ import 'package:debuga_o_mascote/features/survey/presentation/survey_view.dart';
 import 'package:debuga_o_mascote/features/tutorial/presentation/tutorial_view.dart';
 import 'package:debuga_o_mascote/features/welcome/presentation/welcome_view.dart';
 import 'package:debuga_o_mascote/features/world_select/presentation/world_select_view.dart';
-import 'package:debuga_o_mascote/theme/app_colors.dart';
-import 'package:debuga_o_mascote/widgets/block_chip_style.dart';
 import 'package:debuga_o_mascote/widgets/primary_pill_button_widget.dart';
-import 'package:debuga_o_mascote/widgets/program_block_chip_widget.dart';
 import 'package:debuga_o_mascote/widgets/tutorial_content.dart';
 
 import '../helpers/fake_auth_service.dart';
@@ -69,14 +66,7 @@ void main() {
       levelNumber: demoLevel.number,
       attempt: 2,
       reasonText: 'O mascote bateu na parede (ou saiu do tabuleiro) antes de chegar no alvo.',
-      maxBlocks: demoLevel.maxBlocks,
-      hintChips: [
-        for (final block in demoLevel.hintProgram)
-          Builder(builder: (context) {
-            final style = styleForBlock(block);
-            return ProgramBlockChip(label: style.label, background: style.background, foreground: style.foreground, repeatCount: style.repeatCount);
-          }),
-      ],
+      hintText: demoLevel.hintText,
       onBackToMenu: () {},
     ),
     'Seleção de Fases (Encruzilhada Colorida)': StageSelectView(world: worlds[1]),
@@ -108,10 +98,7 @@ void main() {
       attempts: 1,
       stars: 0,
       points: 0,
-      correctOrderChips: [
-        for (final line in world7Levels.first.correctOrder)
-          ProgramBlockChip(label: line.text, background: AppColors.lilac, foreground: AppColors.purpleDark),
-      ],
+      hintText: world7Levels.first.hintText,
       hasNext: false,
       onPrimaryAction: () {},
       onBackToMenu: () {},

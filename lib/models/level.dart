@@ -64,6 +64,11 @@ class Level implements GameLevel {
   /// `.claude/docs/GAME_DESIGN.md`.
   final List<Block> hintProgram;
 
+  /// Dica escrita mostrada na tela de Tentativa Falha — uma frase curta que
+  /// aponta como passar da fase, sem entregar a resposta (a dica não usa
+  /// mais os blocos de `hintProgram`, ver `.claude/memory/decisions.md`).
+  final String hintText;
+
   /// Células com um personagem perdido (Bit/Chip/Loopy/Libug — qual
   /// personagem aparece em cada célula é decisão cosmética da UI, não deste
   /// modelo) — só Mundo 2 ("Resgate de Personagens"), desde que o Mundo 3
@@ -102,6 +107,7 @@ class Level implements GameLevel {
     required this.maxBlocks,
     required this.optimalBlocks,
     required this.hintProgram,
+    required this.hintText,
     this.collectibles = const {},
     this.collectTarget,
     this.paintTarget,
@@ -137,6 +143,7 @@ final world1Levels = <Level>[
     goal: const GridPosition(2, 0),
     maxBlocks: 8,
     optimalBlocks: 2,
+    hintText: 'Cada Andar move o Mascote uma casa. Conte quantas faltam para o alvo.',
     hintProgram: const [Block(BlockType.walk), Block(BlockType.walk)],
   ),
   Level(
@@ -151,6 +158,7 @@ final world1Levels = <Level>[
     goal: const GridPosition(0, 3),
     maxBlocks: 8,
     optimalBlocks: 3,
+    hintText: 'O alvo não está na frente do Mascote: vire antes de andar.',
     hintProgram: const [
       Block(BlockType.turnRight),
       Block(BlockType.repeat),
@@ -169,6 +177,7 @@ final world1Levels = <Level>[
     goal: const GridPosition(3, 3),
     maxBlocks: 8,
     optimalBlocks: 5,
+    hintText: 'Ande até a coluna do alvo, vire e ande até ele. Repetir ajuda nos trechos longos.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.walk),
@@ -189,6 +198,7 @@ final world1Levels = <Level>[
     goal: const GridPosition(2, 1),
     maxBlocks: 8,
     optimalBlocks: 5,
+    hintText: 'A parede bloqueia o caminho reto. Dê a volta por baixo dela.',
     hintProgram: const [
       Block(BlockType.walk),
       Block(BlockType.turnRight),
@@ -209,6 +219,7 @@ final world1Levels = <Level>[
     goal: const GridPosition(2, 2),
     maxBlocks: 8,
     optimalBlocks: 6,
+    hintText: 'As duas paredes fecham a passagem. Desça um pouco mais antes de seguir.',
     hintProgram: const [
       Block(BlockType.walk),
       Block(BlockType.turnRight),
@@ -240,6 +251,7 @@ final world1Levels = <Level>[
     goal: const GridPosition(3, 2),
     maxBlocks: 8,
     optimalBlocks: 5,
+    hintText: 'Suba até a linha do alvo e só então vire para o lado dele.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.walk),
@@ -260,6 +272,7 @@ final world1Levels = <Level>[
     goal: const GridPosition(3, 3),
     maxBlocks: 8,
     optimalBlocks: 6,
+    hintText: 'A parede vai até a linha do alvo. Desça primeiro e siga por baixo dela.',
     hintProgram: const [
       Block(BlockType.turnRight),
       Block(BlockType.repeat),
@@ -281,6 +294,7 @@ final world1Levels = <Level>[
     goal: const GridPosition(4, 3),
     maxBlocks: 8,
     optimalBlocks: 6,
+    hintText: 'A parede fica no meio do caminho. Passe por cima dela e desça só no fim.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.walk),
@@ -308,6 +322,7 @@ final world1Levels = <Level>[
     goal: const GridPosition(3, 1),
     maxBlocks: 8,
     optimalBlocks: 7,
+    hintText: 'Alterne trechos retos e curvas. Repetir vale nos trechos de 3 casas.',
     hintProgram: const [
       Block(BlockType.walk),
       Block(BlockType.turnRight),
@@ -336,6 +351,7 @@ final world1Levels = <Level>[
     goal: const GridPosition(4, 2),
     maxBlocks: 8,
     optimalBlocks: 8,
+    hintText: 'Os trechos aqui têm só 2 casas, então Repetir 3× não ajuda.',
     hintProgram: const [
       Block(BlockType.walk),
       Block(BlockType.walk),
@@ -359,6 +375,7 @@ final world1Levels = <Level>[
     goal: const GridPosition(3, 3),
     maxBlocks: 8,
     optimalBlocks: 6,
+    hintText: 'A parede está logo na frente. Vire antes de dar o primeiro passo.',
     hintProgram: const [
       Block(BlockType.turnRight),
       Block(BlockType.repeat),
@@ -385,6 +402,7 @@ final world1Levels = <Level>[
     goal: const GridPosition(3, 2),
     maxBlocks: 8,
     optimalBlocks: 6,
+    hintText: 'Vá primeiro para o lado e só depois suba até o alvo.',
     hintProgram: const [
       Block(BlockType.turnRight),
       Block(BlockType.repeat),
@@ -441,6 +459,7 @@ final world2Levels = <Level>[
     goal: const GridPosition(3, 2),
     maxBlocks: 8,
     optimalBlocks: 5,
+    hintText: 'O resgate também anda uma casa e só resgata se houver alguém ali. Repetir cobre o corredor.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.rescueIfCharacterHere),
@@ -463,6 +482,7 @@ final world2Levels = <Level>[
     goal: const GridPosition(4, 0),
     maxBlocks: 8,
     optimalBlocks: 3,
+    hintText: 'Combine Repetir com o resgate para percorrer o corredor de uma vez.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.rescueIfCharacterHere),
@@ -483,6 +503,7 @@ final world2Levels = <Level>[
     goal: const GridPosition(4, 5),
     maxBlocks: 8,
     optimalBlocks: 3,
+    hintText: 'Mesma ideia da fase anterior: Repetir com o resgate resolve o corredor.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.rescueIfCharacterHere),
@@ -503,6 +524,7 @@ final world2Levels = <Level>[
     goal: const GridPosition(0, 4),
     maxBlocks: 8,
     optimalBlocks: 3,
+    hintText: 'O resgate funciona em qualquer direção, inclusive descendo.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.rescueIfCharacterHere),
@@ -523,6 +545,7 @@ final world2Levels = <Level>[
     goal: const GridPosition(3, 3),
     maxBlocks: 8,
     optimalBlocks: 5,
+    hintText: 'São dois corredores: resgate no primeiro, vire e resgate no segundo.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.rescueIfCharacterHere),
@@ -550,6 +573,7 @@ final world2Levels = <Level>[
     goal: const GridPosition(3, 2),
     maxBlocks: 8,
     optimalBlocks: 5,
+    hintText: 'Dois corredores de novo, mas a curva agora é para cima.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.rescueIfCharacterHere),
@@ -576,6 +600,7 @@ final world2Levels = <Level>[
     goal: const GridPosition(4, 3),
     maxBlocks: 8,
     optimalBlocks: 7,
+    hintText: 'Depois dos dois corredores, ainda falta um trecho até o alvo.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.rescueIfCharacterHere),
@@ -604,6 +629,7 @@ final world2Levels = <Level>[
     goal: const GridPosition(4, 2),
     maxBlocks: 8,
     optimalBlocks: 7,
+    hintText: 'Parecido com a fase anterior, só que espelhado.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.rescueIfCharacterHere),
@@ -632,6 +658,7 @@ final world2Levels = <Level>[
     goal: const GridPosition(3, 4),
     maxBlocks: 8,
     optimalBlocks: 6,
+    hintText: 'O último passo até o alvo não precisa resgatar ninguém.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.rescueIfCharacterHere),
@@ -659,6 +686,7 @@ final world2Levels = <Level>[
     goal: const GridPosition(5, 3),
     maxBlocks: 8,
     optimalBlocks: 8,
+    hintText: 'Um personagem fica fora dos corredores. Resgate esse sozinho, sem Repetir.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.rescueIfCharacterHere),
@@ -690,6 +718,7 @@ final world2Levels = <Level>[
     goal: const GridPosition(5, 2),
     maxBlocks: 8,
     optimalBlocks: 8,
+    hintText: 'Tem um personagem fora dos corredores. Um resgate solto pega ele.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.rescueIfCharacterHere),
@@ -720,6 +749,7 @@ final world2Levels = <Level>[
     goal: const GridPosition(5, 2),
     maxBlocks: 8,
     optimalBlocks: 8,
+    hintText: 'Quase toda casa do caminho tem alguém. Não deixe nenhuma passar.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.rescueIfCharacterHere),
@@ -784,6 +814,7 @@ final world3Levels = <Level>[
     goal: const GridPosition(3, 1),
     maxBlocks: 8,
     optimalBlocks: 4,
+    hintText: 'Cada Andar pinta uma casa. Use Repetir no trecho reto.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.walk),
@@ -810,6 +841,7 @@ final world3Levels = <Level>[
     goal: const GridPosition(2, 1),
     maxBlocks: 8,
     optimalBlocks: 5,
+    hintText: 'O degrau alterna as curvas: uma para cada lado.',
     hintProgram: const [
       Block(BlockType.walk),
       Block(BlockType.turnRight),
@@ -836,6 +868,7 @@ final world3Levels = <Level>[
     goal: const GridPosition(3, 3),
     maxBlocks: 8,
     optimalBlocks: 5,
+    hintText: 'Os dois lados do L têm 3 casas: Repetir cabe nos dois.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.walk),
@@ -865,6 +898,7 @@ final world3Levels = <Level>[
     goal: const GridPosition(0, 2),
     maxBlocks: 8,
     optimalBlocks: 6,
+    hintText: 'As duas curvas vão para o mesmo lado.',
     hintProgram: const [
       Block(BlockType.walk),
       Block(BlockType.turnRight),
@@ -893,6 +927,7 @@ final world3Levels = <Level>[
     goal: const GridPosition(2, 2),
     maxBlocks: 8,
     optimalBlocks: 7,
+    hintText: 'É um degrau maior: as curvas alternam de lado.',
     hintProgram: const [
       Block(BlockType.walk),
       Block(BlockType.turnRight),
@@ -922,6 +957,7 @@ final world3Levels = <Level>[
     goal: const GridPosition(1, 0),
     maxBlocks: 8,
     optimalBlocks: 7,
+    hintText: 'Desça uma coluna, mude de coluna e suba a outra.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.walk),
@@ -954,6 +990,7 @@ final world3Levels = <Level>[
     goal: const GridPosition(5, 1),
     maxBlocks: 8,
     optimalBlocks: 7,
+    hintText: 'Ande reto, desça uma casa e siga reto até o alvo.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.walk),
@@ -985,6 +1022,7 @@ final world3Levels = <Level>[
     goal: const GridPosition(3, 3),
     maxBlocks: 8,
     optimalBlocks: 8,
+    hintText: 'Para fazer meia-volta, vire duas vezes seguidas.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.walk),
@@ -1016,6 +1054,7 @@ final world3Levels = <Level>[
     goal: const GridPosition(2, 0),
     maxBlocks: 8,
     optimalBlocks: 8,
+    hintText: 'Faça as duas colunas com Repetir e ligue as duas por baixo.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.walk),
@@ -1050,6 +1089,7 @@ final world3Levels = <Level>[
     goal: const GridPosition(2, 3),
     maxBlocks: 8,
     optimalBlocks: 8,
+    hintText: 'Os trechos são curtos e as curvas alternam de lado.',
     hintProgram: const [
       Block(BlockType.walk),
       Block(BlockType.turnRight),
@@ -1081,6 +1121,7 @@ final world3Levels = <Level>[
     goal: const GridPosition(2, 3),
     maxBlocks: 8,
     optimalBlocks: 8,
+    hintText: 'Suba a primeira coluna, cruze o topo e desça a outra.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.walk),
@@ -1115,6 +1156,7 @@ final world3Levels = <Level>[
     goal: const GridPosition(0, 3),
     maxBlocks: 8,
     optimalBlocks: 8,
+    hintText: 'São três lados de um quadrado, com 3 casas cada. Repetir nos três.',
     hintProgram: const [
       Block(BlockType.repeat),
       Block(BlockType.walk),

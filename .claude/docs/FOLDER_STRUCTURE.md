@@ -63,7 +63,7 @@ lib/
     code_puzzle/presentation/{gameplay,stage_select}/    # Mundo 5 (Modo Debug) — "veredito único", reorder/findBug
     result/presentation/
       victory_view.dart             # genérica entre Mundo 1/2 — recebe levelNumber/blocksUsed/maxBlocks/optimalBlocks/hasNext + onPrimaryAction (não navega sozinha)
-      failure_view.dart             # genérica entre Mundo 1/2 — recebe levelNumber/attempt/reasonText/maxBlocks/hintChips + onBackToMenu (não navega sozinha)
+      failure_view.dart             # genérica entre Mundo 1/2 — recebe levelNumber/attempt/reasonText/hintText + onBackToMenu (não navega sozinha)
       code_puzzle_result_view.dart  # genérica entre Mundo 3/4/5 (veredito único) — uma tela só, parametrizada por won: bool
     world_select/presentation/world_select_view.dart     # Seleção de Mundo — sem ViewModel; uma seção por GameTrack, roteia por WorldGameType
     tutorial/presentation/tutorial_view.dart              # tela cheia paginada (slides + narração); ConsumerStatefulWidget com estado local (índice do slide, máquina de escrever) — não é estado de app, não ganhou ViewModel

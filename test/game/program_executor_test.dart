@@ -93,6 +93,7 @@ void main() {
         maxBlocks: 8,
         optimalBlocks: 1,
         hintProgram: [],
+        hintText: '',
       );
       final executor = ProgramExecutor(level);
       final cursor = GameCursor.fromStart(level);
@@ -118,6 +119,7 @@ void main() {
         maxBlocks: 8,
         optimalBlocks: 1,
         hintProgram: [],
+        hintText: '',
       );
       final executor = ProgramExecutor(level);
       final cursor = GameCursor.fromStart(level);
@@ -158,6 +160,7 @@ void main() {
         maxBlocks: 8,
         optimalBlocks: 1,
         hintProgram: [],
+        hintText: '',
       );
       final executor = ProgramExecutor(level);
 
@@ -194,6 +197,7 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 2,
           hintProgram: [],
+          hintText: '',
           collectibles: {GridPosition(1, 0)},
           collectTarget: 1,
         );
@@ -247,6 +251,7 @@ void main() {
         maxBlocks: 8,
         optimalBlocks: 1,
         hintProgram: [],
+        hintText: '',
       );
       final executor = ProgramExecutor(level);
       final cursor = GameCursor.fromStart(level);
@@ -275,6 +280,7 @@ void main() {
         maxBlocks: 8,
         optimalBlocks: 2,
         hintProgram: [],
+        hintText: '',
         collectibles: {GridPosition(1, 0)},
         collectTarget: 1,
       );
@@ -304,6 +310,7 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 3,
           hintProgram: [],
+          hintText: '',
           collectibles: {GridPosition(1, 0)},
           collectTarget: 1,
         );
@@ -344,6 +351,7 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
+          hintText: '',
           collectibles: {},
           collectTarget: 1,
         );
@@ -378,6 +386,7 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
+          hintText: '',
           collectibles: {},
           collectTarget: 2,
         );
@@ -412,6 +421,7 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
+          hintText: '',
           collectibles: {},
           collectTarget: 1,
         );
@@ -449,6 +459,7 @@ void main() {
         maxBlocks: 8,
         optimalBlocks: 2,
         hintProgram: [],
+        hintText: '',
         paintTarget: {
           GridPosition(0, 0),
           GridPosition(1, 0),
@@ -486,6 +497,7 @@ void main() {
         maxBlocks: 8,
         optimalBlocks: 5,
         hintProgram: [],
+        hintText: '',
         paintTarget: {GridPosition(0, 0), GridPosition(1, 0)},
       );
       final executor = ProgramExecutor(level);
@@ -521,6 +533,7 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
+          hintText: '',
           paintTarget: {GridPosition(0, 0), GridPosition(1, 0)},
         );
         final executor = ProgramExecutor(level);
@@ -554,6 +567,7 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
+          hintText: '',
           paintTarget: {
             GridPosition(0, 0),
             GridPosition(1, 0),
@@ -594,6 +608,7 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
+          hintText: '',
           paintTarget: {GridPosition(0, 0), GridPosition(1, 0)},
         );
         final executor = ProgramExecutor(level);
@@ -631,6 +646,7 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
+          hintText: '',
           paintTarget: {GridPosition(0, 0)},
         );
         final executor = ProgramExecutor(level);
