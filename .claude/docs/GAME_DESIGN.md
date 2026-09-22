@@ -31,6 +31,8 @@ para a 4ª iteração do Mundo 2 (era "Encruzilhada Colorida"/Placa, virou
 
 ## Regras do programa
 - Máximo de **8 blocos** por programa (`Repetir 3×` conta como 1 bloco do total, mesmo controlando 3 repetições do bloco seguinte).
+- O botão `Repetir 3×` fica **desabilitado** quando o último bloco do Programa já é um `Repetir` (ele ainda espera o comando que vai repetir) ou quando só resta 1 vaga no `maxBlocks` (não sobraria espaço para esse comando). Volta a ficar habilitado assim que o jogador escolhe outro comando ou apaga o `Repetir`. Regra em `canAddRepeat` (`lib/game/program_executor.dart`), aplicada no botão e em `GameplayViewModel.addBlock`.
+- Em "Seu Programa", o `Repetir 3×` aparece como um card amarelo, do tamanho de um chip comum, com o comando repetido **dentro** dele (mesma leitura da aba Código, `repetir (3) { andar(); }`). Enquanto não há comando, o card mostra um espaço vazio "?". Tocar no card remove o `Repetir`; tocar no comando de dentro remove só ele.
 - O programa é montado tocando os botões de comando; tocar um bloco já adicionado o remove.
 
 ## Execução

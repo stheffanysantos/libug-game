@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/auth/auth_providers.dart';
 import '../../../../core/onboarding/onboarding_notifier.dart';
 import '../../../../game/game_result.dart';
+import '../../../../game/program_executor.dart';
 import '../../../../models/block.dart';
 import '../../../../models/character_avatar.dart';
 import '../../../../models/game_track.dart';
@@ -457,12 +458,92 @@ class GameplayView extends ConsumerWidget {
                 style: AppText.style(size: 14, weight: FontWeight.w800, color: AppColors.grayLockIcon),
               ),
             )
-          : ProgramChipGrid(
-              chips: [
-                for (var i = 0; i < state.program.length; i++)
-                  _blockChip(state, notifier, i),
-              ],
+          : _buildProgramCards(state, notifier),
+    );
+  }
+
+  /// Chips de "Seu Programa". Um `Repetir 3×` aparece como um card só, com o
+  /// comando que ele repete **dentro** — mesma leitura da aba Código
+  /// (`repetir (3) { andar(); }`). Sem comando ainda, o card mostra um espaço
+  /// vazio "?" onde o próximo comando vai entrar. O pareamento vem de
+  /// `resolveProgramEntries`, a mesma regra que o motor usa para executar.
+  Widget _buildProgramCards(GameplayState state, GameplayViewModel notifier) {
+    final repeatedIndexes = {
+      for (final entry in resolveProgramEntries(state.program))
+        if (entry.insideRepeat) entry.blockIndex,
+    };
+    final chips = <Widget>[];
+    for (var i = 0; i < state.program.length; i++) {
+      if (state.program[i].type == BlockType.repeat) {
+        final targetIndex = repeatedIndexes.contains(i + 1) ? i + 1 : null;
+        chips.add(_repeatGroup(state, notifier, i, targetIndex));
+        if (targetIndex != null) i++;
+        continue;
+      }
+      chips.add(_blockChip(state, notifier, i));
+    }
+    return ProgramChipGrid(chips: chips);
+  }
+
+  /// Card do `Repetir 3×` com o comando repetido dentro, do tamanho de um
+  /// chip comum: "3×" à esquerda e o comando compacto ao lado, na mesma
+  /// linha. Tocar no card remove o `Repetir`; tocar no comando de dentro
+  /// remove só ele (o toque mais interno vence).
+  Widget _repeatGroup(GameplayState state, GameplayViewModel notifier, int repeatIndex, int? targetIndex) {
+    final style = styleForBlock(state.program[repeatIndex]);
+    // Só "3×": o card amarelo já diz que é o `Repetir` (o ícone fica no
+    // botão da paleta), e sem ele o card cabe numa coluna.
+    final header = Text(
+      '${style.repeatCount}×',
+      style: AppText.style(size: 14, weight: FontWeight.w900, color: style.foreground),
+    );
+    final inner = targetIndex != null
+        ? _blockChip(state, notifier, targetIndex, compact: true)
+        : Container(
+            key: const Key('repeatEmptySlot'),
+            constraints: const BoxConstraints(minHeight: 30, minWidth: 34),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.overlayBadge,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.purpleDark.withValues(alpha: 0.5), width: 2),
             ),
+            child: Text('?', style: AppText.style(size: 14, weight: FontWeight.w900, color: AppColors.purpleDark)),
+          );
+    return Semantics(
+      label: 'Repetir ${style.repeatCount} vezes',
+      button: true,
+      child: GestureDetector(
+        key: Key('repeatGroup$repeatIndex'),
+        onTap: () => notifier.removeBlockAt(repeatIndex),
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: style.background,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [BoxShadow(color: AppColors.overlaySoft, offset: Offset(0, 4), blurRadius: 0)],
+          ),
+          // Encolhe o conjunto em vez de estourar se a coluna ficar estreita
+          // (celular pequeno).
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  header,
+                  const SizedBox(width: 3),
+                  // Sem isso o chip (que centraliza o ícone) se estica até
+                  // a largura máxima que recebe.
+                  IntrinsicWidth(child: inner),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -499,12 +580,12 @@ class GameplayView extends ConsumerWidget {
       crossAxisCount: availableTypes.length,
       maxCellHeight: 72,
       buttons: [
-        for (final type in availableTypes) _commandButtonFor(type, notifier),
+        for (final type in availableTypes) _commandButtonFor(state, type, notifier),
       ],
     );
   }
 
-  CommandButton _commandButtonFor(BlockType type, GameplayViewModel notifier) {
+  CommandButton _commandButtonFor(GameplayState state, BlockType type, GameplayViewModel notifier) {
     final style = styleForBlock(Block(type));
     return CommandButton(
       iconBuilder: style.icon,
@@ -515,11 +596,15 @@ class GameplayView extends ConsumerWidget {
       background: style.background,
       foreground: style.foreground,
       shadowColor: style.shadowColor,
+      // `Repetir 3×` fica apagado enquanto espera o comando que vai repetir
+      // (ou quando não sobra vaga para ele) — mostra sem texto que é preciso
+      // escolher outro comando antes. Mesma regra aplicada em `addBlock`.
+      enabled: type != BlockType.repeat || canAddRepeat(state.program, state.level.maxBlocks),
       onTap: () => notifier.addBlock(type),
     );
   }
 
-  Widget _blockChip(GameplayState state, GameplayViewModel notifier, int index) {
+  Widget _blockChip(GameplayState state, GameplayViewModel notifier, int index, {bool compact = false}) {
     final style = styleForBlock(state.program[index]);
     return ProgramBlockChip(
       label: style.label,
@@ -532,8 +617,9 @@ class GameplayView extends ConsumerWidget {
       // "Seu Programa" mostra só o ícone (rótulo continua nos
       // `CommandButton`s da paleta abaixo) — pedido explícito do usuário,
       // ver `.claude/memory/decisions.md`.
-      icon: style.icon(programBlockChipIconSize),
+      icon: style.icon(compact ? programBlockChipCompactIconSize : programBlockChipIconSize),
       showLabel: false,
+      compact: compact,
     );
   }
 }

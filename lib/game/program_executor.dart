@@ -133,6 +133,16 @@ List<ProgramEntry> resolveProgramEntries(List<Block> program) {
   return entries;
 }
 
+/// `true` quando dá para acrescentar um `Repetir 3×` no fim do Programa.
+/// Não dá quando o último bloco já é um `Repetir` (ele ainda espera o
+/// comando que vai repetir) nem quando só resta 1 vaga no `maxBlocks` (não
+/// sobraria espaço para esse comando). Ver `.claude/memory/decisions.md`,
+/// entrada de 2026-09-22.
+bool canAddRepeat(List<Block> program, int maxBlocks) {
+  if (program.length >= maxBlocks - 1) return false;
+  return program.isEmpty || program.last.type != BlockType.repeat;
+}
+
 /// Interpretador do Programa contra uma Fase. Dart puro — sem Flutter (ver
 /// `.claude/rules/architecture.md`). Quem anima a Execução é a Screen,
 /// consumindo `expand`/`applyStep`/`evaluateFinal` passo a passo.

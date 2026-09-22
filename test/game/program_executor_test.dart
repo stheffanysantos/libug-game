@@ -6,6 +6,28 @@ import 'package:debuga_o_mascote/models/block.dart';
 import 'package:debuga_o_mascote/models/level.dart';
 
 void main() {
+  group('canAddRepeat', () {
+    const walk = Block(BlockType.walk);
+    const repeat = Block(BlockType.repeat);
+
+    test('libera Repetir com o Programa vazio', () {
+      expect(canAddRepeat(const [], 8), isTrue);
+    });
+
+    test('bloqueia Repetir logo depois de outro Repetir', () {
+      expect(canAddRepeat(const [walk, repeat], 8), isFalse);
+    });
+
+    test('libera Repetir de novo depois que o comando repetido entra', () {
+      expect(canAddRepeat(const [repeat, walk], 8), isTrue);
+    });
+
+    test('bloqueia Repetir quando só resta 1 vaga no maxBlocks', () {
+      expect(canAddRepeat(const [walk, walk, walk], 4), isFalse);
+      expect(canAddRepeat(const [walk, walk], 4), isTrue);
+    });
+  });
+
   group('ProgramExecutor.expand', () {
     test('expande Repetir 3x sobre o bloco seguinte', () {
       final executor = ProgramExecutor(demoLevel);

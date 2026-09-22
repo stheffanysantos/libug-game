@@ -17,12 +17,9 @@ class CommandButton extends StatelessWidget {
   final Color shadowColor;
   final VoidCallback onTap;
 
-  /// Contorno opcional — usado quando 2 comandos têm a mesma cor de fundo
-  /// mas significados bem diferentes (ex. Mundo 2: "Se Amarelo" vs.
-  /// "Enquanto Amarelo", empilhados na mesma coluna), para diferenciá-los
-  /// além do ícone pequeno (achado do UX Reviewer: ícone sozinho não bastava
-  /// num toque rápido de estande).
-  final Border? border;
+  /// Desabilitado: botão apagado e sem reagir ao toque (mesmo visual do
+  /// `enabled` de `PrimaryPillButton`).
+  final bool enabled;
 
   const CommandButton({
     super.key,
@@ -32,52 +29,54 @@ class CommandButton extends StatelessWidget {
     required this.foreground,
     required this.shadowColor,
     required this.onTap,
-    this.border,
+    this.enabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return HardShadowBox(
-      color: background,
-      shadows: [BoxShadow(color: shadowColor, offset: const Offset(0, 6), blurRadius: 0)],
-      borderRadius: BorderRadius.circular(18),
-      border: border,
-      onTap: onTap,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final box = math.min(constraints.maxWidth, constraints.maxHeight);
-          final iconSize = (box * 0.36).clamp(16.0, 30.0);
-          final fontSize = (box * 0.17).clamp(10.0, 14.0);
-          // Rótulos mais longos que "Andar"/"Virar ←" quebram em até 2
-          // linhas em vez de encolher a fonte até ficar ilegível — a grade
-          // pode ter vários botões lado a lado (células estreitas). O texto não é truncado
-          // (nada de reticências): o jogador precisa ler o comando inteiro.
-          // A largura fixa do `SizedBox` é o que faz o texto quebrar dentro
-          // do `FittedBox`, que só entra como rede de segurança: se ícone +
-          // 2 linhas ainda passarem da altura da célula, o conjunto encolhe
-          // em vez de estourar.
-          return Center(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: SizedBox(
-                width: math.max(0, constraints.maxWidth - 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    iconBuilder(iconSize),
-                    SizedBox(height: box * 0.045),
-                    Text(
-                      label,
-                      maxLines: 2,
-                      textAlign: TextAlign.center,
-                      style: AppText.style(size: fontSize, weight: FontWeight.w900, color: foreground),
-                    ),
-                  ],
+    return Opacity(
+      opacity: enabled ? 1 : 0.4,
+      child: HardShadowBox(
+        color: background,
+        shadows: [BoxShadow(color: shadowColor, offset: const Offset(0, 6), blurRadius: 0)],
+        borderRadius: BorderRadius.circular(18),
+        onTap: enabled ? onTap : null,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final box = math.min(constraints.maxWidth, constraints.maxHeight);
+            final iconSize = (box * 0.36).clamp(16.0, 30.0);
+            final fontSize = (box * 0.17).clamp(10.0, 14.0);
+            // Rótulos mais longos que "Andar"/"Virar ←" quebram em até 2
+            // linhas em vez de encolher a fonte até ficar ilegível — a grade
+            // pode ter vários botões lado a lado (células estreitas). O texto não é truncado
+            // (nada de reticências): o jogador precisa ler o comando inteiro.
+            // A largura fixa do `SizedBox` é o que faz o texto quebrar dentro
+            // do `FittedBox`, que só entra como rede de segurança: se ícone +
+            // 2 linhas ainda passarem da altura da célula, o conjunto encolhe
+            // em vez de estourar.
+            return Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SizedBox(
+                  width: math.max(0, constraints.maxWidth - 8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      iconBuilder(iconSize),
+                      SizedBox(height: box * 0.045),
+                      Text(
+                        label,
+                        maxLines: 2,
+                        textAlign: TextAlign.center,
+                        style: AppText.style(size: fontSize, weight: FontWeight.w900, color: foreground),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
