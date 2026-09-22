@@ -69,6 +69,12 @@ class CodePuzzleLevel implements GameLevel {
   /// `type == findBug`. String vazia em fases `reorder`.
   final String bugExplanation;
 
+  /// Dica escrita mostrada na tela de Resultado quando o jogador erra um
+  /// `reorder` — uma frase curta que aponta como acertar, sem entregar a
+  /// ordem. String vazia em fases `findBug` (lá quem explica é
+  /// `bugExplanation`).
+  final String hintText;
+
   const CodePuzzleLevel._({
     required this.id,
     required this.world,
@@ -80,6 +86,7 @@ class CodePuzzleLevel implements GameLevel {
     required this.codeWithBug,
     required this.buggyLineIndex,
     required this.bugExplanation,
+    required this.hintText,
   });
 
   /// Fase de reordenar linhas. `groupOf` (opcional) marca linhas
@@ -90,6 +97,7 @@ class CodePuzzleLevel implements GameLevel {
     required int number,
     required String title,
     required List<CodeLine> correctOrder,
+    required String hintText,
     List<int>? groupOf,
   }) {
     assert(correctOrder.isNotEmpty, 'reorder precisa de correctOrder não vazio ($id)');
@@ -113,6 +121,7 @@ class CodePuzzleLevel implements GameLevel {
       codeWithBug: const [],
       buggyLineIndex: -1,
       bugExplanation: '',
+      hintText: hintText,
     );
   }
 
@@ -141,6 +150,7 @@ class CodePuzzleLevel implements GameLevel {
       codeWithBug: codeWithBug,
       buggyLineIndex: buggyLineIndex,
       bugExplanation: bugExplanation,
+      hintText: '',
     );
   }
 }
@@ -162,6 +172,7 @@ final world7Levels = <CodePuzzleLevel>[
     id: 'world7_level1',
     number: 1,
     title: 'Primeira linha',
+    hintText: 'Primeiro crie a variável; só depois use ela.',
     correctOrder: const [
       CodeLine('int x = 5;'),
       CodeLine('print(x);'),
@@ -171,6 +182,7 @@ final world7Levels = <CodePuzzleLevel>[
     id: 'world7_level2',
     number: 2,
     title: 'Some dois números',
+    hintText: 'Declare os dois números antes de somá-los.',
     correctOrder: const [
       CodeLine('int a = 2;'),
       CodeLine('int b = 3;'),
@@ -186,6 +198,7 @@ final world7Levels = <CodePuzzleLevel>[
     id: 'world7_level3',
     number: 3,
     title: 'Uma decisão simples',
+    hintText: 'A condição vem primeiro; o que acontece fica dentro das chaves.',
     correctOrder: const [
       CodeLine('if (idade >= 18) {'),
       CodeLine("  print('Maior de idade');"),
@@ -196,6 +209,7 @@ final world7Levels = <CodePuzzleLevel>[
     id: 'world7_level4',
     number: 4,
     title: 'Se, senão',
+    hintText: 'O else só aparece depois de fechar o bloco do if.',
     correctOrder: const [
       CodeLine('if (nota >= 6) {'),
       CodeLine("  print('Aprovado');"),
@@ -208,6 +222,7 @@ final world7Levels = <CodePuzzleLevel>[
     id: 'world7_level5',
     number: 5,
     title: 'Repita 3 vezes',
+    hintText: 'O for abre o bloco, o que se repete fica dentro e a chave fecha no fim.',
     correctOrder: const [
       CodeLine('for (int i = 0; i < 3; i++) {'),
       CodeLine('  print(i);'),
@@ -218,6 +233,7 @@ final world7Levels = <CodePuzzleLevel>[
     id: 'world7_level6',
     number: 6,
     title: 'Sua primeira função',
+    hintText: 'A função começa pela assinatura, e o return fica dentro dela.',
     correctOrder: const [
       CodeLine('int dobro(int n) {'),
       CodeLine('  return n * 2;'),
@@ -240,6 +256,7 @@ final world7Levels = <CodePuzzleLevel>[
     id: 'world7_level8',
     number: 8,
     title: 'Some uma lista de números',
+    hintText: 'Zere o total antes do laço e só mostre o resultado depois dele.',
     correctOrder: const [
       CodeLine('int total = 0;'),
       CodeLine('for (int i = 1; i <= 5; i++) {'),
@@ -282,6 +299,7 @@ final world7Levels = <CodePuzzleLevel>[
     id: 'world7_level11',
     number: 11,
     title: 'Percorra uma lista',
+    hintText: 'Prepare as variáveis antes do laço e mostre o resultado depois dele.',
     correctOrder: const [
       CodeLine('List<int> numeros = [1, 2, 3];'),
       CodeLine('int soma = 0;'),

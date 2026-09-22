@@ -6,6 +6,7 @@ import 'package:debuga_o_mascote/features/result/presentation/failure_view.dart'
 import 'package:debuga_o_mascote/features/result/presentation/victory_view.dart';
 import 'package:debuga_o_mascote/models/level.dart';
 import 'package:debuga_o_mascote/widgets/command_button_widget.dart';
+import 'package:debuga_o_mascote/widgets/program_block_chip_widget.dart';
 
 import '../../helpers/test_container.dart';
 
@@ -93,5 +94,8 @@ void main() {
 
     expect(onFailure(find.text('FASE 6 · TENTATIVA 1')), findsOneWidget);
     expect(onFailure(find.textContaining('bateu na parede')), findsOneWidget);
+    expect(onFailure(find.text('DICA')), findsOneWidget);
+    expect(onFailure(find.text(demoLevel.hintText)), findsOneWidget, reason: 'a Dica é a frase escrita da fase');
+    expect(onFailure(find.byType(ProgramBlockChip)), findsNothing, reason: 'a Dica não usa os blocos da solução');
   });
 }

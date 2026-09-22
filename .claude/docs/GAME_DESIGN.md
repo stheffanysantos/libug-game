@@ -57,7 +57,7 @@ Implementado em `lib/game/scoring.dart` (`computeScore`), chamado só após uma 
 Pontos: 300 no ótimo, -50 por bloco extra, com piso de 50. Tela de Vitória (`VictoryScreen`) recebe `level`/`blocksUsed` reais da partida jogada em `GameplayScreen` — nada de números fixos de exemplo.
 
 ## Dica (tela de Tentativa Falha)
-- `Level.hintProgram` guarda uma solução válida conhecida da fase (não necessariamente a ótima) — `FailureScreen` renderiza essa sequência de verdade como Dica, a partir do `Level` realmente jogado.
+- `Level.hintProgram` guarda uma solução válida conhecida da fase (não necessariamente a ótima) — usada só para provar nos testes que a fase é solucionável, **não** é mais mostrada ao jogador. A Dica na `FailureScreen` é `Level.hintText`: uma frase escrita, curta, que aponta como passar sem entregar a resposta (nunca os blocos da solução).
 - O motivo da falha mostrado (`GameOutcome.crash` vs. `GameOutcome.farFromGoal`) também é o resultado real da Execução, não um texto de exemplo.
 
 ## Mundo 2 — Resgate de Personagens

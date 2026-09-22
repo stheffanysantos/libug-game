@@ -84,12 +84,6 @@ class CodePuzzleGameplayView extends ConsumerWidget {
     notifier.clearEffect();
     switch (effect) {
       case ShowCodePuzzleGameplayResult(:final data):
-        final correctOrderChips = data.correctOrder == null
-            ? null
-            : [
-                for (final line in data.correctOrder!)
-                  ProgramBlockChip(label: line.text, background: AppColors.lilac, foreground: AppColors.purpleDark),
-              ];
         await Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => CodePuzzleResultView(
             won: data.won,
@@ -98,7 +92,7 @@ class CodePuzzleGameplayView extends ConsumerWidget {
             stars: data.stars,
             points: data.points,
             explanationText: data.explanationText,
-            correctOrderChips: correctOrderChips,
+            hintText: data.hintText,
             hasNext: data.nextLevel != null,
             onPrimaryAction: () => _onResultPrimaryAction(context, ref, data),
             onBackToMenu: () => Navigator.of(context).popUntil((route) => route.settings.name == codePuzzleStageSelectRouteName),

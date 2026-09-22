@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../../models/code_line.dart';
 import '../../../../models/code_puzzle_level.dart';
 
 part 'code_puzzle_gameplay_state.freezed.dart';
@@ -32,9 +31,7 @@ sealed class CodePuzzleGameplayEffect with _$CodePuzzleGameplayEffect {
   const factory CodePuzzleGameplayEffect.showResult({required CodePuzzleGameplayResultData data}) = ShowCodePuzzleGameplayResult;
 }
 
-/// Dados prontos pra montar a `CodePuzzleResultView`. `correctOrder` (não
-/// os `Widget`s já montados) — quem constrói os chips é a View, o
-/// ViewModel não monta `Widget`.
+/// Dados prontos pra montar a `CodePuzzleResultView`.
 class CodePuzzleGameplayResultData {
   final bool won;
   final int levelNumber;
@@ -48,8 +45,9 @@ class CodePuzzleGameplayResultData {
   /// quando a fase é `findBug`; `null` quando é `reorder`.
   final String? explanationText;
 
-  /// A ordem certa da fase como "Dica" — só quando perdeu um `reorder`.
-  final List<CodeLine>? correctOrder;
+  /// Dica escrita da fase (`CodePuzzleLevel.hintText`) — só quando perdeu um
+  /// `reorder`.
+  final String? hintText;
 
   final int worldNumber;
 
@@ -66,7 +64,7 @@ class CodePuzzleGameplayResultData {
     required this.stars,
     required this.points,
     this.explanationText,
-    this.correctOrder,
+    this.hintText,
     required this.worldNumber,
     required this.nextLevel,
     required this.worldJustCompleted,
