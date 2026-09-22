@@ -6,28 +6,6 @@ import 'package:debuga_o_mascote/models/block.dart';
 import 'package:debuga_o_mascote/models/level.dart';
 
 void main() {
-  group('canAddRepeat', () {
-    const walk = Block(BlockType.walk);
-    const repeat = Block(BlockType.repeat);
-
-    test('libera Repetir com o Programa vazio', () {
-      expect(canAddRepeat(const [], 8), isTrue);
-    });
-
-    test('bloqueia Repetir logo depois de outro Repetir', () {
-      expect(canAddRepeat(const [walk, repeat], 8), isFalse);
-    });
-
-    test('libera Repetir de novo depois que o comando repetido entra', () {
-      expect(canAddRepeat(const [repeat, walk], 8), isTrue);
-    });
-
-    test('bloqueia Repetir quando só resta 1 vaga no maxBlocks', () {
-      expect(canAddRepeat(const [walk, walk, walk], 4), isFalse);
-      expect(canAddRepeat(const [walk, walk], 4), isTrue);
-    });
-  });
-
   group('ProgramExecutor.expand', () {
     test('expande Repetir 3x sobre o bloco seguinte', () {
       final executor = ProgramExecutor(demoLevel);
@@ -115,7 +93,6 @@ void main() {
         maxBlocks: 8,
         optimalBlocks: 1,
         hintProgram: [],
-        hintText: '',
       );
       final executor = ProgramExecutor(level);
       final cursor = GameCursor.fromStart(level);
@@ -141,7 +118,6 @@ void main() {
         maxBlocks: 8,
         optimalBlocks: 1,
         hintProgram: [],
-        hintText: '',
       );
       final executor = ProgramExecutor(level);
       final cursor = GameCursor.fromStart(level);
@@ -182,7 +158,6 @@ void main() {
         maxBlocks: 8,
         optimalBlocks: 1,
         hintProgram: [],
-        hintText: '',
       );
       final executor = ProgramExecutor(level);
 
@@ -204,7 +179,7 @@ void main() {
 
   group('ProgramExecutor.applyStep — Resgate de Personagens (Mundo 2)', () {
     test(
-      'Andar resgata automaticamente quando chega numa casa com personagem',
+      'rescueIfCharacterHere anda e resgata quando a célula de destino tem personagem',
       () {
         final level = Level(
           id: 'test_rescue',
@@ -219,14 +194,16 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 2,
           hintProgram: [],
-          hintText: '',
           collectibles: {GridPosition(1, 0)},
           collectTarget: 1,
         );
         final executor = ProgramExecutor(level);
         final cursor = GameCursor.fromStart(level);
 
-        final outcome = executor.applyStep(cursor, BlockType.walk);
+        final outcome = executor.applyStep(
+          cursor,
+          BlockType.rescueIfCharacterHere,
+        );
 
         expect(outcome.crashed, isFalse);
         expect(outcome.cursor.x, 1);
@@ -240,12 +217,15 @@ void main() {
     );
 
     test(
-      'Andar sem personagem no destino não resgata ninguém',
+      'rescueIfCharacterHere só anda (nunca falha) quando não há personagem no destino',
       () {
         final executor = ProgramExecutor(demoLevel);
         final cursor = GameCursor.fromStart(demoLevel);
 
-        final outcome = executor.applyStep(cursor, BlockType.walk);
+        final outcome = executor.applyStep(
+          cursor,
+          BlockType.rescueIfCharacterHere,
+        );
 
         expect(outcome.crashed, isFalse);
         expect(outcome.cursor.collectedCount, 0);
@@ -253,8 +233,63 @@ void main() {
       },
     );
 
+    test('rescueIfCharacterHere colide com parede igual a walk', () {
+      final level = Level(
+        id: 'test_rescue_wall',
+        world: 2,
+        number: 1,
+        title: 'teste',
+        gridSize: 3,
+        walls: [GridPosition(1, 0)],
+        start: GridPosition(0, 0),
+        startDirection: FacingDirection.right,
+        goal: GridPosition(2, 0),
+        maxBlocks: 8,
+        optimalBlocks: 1,
+        hintProgram: [],
+      );
+      final executor = ProgramExecutor(level);
+      final cursor = GameCursor.fromStart(level);
+
+      final outcome = executor.applyStep(
+        cursor,
+        BlockType.rescueIfCharacterHere,
+      );
+
+      expect(outcome.crashed, isTrue);
+      expect(outcome.cursor.x, cursor.x);
+      expect(outcome.cursor.y, cursor.y);
+    });
+
+    test('Andar NÃO resgata mais automaticamente (só rescueIfCharacterHere resgata)', () {
+      final level = Level(
+        id: 'test_walk_no_autocollect',
+        world: 2,
+        number: 1,
+        title: 'teste',
+        gridSize: 3,
+        walls: [],
+        start: GridPosition(0, 0),
+        startDirection: FacingDirection.right,
+        goal: GridPosition(2, 0),
+        maxBlocks: 8,
+        optimalBlocks: 2,
+        hintProgram: [],
+        collectibles: {GridPosition(1, 0)},
+        collectTarget: 1,
+      );
+      final executor = ProgramExecutor(level);
+      final cursor = GameCursor.fromStart(level);
+
+      final outcome = executor.applyStep(cursor, BlockType.walk);
+
+      expect(outcome.crashed, isFalse);
+      expect(outcome.cursor.collectedCount, 0);
+      expect(outcome.cursor.collectedTiles, isEmpty);
+    });
+
     test(
-      'visitar a mesma célula de personagem 2 vezes só conta 1 resgate',
+      'visitar a mesma célula de personagem 2 vezes via rescueIfCharacterHere só conta 1 vez',
       () {
         final level = Level(
           id: 'test_rescue_twice',
@@ -269,20 +304,25 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 3,
           hintProgram: [],
-          hintText: '',
           collectibles: {GridPosition(1, 0)},
           collectTarget: 1,
         );
         final executor = ProgramExecutor(level);
         var cursor = GameCursor.fromStart(level);
 
-        cursor = executor.applyStep(cursor, BlockType.walk).cursor; // (0,0)->(1,0), resgata
+        cursor = executor
+            .applyStep(cursor, BlockType.rescueIfCharacterHere)
+            .cursor; // (0,0)->(1,0), resgata
         cursor = executor.applyStep(cursor, BlockType.turnLeft).cursor;
         cursor = executor.applyStep(cursor, BlockType.turnLeft).cursor;
-        cursor = executor.applyStep(cursor, BlockType.walk).cursor; // (1,0)->(0,0)
+        cursor = executor
+            .applyStep(cursor, BlockType.rescueIfCharacterHere)
+            .cursor; // (1,0)->(0,0)
         cursor = executor.applyStep(cursor, BlockType.turnLeft).cursor;
         cursor = executor.applyStep(cursor, BlockType.turnLeft).cursor;
-        cursor = executor.applyStep(cursor, BlockType.walk).cursor; // (0,0)->(1,0) de novo
+        cursor = executor
+            .applyStep(cursor, BlockType.rescueIfCharacterHere)
+            .cursor; // (0,0)->(1,0) de novo
 
         expect(cursor.collectedCount, 1);
       },
@@ -304,7 +344,6 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
-          hintText: '',
           collectibles: {},
           collectTarget: 1,
         );
@@ -339,7 +378,6 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
-          hintText: '',
           collectibles: {},
           collectTarget: 2,
         );
@@ -374,7 +412,6 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
-          hintText: '',
           collectibles: {},
           collectTarget: 1,
         );
@@ -412,7 +449,6 @@ void main() {
         maxBlocks: 8,
         optimalBlocks: 2,
         hintProgram: [],
-        hintText: '',
         paintTarget: {
           GridPosition(0, 0),
           GridPosition(1, 0),
@@ -450,7 +486,6 @@ void main() {
         maxBlocks: 8,
         optimalBlocks: 5,
         hintProgram: [],
-        hintText: '',
         paintTarget: {GridPosition(0, 0), GridPosition(1, 0)},
       );
       final executor = ProgramExecutor(level);
@@ -486,7 +521,6 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
-          hintText: '',
           paintTarget: {GridPosition(0, 0), GridPosition(1, 0)},
         );
         final executor = ProgramExecutor(level);
@@ -520,7 +554,6 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
-          hintText: '',
           paintTarget: {
             GridPosition(0, 0),
             GridPosition(1, 0),
@@ -561,7 +594,6 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
-          hintText: '',
           paintTarget: {GridPosition(0, 0), GridPosition(1, 0)},
         );
         final executor = ProgramExecutor(level);
@@ -599,7 +631,6 @@ void main() {
           maxBlocks: 8,
           optimalBlocks: 1,
           hintProgram: [],
-          hintText: '',
           paintTarget: {GridPosition(0, 0)},
         );
         final executor = ProgramExecutor(level);

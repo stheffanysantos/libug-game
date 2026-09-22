@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/audio/audio_providers.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text.dart';
 import '../../../widgets/dotted_background_widget.dart';
@@ -10,24 +12,26 @@ import '../../../widgets/tutorial_content.dart';
 
 /// Tela cheia de tutorial — troca do antigo `TutorialModal` (dialog com
 /// tudo junto) por um fluxo paginado ("Próximo"/"Próximo"), com o texto de
-/// cada slide surgindo letra a letra (efeito de máquina de escrever), sem
-/// narração em áudio. Pedido explícito do usuário — ver `.claude/memory/decisions.md`.
+/// cada slide surgindo letra a letra (efeito de máquina de escrever) e, se
+/// o asset existir, narração em áudio (ver `AppSounds.playNarration`).
+/// Pedido explícito do usuário — ver `.claude/memory/decisions.md`.
 ///
 /// Não navega nem grava `Onboarding` sozinha — quem empurra esta tela
 /// decide o que `onFinish` faz (marcar mundo/intro como visto, abrir a
 /// Seleção de Fases, ou só fechar de volta se foi reaberta pelo "?"). Ver
-/// `tutorialSlidesFor`/`recapSlidesFor` (`tutorial_content.dart`) para
-/// montar `slides`.
+/// `tutorialSlidesFor` (`tutorial_content.dart`) para como montar
+/// `slides`/`narrationAssets`.
 ///
-/// `StatefulWidget` com estado local (não um `TutorialViewModel`):
+/// `ConsumerStatefulWidget` com estado local (não um `TutorialViewModel`):
 /// o índice do slide atual e o progresso da máquina de escrever são estado
 /// puramente de apresentação/animação (paginação de UI), não estado de
 /// aplicação — não sobrevivem a um rebuild de outra tela nem precisam ser
 /// lidos de fora, então um `Notifier` Riverpod não ganharia nada sobre
 /// `setState` aqui (ver plano de migração, §6: "não force ViewModel numa
 /// tela sem lógica de orquestração real").
-class TutorialView extends StatefulWidget {
+class TutorialView extends ConsumerStatefulWidget {
   final List<TutorialSlide> slides;
+  final List<String> narrationAssets;
   final VoidCallback onFinish;
 
   /// Rótulo do botão primário no último slide — "Jogar" (padrão, usado no
@@ -47,19 +51,48 @@ class TutorialView extends StatefulWidget {
   const TutorialView({
     super.key,
     required this.slides,
+    required this.narrationAssets,
     required this.onFinish,
     this.finalLabel = 'Jogar',
     this.finalActionsBuilder,
   });
 
   @override
-  State<TutorialView> createState() => _TutorialViewState();
+  ConsumerState<TutorialView> createState() => _TutorialViewState();
 }
 
-class _TutorialViewState extends State<TutorialView> {
+class _TutorialViewState extends ConsumerState<TutorialView> {
   int _index = 0;
   bool _typingDone = false;
   bool _skipTyping = false;
+
+  // Guardado em `initState` (não lido de novo em `dispose`) — `ref` não
+  // pode ser usado depois que o widget é descartado (`ConsumerStatefulElement`
+  // lança `StateError` nesse caso), então a referência ao serviço precisa
+  // ser capturada enquanto ainda é seguro.
+  late final AppSoundsService _appSounds;
+
+  @override
+  void initState() {
+    super.initState();
+    _appSounds = ref.read(appSoundsProvider);
+    _playNarrationForCurrentSlide();
+  }
+
+  @override
+  void dispose() {
+    // Rede de segurança além de `_finish` — garante que a narração nunca
+    // sobrevive a esta tela, mesmo se ela sair de cena por um caminho que
+    // não passa por "Pular"/terminar o último slide.
+    _appSounds.stopNarration();
+    super.dispose();
+  }
+
+  void _playNarrationForCurrentSlide() {
+    if (_index < widget.narrationAssets.length) {
+      _appSounds.playNarration(widget.narrationAssets[_index]);
+    }
+  }
 
   /// Primeiro toque (com o texto ainda "digitando") revela tudo na hora;
   /// só o toque seguinte avança pro próximo slide (ou termina, no último).
@@ -81,10 +114,17 @@ class _TutorialViewState extends State<TutorialView> {
       _typingDone = false;
       _skipTyping = false;
     });
+    _playNarrationForCurrentSlide();
   }
 
-  /// Sai do Tutorial (via "Pular" ou terminando o último slide).
-  void _finish() => widget.onFinish();
+  /// Sai do Tutorial (via "Pular" ou terminando o último slide) sempre
+  /// parando a narração em andamento primeiro — sem isso, o áudio do slide
+  /// atual continuava tocando por cima da tela seguinte (achado real do
+  /// usuário).
+  void _finish() {
+    _appSounds.stopNarration();
+    widget.onFinish();
+  }
 
   @override
   Widget build(BuildContext context) {

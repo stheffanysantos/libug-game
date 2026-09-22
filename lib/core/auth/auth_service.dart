@@ -6,7 +6,7 @@ abstract class AuthService {
   /// `true` quando o usuário atual tem conta de verdade (não é anônimo).
   bool get hasAccount;
 
-  /// Nome do usuário logado (ver `accountDisplayName`), ou `null` sem conta.
+  /// Nome/e-mail do usuário logado, ou `null` sem conta.
   String? get displayName;
 
   /// Cria uma conta nova (ligada ao aparelho atual, preservando progresso
@@ -26,17 +26,4 @@ abstract class AuthService {
   /// jogador"). Nunca lança — mesmo contrato de resiliência dos outros
   /// métodos.
   Future<void> signOut();
-}
-
-/// Nome a mostrar para uma conta: o nome salvo nela; sem nome, a parte do
-/// e-mail antes do @ (`ana@exemplo.com` → `ana`), nunca o e-mail inteiro.
-/// `null` quando não há nem nome nem e-mail.
-String? accountDisplayName({String? name, String? email}) {
-  final trimmedName = name?.trim();
-  if (trimmedName != null && trimmedName.isNotEmpty) return trimmedName;
-  final trimmedEmail = email?.trim();
-  if (trimmedEmail == null || trimmedEmail.isEmpty) return null;
-  final at = trimmedEmail.indexOf('@');
-  final localPart = at < 0 ? trimmedEmail : trimmedEmail.substring(0, at);
-  return localPart.isEmpty ? null : localPart;
 }

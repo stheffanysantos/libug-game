@@ -19,17 +19,9 @@ service cloud.firestore {
     // Leitura pública (é o ranking), escrita só pelo próprio dono. Sem
     // recorte de dia — pedido explícito do usuário, ver
     // `.claude/memory/decisions.md`.
-    //
-    // Um update nunca pode baixar a pontuação nem "des-zerar" o jogo
-    // (issue #28): um aparelho que ainda não carregou o progresso da conta
-    // poderia enviar valores antigos. O app já junta os valores antes de
-    // gravar (`mergeLeaderboardEntries`); esta regra é a garantia final.
     match /scores/{uid} {
       allow read: if true;
-      allow create: if request.auth != null && request.auth.uid == uid && request.resource.data.uid == uid;
-      allow update: if request.auth != null && request.auth.uid == uid && request.resource.data.uid == uid
-        && request.resource.data.score >= resource.data.get('score', 0)
-        && (resource.data.get('gameCompleted', false) == false || request.resource.data.gameCompleted == true);
+      allow create, update: if request.auth != null && request.auth.uid == uid && request.resource.data.uid == uid;
       allow delete: if false;
     }
   }

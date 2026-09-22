@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:debuga_o_mascote/core/onboarding/onboarding_notifier.dart';
@@ -104,7 +103,7 @@ void main() {
 
     expect(find.byType(TutorialView), findsNothing);
     expect(find.byType(StageSelectView), findsOneWidget);
-    expect(container.read(onboardingProvider).hasSeen(worlds.first.number), isTrue);
+    expect(container.read(onboardingNotifierProvider).hasSeen(worlds.first.number), isTrue);
   });
 
   testWidgets('completar todos os slides do Mundo 1 navega para a Seleção de Fases e marca Onboarding', (tester) async {
@@ -120,12 +119,12 @@ void main() {
 
     expect(find.byType(TutorialView), findsNothing);
     expect(find.byType(StageSelectView), findsOneWidget);
-    expect(container.read(onboardingProvider).hasSeen(worlds.first.number), isTrue);
+    expect(container.read(onboardingNotifierProvider).hasSeen(worlds.first.number), isTrue);
   });
 
   testWidgets('Mundo já visto (Onboarding) navega direto, sem TutorialView', (tester) async {
     final container = createTestContainer();
-    container.read(onboardingProvider.notifier).markSeen(worlds.first.number);
+    container.read(onboardingNotifierProvider.notifier).markSeen(worlds.first.number);
     await tester.binding.setSurfaceSize(const Size(400, 900));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(wrapForTest(container, const WorldSelectView()));
@@ -139,7 +138,7 @@ void main() {
 
   testWidgets('botão "?" na Seleção de Fases reabre a TutorialView com as regras do mundo, e volta sem navegar de novo', (tester) async {
     final container = createTestContainer();
-    container.read(onboardingProvider.notifier).markSeen(worlds.first.number);
+    container.read(onboardingNotifierProvider.notifier).markSeen(worlds.first.number);
 
     await tester.pumpWidget(wrapForTest(container, StageSelectView(world: worlds.first)));
     await tester.pump();
@@ -213,10 +212,10 @@ void main() {
 
   testWidgets('terminar a última fase pendente de um Mundo pela 1ª vez mostra a recapitulação antes de voltar', (tester) async {
     final container = createTestContainer();
-    container.read(onboardingProvider.notifier).markSeen(1);
+    container.read(onboardingNotifierProvider.notifier).markSeen(1);
     // Todas as fases do Mundo 1, exceto a última, já concluídas — vencer a
     // última fecha o Mundo agora mesmo.
-    final progressNotifier = container.read(progressProvider.notifier);
+    final progressNotifier = container.read(progressNotifierProvider.notifier);
     for (final level in world1Levels.sublist(0, world1Levels.length - 1)) {
       progressNotifier.recordWin(level.id, stars: 3, blocksUsed: level.optimalBlocks, points: 300);
     }
@@ -235,14 +234,14 @@ void main() {
 
     expect(find.byType(TutorialView), findsNothing);
     expect(find.byType(StageSelectView), findsOneWidget);
-    expect(container.read(onboardingProvider).hasSeenRecap(1), isTrue);
+    expect(container.read(onboardingNotifierProvider).hasSeenRecap(1), isTrue);
   });
 
   testWidgets('rejogar a última fase de um Mundo já com recapitulação vista não mostra de novo', (tester) async {
     final container = createTestContainer();
-    final onboardingNotifier = container.read(onboardingProvider.notifier);
+    final onboardingNotifier = container.read(onboardingNotifierProvider.notifier);
     onboardingNotifier.markSeen(1);
-    final progressNotifier = container.read(progressProvider.notifier);
+    final progressNotifier = container.read(progressNotifierProvider.notifier);
     for (final level in world1Levels) {
       progressNotifier.recordWin(level.id, stars: 3, blocksUsed: level.optimalBlocks, points: 300);
     }

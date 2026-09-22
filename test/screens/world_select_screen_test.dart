@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:debuga_o_mascote/core/onboarding/onboarding_notifier.dart';
@@ -22,7 +21,7 @@ import '../helpers/test_container.dart';
 /// por `GameWorld`). O fluxo do `TutorialModal` na 1ª vez que um mundo é
 /// tocado (ver `Onboarding`, `lib/core/onboarding/`) tem seus próprios
 /// testes em `test/screens/tutorial_flow_test.dart` — aqui, cada mundo
-/// tocado já é marcado como visto de antemão (`onboardingProvider.notifier.markSeen`)
+/// tocado já é marcado como visto de antemão (`onboardingNotifierProvider.notifier.markSeen`)
 /// para testar só a navegação, sem o modal no meio do caminho.
 void main() {
   // O mapa (`_WorldMapPath`) é mais alto que qualquer viewport de celular
@@ -65,7 +64,7 @@ void main() {
 
   testWidgets('tocar o card do Mundo 2 (já visto) navega direto para a Seleção de Fases da Encruzilhada Colorida', (tester) async {
     final container = await pumpWorldSelect(tester);
-    container.read(onboardingProvider.notifier).markSeen(worlds[1].number);
+    container.read(onboardingNotifierProvider.notifier).markSeen(worlds[1].number);
     await tester.pump();
 
     // Não usar pumpAndSettle: o card jogável usa PulseTap, uma animação em
@@ -83,7 +82,7 @@ void main() {
 
   testWidgets('tocar o card do Mundo 3 (já visto) navega direto para a Seleção de Fases do Caça-Moedas', (tester) async {
     final container = await pumpWorldSelect(tester);
-    container.read(onboardingProvider.notifier).markSeen(worlds[2].number);
+    container.read(onboardingNotifierProvider.notifier).markSeen(worlds[2].number);
     await tester.pump();
 
     final node = find.text('MUNDO 3 / ${worlds[2].name.toUpperCase()}');
@@ -99,7 +98,7 @@ void main() {
 
   testWidgets('tocar o card do Mundo 4 (já visto) navega direto para a Seleção de Fases de Missão de Código', (tester) async {
     final container = await pumpWorldSelect(tester);
-    container.read(onboardingProvider.notifier).markSeen(worlds[3].number);
+    container.read(onboardingNotifierProvider.notifier).markSeen(worlds[3].number);
     await tester.pump();
 
     final node = find.text('MUNDO 4 / ${worlds[3].name.toUpperCase()}');
@@ -115,7 +114,7 @@ void main() {
 
   testWidgets('tocar o card do Mundo 5 (já visto) navega direto para a Seleção de Fases de Preveja a Saída', (tester) async {
     final container = await pumpWorldSelect(tester);
-    container.read(onboardingProvider.notifier).markSeen(worlds[4].number);
+    container.read(onboardingNotifierProvider.notifier).markSeen(worlds[4].number);
     await tester.pump();
 
     final node = find.text('MUNDO 5 / ${worlds[4].name.toUpperCase()}');
@@ -131,7 +130,7 @@ void main() {
 
   testWidgets('tocar o card do Mundo 6 (já visto) navega direto para a Seleção de Fases de Complete o Código', (tester) async {
     final container = await pumpWorldSelect(tester);
-    container.read(onboardingProvider.notifier).markSeen(worlds[5].number);
+    container.read(onboardingNotifierProvider.notifier).markSeen(worlds[5].number);
     await tester.pump();
 
     final node = find.text('MUNDO 6 / ${worlds[5].name.toUpperCase()}');
@@ -147,7 +146,7 @@ void main() {
 
   testWidgets('tocar o card do Mundo 7 (já visto) navega direto para a Seleção de Fases do Modo Debug', (tester) async {
     final container = await pumpWorldSelect(tester);
-    container.read(onboardingProvider.notifier).markSeen(worlds[6].number);
+    container.read(onboardingNotifierProvider.notifier).markSeen(worlds[6].number);
     await tester.pump();
 
     final node = find.text('MUNDO 7 / ${worlds[6].name.toUpperCase()}');
@@ -163,7 +162,7 @@ void main() {
 
   testWidgets('tocar o card do Mundo 1 (já visto) navega direto para a Seleção de Fases', (tester) async {
     final container = await pumpWorldSelect(tester);
-    container.read(onboardingProvider.notifier).markSeen(worlds.first.number);
+    container.read(onboardingNotifierProvider.notifier).markSeen(worlds.first.number);
     await tester.pump();
 
     // Não usar pumpAndSettle: o card jogável usa PulseTap, uma animação em

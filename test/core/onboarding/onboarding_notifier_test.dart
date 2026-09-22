@@ -26,7 +26,7 @@ void main() {
     final repository = _FakeOnboardingRepository();
     final container = ProviderContainer(overrides: [onboardingRepositoryProvider.overrideWithValue(repository)]);
     addTearDown(container.dispose);
-    final notifier = container.read(onboardingProvider.notifier);
+    final notifier = container.read(onboardingNotifierProvider.notifier);
 
     // Aguarda a hidratação inicial (sem nada salvo ainda) antes de mutar.
     await Future<void>.delayed(Duration.zero);
@@ -37,7 +37,7 @@ void main() {
     notifier.markRecapSeen(2);
     await Future<void>.delayed(Duration.zero);
 
-    final state = container.read(onboardingProvider);
+    final state = container.read(onboardingNotifierProvider);
     expect(state.seenWelcome, isTrue);
     expect(state.hasSeen(1), isTrue);
     expect(state.hasSeenRecap(2), isTrue);
@@ -53,11 +53,11 @@ void main() {
     // `build()` já devolve o estado vazio sincronamente e dispara a
     // hidratação fire-and-forget — precisa dar tempo pro `Future.microtask`
     // rodar antes de checar o estado hidratado.
-    container.read(onboardingProvider);
+    container.read(onboardingNotifierProvider);
     await Future<void>.delayed(Duration.zero);
     await Future<void>.delayed(Duration.zero);
 
-    final state = container.read(onboardingProvider);
+    final state = container.read(onboardingNotifierProvider);
     expect(state.seenWelcome, isTrue, reason: 'sem isso, a apresentação da Libug/Lili apareceria de novo a cada reload');
     expect(state.hasSeen(1), isTrue);
   });
@@ -67,11 +67,11 @@ void main() {
     final container = ProviderContainer(overrides: [onboardingRepositoryProvider.overrideWithValue(repository)]);
     addTearDown(container.dispose);
 
-    container.read(onboardingProvider);
+    container.read(onboardingNotifierProvider);
     await Future<void>.delayed(Duration.zero);
     await Future<void>.delayed(Duration.zero);
 
-    final state = container.read(onboardingProvider);
+    final state = container.read(onboardingNotifierProvider);
     expect(state.seenWelcome, isFalse);
     expect(state.seenWorldNumbers, isEmpty);
   });

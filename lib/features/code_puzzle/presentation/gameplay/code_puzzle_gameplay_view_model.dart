@@ -113,10 +113,10 @@ class CodePuzzleGameplayViewModel extends _$CodePuzzleGameplayViewModel {
     }
 
     // Em findBug a explicação é mostrada sempre (ganhou ou perdeu); em
-    // reorder não existe explicação — só a Dica escrita, mostrada quando o
-    // jogador erra.
+    // reorder não existe (o "porquê" é a própria ordem certa, mostrada só
+    // na Dica quando o jogador erra).
     final explanationText = isReorder ? null : level.bugExplanation;
-    final hintText = (!won && isReorder) ? level.hintText : null;
+    final correctOrder = (!won && isReorder) ? level.correctOrder : null;
 
     final levelsInWorld = world.levels.cast<CodePuzzleLevel>();
     final levelIndex = levelsInWorld.indexWhere((l) => l.id == level.id);
@@ -131,7 +131,7 @@ class CodePuzzleGameplayViewModel extends _$CodePuzzleGameplayViewModel {
           stars: stars,
           points: points,
           explanationText: explanationText,
-          hintText: hintText,
+          correctOrder: correctOrder,
           worldNumber: level.world,
           nextLevel: nextLevel,
           worldJustCompleted: worldJustCompleted,
