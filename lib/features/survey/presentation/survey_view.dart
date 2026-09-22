@@ -53,7 +53,7 @@ class _SurveyViewState extends ConsumerState<SurveyView> {
     // Guarda idade/resposta no progresso (não só `hasSubmittedToLeaderboard`)
     // — é o que permite `LeaderboardSyncService` reenviar a entrada sozinho
     // a cada vitória nova, sem pedir a pesquisa de novo.
-    ref.read(progressProvider.notifier).submitToLeaderboard(
+    ref.read(progressNotifierProvider.notifier).submitToLeaderboard(
           age: int.parse(_ageController.text),
           hasProgrammedBefore: _hasProgrammedBefore!,
         );
@@ -97,7 +97,7 @@ class _SurveyViewState extends ConsumerState<SurveyView> {
                   Text('Quer aparecer no ranking?', style: AppText.style(size: 28, weight: FontWeight.w900, color: AppColors.white, height: 1.05)),
                   const SizedBox(height: 8),
                   Text(
-                    'Responda 2 perguntinhas rápidas — você vai aparecer no Placar Geral como "${ref.watch(progressProvider).username ?? ref.watch(authServiceProvider).displayName ?? 'Jogador'}".',
+                    'Responda 2 perguntinhas rápidas — você vai aparecer no Placar Geral como "${ref.watch(progressNotifierProvider).username ?? ref.watch(authServiceProvider).displayName ?? 'Jogador'}".',
                     style: AppText.style(size: 14, weight: FontWeight.w800, color: AppColors.white.withValues(alpha: 0.7), height: 1.3),
                   ),
                   const SizedBox(height: 28),

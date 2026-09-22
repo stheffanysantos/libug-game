@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/onboarding/onboarding_notifier.dart';
-import '../../../core/progress/progress_notifier.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_icons.dart';
 import '../../../theme/app_text.dart';
@@ -248,9 +247,7 @@ class _SplashViewState extends ConsumerState<SplashView> with TickerProviderStat
                       pulsing: true,
                       icon: AppIcons.play(size: 30, color: AppColors.purpleDark),
                       onTap: () {
-                        final seenLocal = ref.read(onboardingProvider).seenWelcome;
-                        final seenSynced = ref.read(progressProvider).seenWelcome;
-                        final seenWelcome = seenLocal || seenSynced;
+                        final seenWelcome = ref.read(onboardingNotifierProvider).seenWelcome;
                         Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => seenWelcome ? const WorldSelectView() : const WelcomeView(),
                         ));

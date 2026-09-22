@@ -34,7 +34,7 @@ class FirebaseAuthService implements AuthService {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null || user.isAnonymous) return null;
-      return accountDisplayName(name: user.displayName, email: user.email);
+      return user.displayName ?? user.email;
     } catch (_) {
       return null;
     }
@@ -58,17 +58,12 @@ class FirebaseAuthService implements AuthService {
       final credential = EmailAuthProvider.credential(email: email, password: password);
       final result = await current.linkWithCredential(credential);
       await result.user?.updateDisplayName(name);
-      // Sem recarregar, `currentUser.displayName` pode continuar vazio logo
-      // depois do cadastro. Falhar aqui não desfaz a conta já criada.
-      try {
-        await result.user?.reload();
-      } catch (_) {}
       return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         return 'Esse e-mail já tem cadastro. Toque em "Entrar" com sua senha, ou entre com Google se foi assim que você criou a conta.';
       }
-      return authErrorMessage(e.code);
+      return _friendlyMessage(e);
     } catch (_) {
       return 'Não foi possível criar a conta agora. Tente de novo.';
     }
@@ -88,7 +83,7 @@ class FirebaseAuthService implements AuthService {
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
       return null;
     } on FirebaseAuthException catch (e) {
-      return authErrorMessage(e.code);
+      return _friendlyMessage(e);
     } catch (_) {
       return 'Não foi possível entrar agora. Tente de novo.';
     }
@@ -122,10 +117,10 @@ class FirebaseAuthService implements AuthService {
           await FirebaseAuth.instance.signInWithProvider(provider);
           return null;
         } on FirebaseAuthException catch (e2) {
-          return authErrorMessage(e2.code);
+          return _friendlyMessage(e2);
         }
       }
-      return authErrorMessage(e.code);
+      return _friendlyMessage(e);
     } catch (_) {
       return 'Não foi possível entrar com Google agora. Tente de novo.';
     }
@@ -159,31 +154,25 @@ class FirebaseAuthService implements AuthService {
       // Best-effort — ver comentário acima.
     }
   }
-}
 
-/// Mensagem em pt-BR para um código de erro do Firebase Auth. Projetos
-/// com proteção contra enumeração de e-mail (padrão desde 2023) respondem
-/// `invalid-credential` tanto para e-mail sem conta quanto para senha
-/// errada, então a mensagem cobre os dois casos.
-String authErrorMessage(String code) {
-  switch (code) {
-    case 'weak-password':
-      return 'Escolha uma senha mais forte (pelo menos 6 caracteres).';
-    case 'invalid-email':
-      return 'E-mail inválido.';
-    case 'wrong-password':
-      return 'Senha incorreta.';
-    case 'invalid-credential':
-    case 'INVALID_LOGIN_CREDENTIALS':
-      return 'E-mail ou senha incorretos.';
-    case 'user-not-found':
-      return 'Não encontramos uma conta com esse e-mail.';
-    case 'network-request-failed':
-      return 'Sem conexão com a internet agora.';
-    case 'popup-closed-by-user':
-    case 'canceled':
-      return 'Login cancelado.';
-    default:
-      return 'Algo deu errado. Tente de novo.';
+  String _friendlyMessage(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'weak-password':
+        return 'Escolha uma senha mais forte (pelo menos 6 caracteres).';
+      case 'invalid-email':
+        return 'E-mail inválido.';
+      case 'wrong-password':
+      case 'invalid-credential':
+        return 'Senha incorreta.';
+      case 'user-not-found':
+        return 'Não encontramos uma conta com esse e-mail.';
+      case 'network-request-failed':
+        return 'Sem conexão com a internet agora.';
+      case 'popup-closed-by-user':
+      case 'canceled':
+        return 'Login cancelado.';
+      default:
+        return 'Algo deu errado. Tente de novo.';
+    }
   }
 }

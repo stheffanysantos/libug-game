@@ -6,7 +6,6 @@ import 'package:debuga_o_mascote/features/result/presentation/failure_view.dart'
 import 'package:debuga_o_mascote/features/result/presentation/victory_view.dart';
 import 'package:debuga_o_mascote/models/level.dart';
 import 'package:debuga_o_mascote/widgets/command_button_widget.dart';
-import 'package:debuga_o_mascote/widgets/program_block_chip_widget.dart';
 
 import '../../helpers/test_container.dart';
 
@@ -26,8 +25,8 @@ Future<void> _pumpUntilFound(WidgetTester tester, Finder finder, {int maxSteps =
 
 void main() {
   testWidgets('vencer de verdade navega direto para a Vitória com os dados reais da partida', (tester) async {
-    // Tela alta o bastante para tudo (tabuleiro + "Seu Programa" com abas +
-    // comandos + Play) ficar visível sem precisar rolar — a tela
+    // Tela alta o bastante para tudo (tabuleiro + painel "TRADUTOR DE
+    // BLOCOS" + comandos + Play) ficar visível sem precisar rolar — a tela
     // real rola (ver GameplayView), mas aqui simplifica o teste a
     // interagir sem `ensureVisible` a cada toque.
     await tester.binding.setSurfaceSize(const Size(400, 1700));
@@ -94,8 +93,5 @@ void main() {
 
     expect(onFailure(find.text('FASE 6 · TENTATIVA 1')), findsOneWidget);
     expect(onFailure(find.textContaining('bateu na parede')), findsOneWidget);
-    expect(onFailure(find.text('DICA')), findsOneWidget);
-    expect(onFailure(find.text(demoLevel.hintText)), findsOneWidget, reason: 'a Dica é a frase escrita da fase');
-    expect(onFailure(find.byType(ProgramBlockChip)), findsNothing, reason: 'a Dica não usa os blocos da solução');
   });
 }

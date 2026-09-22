@@ -13,6 +13,7 @@ import '../../../widgets/dotted_background_widget.dart';
 import '../../../widgets/icon_action_button_widget.dart';
 import '../../../widgets/mascot_image_widget.dart';
 import '../../../widgets/primary_pill_button_widget.dart';
+import '../../../widgets/program_chip_grid_widget.dart';
 import '../../../widgets/star_row_widget.dart';
 import '../../../widgets/stat_card_widget.dart';
 
@@ -38,11 +39,11 @@ class CodePuzzleResultView extends ConsumerStatefulWidget {
   /// quando o mundo/fase tem explicação; `null` quando é `reorder`.
   final String? explanationText;
 
-  /// Dica escrita da fase (`CodePuzzleLevel.hintText`) — só quando perdeu
-  /// um `reorder` (`null` nos outros casos: ganhou reorder, ganhou findBug,
-  /// perdeu findBug, ou mundo sem dica escrita — lá quem explica o erro já é
-  /// `explanationText`).
-  final String? hintText;
+  /// A ordem certa da fase como "Dica" — só quando perdeu um `reorder`
+  /// (`null` nos outros casos: ganhou reorder, ganhou findBug, perdeu
+  /// findBug, ou mundo sem conceito de "ordem certa" — lá quem explica o
+  /// erro já é `explanationText`).
+  final List<Widget>? correctOrderChips;
 
   /// Só relevante quando `won == true` — decide o rótulo do botão primário
   /// ("Próxima fase" vs. "Ver fases").
@@ -79,7 +80,7 @@ class CodePuzzleResultView extends ConsumerStatefulWidget {
     required this.stars,
     required this.points,
     this.explanationText,
-    this.hintText,
+    this.correctOrderChips,
     required this.hasNext,
     required this.onPrimaryAction,
     required this.onBackToMenu,
@@ -250,9 +251,9 @@ class _CodePuzzleResultViewState extends ConsumerState<CodePuzzleResultView> {
                       const SizedBox(height: 18),
                       _explanationCard(widget.explanationText!),
                     ],
-                    if (widget.hintText != null) ...[
+                    if (widget.correctOrderChips != null) ...[
                       const SizedBox(height: 18),
-                      _hintCard(widget.hintText!),
+                      _hintCard(widget.correctOrderChips!),
                     ],
                     const SizedBox(height: 14),
                     Row(
@@ -305,9 +306,9 @@ class _CodePuzzleResultViewState extends ConsumerState<CodePuzzleResultView> {
     );
   }
 
-  /// Card "DICA" — a dica escrita de um `reorder`, mostrada só quando o
-  /// jogador errou. Mesmo estilo do card de Dica de `FailureView`.
-  Widget _hintCard(String text) {
+  /// Card "DICA" — a ordem certa de um `reorder`, mostrada só quando o
+  /// jogador errou. Mesmo texto/estilo do card de Dica de `FailureView`.
+  Widget _hintCard(List<Widget> chips) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -317,7 +318,12 @@ class _CodePuzzleResultViewState extends ConsumerState<CodePuzzleResultView> {
         children: [
           Text('DICA', style: AppText.eyebrow(size: 11)),
           const SizedBox(height: 8),
-          Text(text, style: AppText.style(size: 15, weight: FontWeight.w800, color: AppColors.white, height: 1.4)),
+          Text('Essa é a ordem certa:', style: AppText.style(size: 15, weight: FontWeight.w800, color: AppColors.white, height: 1.4)),
+          const SizedBox(height: 8),
+          // 2 colunas — mesmo motivo de `FailureView`: este card tem
+          // padding próprio somado ao da tela, deixando pouca largura por
+          // célula (ver `.claude/memory/decisions.md`).
+          ProgramChipGrid(chips: chips, crossAxisCount: 2),
         ],
       ),
     );

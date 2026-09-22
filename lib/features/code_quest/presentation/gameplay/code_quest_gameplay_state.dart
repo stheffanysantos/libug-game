@@ -11,7 +11,7 @@ part 'code_quest_gameplay_state.freezed.dart';
 /// tentativa e mostra o feedback inline (`showWrongFeedback`), deixando o
 /// jogador tentar de novo a mesma pergunta.
 @freezed
-abstract class CodeQuestGameplayState with _$CodeQuestGameplayState {
+class CodeQuestGameplayState with _$CodeQuestGameplayState {
   const factory CodeQuestGameplayState({
     required CodeQuestLevel level,
     @Default(0) int currentQuestionIndex,

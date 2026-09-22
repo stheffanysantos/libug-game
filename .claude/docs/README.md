@@ -10,6 +10,5 @@
 | `FOLDER_STRUCTURE.md` | Árvore de `lib/` explicada pasta a pasta |
 | `NAVIGATION_FLOW.md` | As 5 telas e as transições entre elas |
 | `AGENTS_WORKFLOW.md` | Como os subagentes de `.claude/agents/` colaboram |
-| `CICD.md` | Deploy automático no Firebase Hosting via GitHub Actions (o que dispara, como funciona, secret, domínios, troubleshooting) |
 
 Para regras obrigatórias (o que **deve** ser seguido, não só o que existe), ver `.claude/rules/`, não esta pasta — `docs/` é descritivo, `rules/` é normativo.

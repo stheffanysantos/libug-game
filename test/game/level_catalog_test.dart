@@ -33,11 +33,4 @@ void main() {
       expect(executor.evaluateFinal(cursor), GameOutcome.win, reason: 'Fase ${level.number}: hintProgram deveria vencer');
     });
   }
-
-  test('toda fase de world1Levels tem dica escrita (hintText) curta', () {
-    for (final level in world1Levels) {
-      expect(level.hintText.trim(), isNotEmpty, reason: '${level.id} está sem hintText');
-      expect(level.hintText.length, lessThanOrEqualTo(100), reason: '${level.id}: a dica deve ser curta, não a resposta');
-    }
-  });
 }
