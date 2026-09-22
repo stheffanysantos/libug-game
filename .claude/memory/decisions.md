@@ -1506,3 +1506,17 @@ Nenhum `collectibles` cai na célula `start` de sua fase (célula inicial nunca 
 - Removidos: `assets/audio/tutorial/` (40 `.mp3`, ~1,5 MB) e a linha no `pubspec.yaml`; `tool/generate_tutorial_narration.py`; `AppSoundsService.playNarration`/`stopNarration`; `SoundPlayer.stop()` (só a narração usava).
 - `tutorialSlidesFor`/`recapSlidesFor` (`lib/widgets/tutorial_content.dart`) devolvem só a lista de slides; `TutorialView` perdeu o parâmetro `narrationAssets` e virou `StatefulWidget` comum (não usava mais o Riverpod).
 - As entradas anteriores deste arquivo que falam da narração (SAPI/`edge-tts`, "narração continuava tocando depois de Pular") ficam como histórico.
+
+---
+
+## 2026-09-22 — Login por e-mail: nome antes do @ quando a conta não tem nome; "E-mail ou senha incorretos."
+
+**Decisão:**
+- O nome mostrado de uma conta vem de `accountDisplayName` (`lib/core/auth/auth_service.dart`): o nome salvo na conta; sem nome, a parte do e-mail antes do @ (`ana@exemplo.com` → `ana`), nunca o e-mail inteiro. Usado por `FirebaseAuthService.displayName` e pelo `FakeAuthService`. Vale para Configurações, Placar, Pesquisa e "Editar perfil", que já leem `displayName`.
+- Depois do cadastro por e-mail, `FirebaseAuthService.registerWithEmail` recarrega o usuário (`reload`) após `updateDisplayName`, para o nome digitado aparecer na hora. Uma falha nesse `reload` é ignorada — a conta já foi criada.
+- As mensagens de erro saíram de um método privado para `authErrorMessage(code)` (testável). `invalid-credential` (e `INVALID_LOGIN_CREDENTIALS`, formato antigo da web) agora dizem "E-mail ou senha incorretos.": com a proteção contra enumeração de e-mail do Firebase (padrão desde 2023), esse código vale tanto para e-mail sem conta quanto para senha errada. `wrong-password` e `user-not-found` mantêm as mensagens específicas, caso o projeto ainda as devolva.
+- A verificação de e-mail já cadastrado continua no envio do cadastro (`email-already-in-use`); o Firebase não oferece checagem confiável enquanto a pessoa digita.
+
+**Por quê:** pedido do usuário (verificar e-mail já existente; nome do login por e-mail sem o domínio). "Senha incorreta." para um e-mail sem conta confundia o jogador.
+
+**Como aplicar:** testes em `test/core/auth/account_display_name_test.dart`. Não foi conferido no console se a proteção contra enumeração de e-mail está ativa no projeto `debugaomascote` — a mensagem nova serve para os dois casos.
