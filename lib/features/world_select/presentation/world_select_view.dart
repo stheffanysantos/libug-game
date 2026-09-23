@@ -24,12 +24,11 @@ import '../../predict_output/presentation/stage_select/stage_select_view.dart' s
 import '../../settings/presentation/settings_view.dart';
 import '../../tutorial/presentation/tutorial_view.dart';
 
-/// Enquanto `true`, ignora a trava sequencial de desbloqueio entre mundos
-/// (ver `_isWorldUnlocked`) — só para facilitar teste manual/demonstração no
-/// estande antes de todas as 12 fases do Mundo 1 existirem "de verdade"
-/// jogadas. TODO: mudar para `false` antes da feira — ver
-/// `.claude/memory/decisions.md`.
-const _debugUnlockAllWorlds = true;
+/// Quando `true`, ignora a trava sequencial de desbloqueio entre mundos
+/// (ver `_isWorldUnlocked`) — só para teste manual. `false` em produção: as
+/// regras de desbloqueio valem (60% dos pontos do mundo anterior; Trilha
+/// anterior 100% completa). Ver `.claude/memory/decisions.md`.
+const _debugUnlockAllWorlds = false;
 
 /// Tela 1.5 — Seleção de Mundo, primeira tela depois da Splash. Lista, uma
 /// abaixo da outra, um card por `GameTrack` (`tracks`, `lib/models/game_track.dart`)

@@ -1567,3 +1567,13 @@ Nenhum `collectibles` cai na célula `start` de sua fase (célula inicial nunca 
 
 **Como aplicar:** só a Splash mudou; Gameplay dos Mundos 1/2/3, Vitória, Falha e Resultado continuam com `MascotImage`. A bolinha esmaecida do canto continua mostrando o ícone do Mundo 7. Teste em `test/screens/splash_coding_mascot_test.dart`.
 
+---
+
+## 2026-09-22 — Trava de desbloqueio de mundos ativada para produção
+
+**Decisão:** `_debugUnlockAllWorlds` (`lib/features/world_select/presentation/world_select_view.dart`) passou de `true` para `false`. As regras de desbloqueio já existentes passam a valer: um Mundo dentro da mesma Trilha abre com 60% dos pontos possíveis do Mundo anterior; o 1º Mundo de uma Trilha abre só com a Trilha anterior 100% completa. Tocar num mundo bloqueado mostra um aviso (SnackBar) em vez de navegar.
+
+**Por quê:** pedido do usuário, junto do merge da `develop` na `main` para o ambiente de produção. O próprio comentário da flag pedia `false` antes da feira.
+
+**Como aplicar:** para testar manualmente com tudo aberto, voltar a flag para `true` só localmente (não comitar). Nos testes, `pumpWorldSelect` (`test/screens/world_select_screen_test.dart`) vence todas as fases antes de abrir a tela por padrão; os testes da trava usam `completeAll: false`. `register_gate_test.dart` passou a vencer o Mundo 1 antes de abrir o Mundo 2.
+
