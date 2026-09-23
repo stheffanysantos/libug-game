@@ -113,6 +113,10 @@ void main() {
     final container = createTestContainer(overrides: [authServiceProvider.overrideWithValue(FakeAuthService())]);
     container.read(onboardingProvider.notifier).markSeen(2);
     final progressNotifier = container.read(progressProvider.notifier);
+    // Com a trava de desbloqueio ativa, o Mundo 2 só abre com pontos no Mundo 1.
+    for (final level in world1Levels) {
+      progressNotifier.recordWin(level.id, stars: 3, blocksUsed: 1, points: 300);
+    }
     for (final level in world2Levels.sublist(0, world2Levels.length - 1)) {
       progressNotifier.recordWin(level.id, stars: 3, blocksUsed: 1, points: 300);
     }
@@ -141,6 +145,10 @@ void main() {
     );
     container.read(onboardingProvider.notifier).markSeen(2);
     final progressNotifier = container.read(progressProvider.notifier);
+    // Com a trava de desbloqueio ativa, o Mundo 2 só abre com pontos no Mundo 1.
+    for (final level in world1Levels) {
+      progressNotifier.recordWin(level.id, stars: 3, blocksUsed: 1, points: 300);
+    }
     for (final level in world2Levels.sublist(0, world2Levels.length - 1)) {
       progressNotifier.recordWin(level.id, stars: 3, blocksUsed: 1, points: 300);
     }
