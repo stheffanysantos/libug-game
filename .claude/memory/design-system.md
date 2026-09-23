@@ -49,7 +49,7 @@ Atualizar esta tabela sempre que um widget reutilizável (usado por 2+ telas) fo
 | `StarRow` | Seleção de Fases, `CodePuzzleResultScreen` (`won: true`) | Fileira de 3 estrelas (acesas/apagadas) |
 | `StageSelectGrid` | Seleção de Fases (`LevelSelectScreen`, `ConveyorStageSelectScreen`, `CodePuzzleStageSelectScreen`) | Grade de fases (3/4 colunas) dirigida por `StageTileData`/`StageStatus` — desacoplada do `Level` do labirinto, reaproveitada pela Seleção de Fases dos 3 mundos |
 | `StatCard` | Vitória, `CodePuzzleResultScreen` (`won: true`, "PONTOS"/"TENTATIVAS") | Card de estatística com rótulo + valor de destaque |
-| `MascotImage` | Splash, Gameplay (Mundo 1), Vitória, Falha, `CodePuzzleResultScreen` | Arte real do mascote (`assets/images/mascot.png`, fundo transparente) — só a expressão neutra existe por enquanto (ver `.claude/memory/decisions.md`). Não aparece na Gameplay do Mundo 2 (esteira) nem dos Mundos 3/4/5 (puzzles de código, sem mascote/tabuleiro — ver `.claude/docs/GAME_DESIGN.md`) |
+| `MascotImage` | Gameplay (Mundo 1), Vitória, Falha, `CodePuzzleResultScreen` | Arte real do mascote (`assets/images/mascot.png`, fundo transparente) — só a expressão neutra existe por enquanto (ver `.claude/memory/decisions.md`). Não aparece na Gameplay do Mundo 2 (esteira) nem dos Mundos 3/4/5 (puzzles de código, sem mascote/tabuleiro — ver `.claude/docs/GAME_DESIGN.md`) |
 | `DirectionArrow` | Gameplay (Mundo 1) | Indicador de direção do mascote na célula |
 | `DottedBackground` | Splash, Seleção de Fases, Vitória, Falha, `CodePuzzleResultScreen` | Textura de fundo pontilhada |
 | `BlinkingDot` | Splash | Pontinho piscando do selo "LICODE" |
