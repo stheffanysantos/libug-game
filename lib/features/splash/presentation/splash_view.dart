@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/onboarding/onboarding_notifier.dart';
+import '../../../core/progress/progress_notifier.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_icons.dart';
 import '../../../theme/app_text.dart';
 import '../../../widgets/blinking_dot_widget.dart';
 import '../../../widgets/bobbing_widget.dart';
 import '../../../widgets/dotted_background_widget.dart';
-import '../../../widgets/mascot_image_widget.dart';
 import '../../../widgets/primary_pill_button_widget.dart';
 import '../../../widgets/pulse_tap_widget.dart';
 import '../../welcome/presentation/welcome_view.dart';
@@ -55,6 +55,7 @@ class _SplashViewState extends ConsumerState<SplashView> with TickerProviderStat
   static final _worldIconAssets = List.generate(7, (i) => 'assets/images/world${i + 1}_icon.png');
 
   // Mascote (1) + 7 ícones de Mundo — cada um ocupa o palco por vez, em loop.
+  static const _codingMascotAsset = 'assets/images/mascot_coding.png';
   static final _stageCount = 1 + _worldIconAssets.length;
   static const _stageDuration = Duration(seconds: 3);
 
@@ -247,7 +248,9 @@ class _SplashViewState extends ConsumerState<SplashView> with TickerProviderStat
                       pulsing: true,
                       icon: AppIcons.play(size: 30, color: AppColors.purpleDark),
                       onTap: () {
-                        final seenWelcome = ref.read(onboardingNotifierProvider).seenWelcome;
+                        final seenLocal = ref.read(onboardingProvider).seenWelcome;
+                        final seenSynced = ref.read(progressProvider).seenWelcome;
+                        final seenWelcome = seenLocal || seenSynced;
                         Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => seenWelcome ? const WorldSelectView() : const WelcomeView(),
                         ));
@@ -263,7 +266,7 @@ class _SplashViewState extends ConsumerState<SplashView> with TickerProviderStat
     );
   }
 
-  /// Um "slide" do palco central — índice `0` é o Mascote, `1..7` são os 7
+  /// Um "slide" do palco central — índice `0` é a Lili programando, `1..7` são os 7
   /// ícones de Mundo (`_worldIconAssets`). Cada um recebe `boxSize` (o
   /// quadrado reservado pelo `Expanded`) pra se dimensionar. Sem moldura
   /// circular por baixo (tinha antes — pedido explícito do usuário pra
@@ -273,17 +276,21 @@ class _SplashViewState extends ConsumerState<SplashView> with TickerProviderStat
     return SizedBox(
       width: size,
       height: size,
-      child: Center(child: _stageContent(index, index == 0 ? size * 0.92 : size)),
+      child: Center(child: _stageContent(index, size)),
     );
   }
 
-  /// O conteúdo de um slide (Mascote ou ícone de Mundo) — reaproveitado
+  /// O conteúdo de um slide (Lili programando ou ícone de Mundo) — reaproveitado
   /// tanto no palco central (`_buildStageSlide`) quanto no eco esmaecido
   /// dentro da bolinha roxa do canto. Ícones sem `ClipOval` (tinha antes,
   /// fazia sentido quando havia uma moldura circular por trás pra recortar
   /// contra) — `BoxFit.contain` mostra a arte de cada ícone por inteiro.
   Widget _stageContent(int index, double size) {
-    if (index == 0) return Bobbing(child: MascotImage(size: size));
+    // Lili programando (`mascot_coding.png`, issue #32) no lugar da Lili de
+    // olhos fechados (`MascotImage`), que parecia dormindo na tela de abertura.
+    if (index == 0) {
+      return Bobbing(child: Image.asset(_codingMascotAsset, width: size, height: size, fit: BoxFit.contain));
+    }
     final asset = _worldIconAssets[index - 1];
     return Image.asset(asset, width: size, height: size, fit: BoxFit.contain);
   }

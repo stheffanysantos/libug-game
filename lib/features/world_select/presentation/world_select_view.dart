@@ -24,12 +24,11 @@ import '../../predict_output/presentation/stage_select/stage_select_view.dart' s
 import '../../settings/presentation/settings_view.dart';
 import '../../tutorial/presentation/tutorial_view.dart';
 
-/// Enquanto `true`, ignora a trava sequencial de desbloqueio entre mundos
-/// (ver `_isWorldUnlocked`) — só para facilitar teste manual/demonstração no
-/// estande antes de todas as 12 fases do Mundo 1 existirem "de verdade"
-/// jogadas. TODO: mudar para `false` antes da feira — ver
-/// `.claude/memory/decisions.md`.
-const _debugUnlockAllWorlds = true;
+/// Quando `true`, ignora a trava sequencial de desbloqueio entre mundos
+/// (ver `_isWorldUnlocked`) — só para teste manual. `false` em produção: as
+/// regras de desbloqueio valem (60% dos pontos do mundo anterior; Trilha
+/// anterior 100% completa). Ver `.claude/memory/decisions.md`.
+const _debugUnlockAllWorlds = false;
 
 /// Tela 1.5 — Seleção de Mundo, primeira tela depois da Splash. Lista, uma
 /// abaixo da outra, um card por `GameTrack` (`tracks`, `lib/models/game_track.dart`)
@@ -57,7 +56,7 @@ class WorldSelectView extends ConsumerWidget {
   /// código de verdade) esperar a Trilha 1 inteira, não só o mundo anterior
   /// por número — pedido explícito do usuário, ver `.claude/memory/decisions.md`.
   bool _isWorldUnlocked(WidgetRef ref, GameTrack track, GameWorld world) {
-    final progress = ref.watch(progressNotifierProvider);
+    final progress = ref.watch(progressProvider);
     final index = track.worlds.indexWhere((w) => w.number == world.number);
     if (index > 0) {
       final previousWorld = track.worlds[index - 1];
@@ -125,8 +124,8 @@ class WorldSelectView extends ConsumerWidget {
   /// substituído pelo intro de boas-vindas da Splash (`WelcomeView`,
   /// mostrado antes desta tela), ver `.claude/memory/decisions.md`.
   void _enterWorld(BuildContext context, WidgetRef ref, GameWorld world) {
-    final onboardingNotifier = ref.read(onboardingNotifierProvider.notifier);
-    if (ref.read(onboardingNotifierProvider).hasSeen(world.number)) {
+    final onboardingNotifier = ref.read(onboardingProvider.notifier);
+    if (ref.read(onboardingProvider).hasSeen(world.number)) {
       _openWorld(context, world);
       return;
     }
@@ -137,11 +136,9 @@ class WorldSelectView extends ConsumerWidget {
       _openWorld(context, world);
       return;
     }
-    final content = tutorialSlidesFor(world.number);
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TutorialView(
-        slides: content.slides,
-        narrationAssets: content.narrationAssets,
+        slides: tutorialSlidesFor(world.number),
         onFinish: () {
           onboardingNotifier.markSeen(world.number);
           Navigator.of(context).pop();

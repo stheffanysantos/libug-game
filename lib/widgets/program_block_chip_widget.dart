@@ -9,6 +9,10 @@ import '../theme/app_text.dart';
 /// independente do tipo de bloco.
 const double programBlockChipIconSize = 22.0;
 
+/// Tamanho de ícone do chip compacto (`compact: true`) — o comando que fica
+/// dentro do card do `Repetir 3×` em "Seu Programa".
+const double programBlockChipCompactIconSize = 14.0;
+
 /// Chip de um Bloco — usado na área "Seu Programa" (removível ao tocar) e
 /// no card de Dica da tela de Tentativa Falha (não removível, pode ficar
 /// destacado em amarelo para indicar a correção sugerida). Também
@@ -35,6 +39,17 @@ class ProgramBlockChip extends StatelessWidget {
   final bool showLabel;
   final Border? border;
 
+  /// Versão menor (altura/padding reduzidos), para o comando que aparece
+  /// dentro do card do `Repetir 3×` sem tomar o card inteiro. Combine com
+  /// um `icon` em `programBlockChipCompactIconSize`.
+  final bool compact;
+
+  /// Ocupa toda a largura que recebe, com o conteúdo alinhado à esquerda —
+  /// usado nas linhas de código do Mundo 7 ("LINHAS DISPONÍVEIS"), para
+  /// ficarem empilhadas como num editor. Sem o teto de largura calculado
+  /// pela tela: quem decide a largura é o pai.
+  final bool fullWidth;
+
   const ProgramBlockChip({
     super.key,
     required this.label,
@@ -47,13 +62,15 @@ class ProgramBlockChip extends StatelessWidget {
     this.icon,
     this.showLabel = true,
     this.border,
+    this.compact = false,
+    this.fullWidth = false,
   });
 
   @override
   Widget build(BuildContext context) {
     // Teto de largura + `label` dentro de `Flexible` (quebra linha em vez
     // de estourar) — sem isso, rótulos curtos (Mundo 1/2: "Andar") sempre
-    // couberam, mas o Mundo 5 reaproveita este chip para uma linha de
+    // couberam, mas o Mundo 7 reaproveita este chip para uma linha de
     // código inteira ("for (int i = 0; i < 3; i++) {"), que sem limite
     // algum estourava o `Wrap` pai (achado do Code Reviewer). Não usa
     // `TextOverflow.ellipsis`/`FittedBox` de propósito — truncar ou
@@ -66,12 +83,18 @@ class ProgramBlockChip extends StatelessWidget {
     // "estreito" só com ícone reduziria a área de toque abaixo do
     // confortável para um estande de toque).
     final chip = Container(
-      constraints: BoxConstraints(minHeight: 44, minWidth: showLabel ? 0 : 44, maxWidth: maxChipWidth),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      alignment: Alignment.center,
+      constraints: BoxConstraints(
+        minHeight: compact ? 30 : 44,
+        minWidth: showLabel ? 0 : (compact ? 34 : 44),
+        maxWidth: fullWidth ? double.infinity : maxChipWidth,
+      ),
+      padding: compact
+          ? const EdgeInsets.symmetric(horizontal: 4, vertical: 3)
+          : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      alignment: fullWidth ? Alignment.centerLeft : Alignment.center,
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(compact ? 8 : 12),
         boxShadow: const [BoxShadow(color: AppColors.overlaySoft, offset: Offset(0, 4), blurRadius: 0)],
         // `highlighted` (flash amarelo da Execução) tem prioridade sobre um
         // `border` estático (ex.: diferenciar "Enquanto" de "Se" no Mundo 2,
@@ -86,14 +109,14 @@ class ProgramBlockChip extends StatelessWidget {
           children: [
             if (repeatCount != null) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: EdgeInsets.symmetric(horizontal: compact ? 3 : 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.overlayBadge,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text('$repeatCount×', style: AppText.style(size: 12, weight: FontWeight.w900, color: foreground)),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: compact ? 4 : 8),
             ] else if (badgeText != null) ...[
               // Mesmo papel do badge de `repeatCount` ("3×" ao lado do
               // ícone de Repetir já lia bem sem o texto do bloco) — usado
@@ -101,14 +124,14 @@ class ProgramBlockChip extends StatelessWidget {
               // ambíguos em miniatura (ex. "Virar ←"/"Virar →", achado do
               // UX Reviewer).
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: EdgeInsets.symmetric(horizontal: compact ? 3 : 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.overlayBadge,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(badgeText!, style: AppText.style(size: 12, weight: FontWeight.w900, color: foreground)),
+                child: Text(badgeText!, style: AppText.style(size: compact ? 10 : 12, weight: FontWeight.w900, color: foreground)),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: compact ? 4 : 8),
             ],
             if (showLabel)
               Flexible(child: Text(label, style: AppText.style(size: 14, weight: FontWeight.w900, color: foreground)))

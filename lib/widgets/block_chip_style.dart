@@ -24,16 +24,6 @@ class BlockChipStyle {
   final String? badgeText;
   final Widget Function(double size) icon;
 
-  /// Contorno opcional — usado pelo bloco condicional de resgate
-  /// (`rescueIfCharacterHere`), que reaproveita a mesma cor de fundo de
-  /// `walk` (`lilac`) por ser a escolha menos ambígua da paleta (evita
-  /// colidir com `repeat`/`yellowNeon`, o bloco mais usado ao lado dele no
-  /// mesmo Programa). Sem contorno, os dois ficavam diferenciados só pelo
-  /// `badgeText` no chip de "Seu Programa" — achado do UX Reviewer, mesma
-  /// lição já aplicada a "Se"/"Enquanto" da antiga Esteira e aos blocos
-  /// condicionais do Mundo 4.
-  final Border? border;
-
   const BlockChipStyle({
     required this.label,
     required this.background,
@@ -42,25 +32,19 @@ class BlockChipStyle {
     this.repeatCount,
     this.badgeText,
     required this.icon,
-    this.border,
   });
 }
 
-/// Blocos disponíveis por Mundo — todos `WorldGameType.maze`. Mundo 1
-/// ("Primeiros passos") e Mundo 3 ("Desenho no Tabuleiro") só os 4 básicos;
-/// Mundo 2 ("Resgate de Personagens") acrescenta o bloco condicional de
-/// resgate. Ver `.claude/docs/GAME_DESIGN.md`.
+/// Blocos disponíveis por Mundo — todos `WorldGameType.maze` usam os mesmos
+/// 4 básicos. O Mundo 2 ("Resgate de Personagens") não tem bloco próprio de
+/// resgate: `Andar` resgata automaticamente. Ver `.claude/docs/GAME_DESIGN.md`.
 List<BlockType> availableBlockTypesForWorld(int worldNumber) {
-  const basic = [
+  return const [
     BlockType.walk,
     BlockType.turnLeft,
     BlockType.turnRight,
     BlockType.repeat,
   ];
-  if (worldNumber == 2) {
-    return [...basic, BlockType.rescueIfCharacterHere];
-  }
-  return basic;
 }
 
 BlockChipStyle styleForBlock(Block block) {
@@ -105,27 +89,6 @@ BlockChipStyle styleForBlock(Block block) {
         repeatCount: 3,
         icon: (size) =>
             AppIcons.repeat(size: size, color: AppColors.purpleDark),
-      );
-    case BlockType.rescueIfCharacterHere:
-      // Fundo `lilac` (mesma cor de `walk`) — a escolha menos ambígua da
-      // paleta: evita colidir com `repeat`/`yellowNeon` (o bloco mais usado
-      // ao lado deste no mesmo Programa, via "Repetir 3× + Se resgate") e
-      // evita virar o 3º bloco em `purple` (já dividido entre `turnLeft`/
-      // `turnRight`). Contorno + badge diferenciam de `walk` — mesma
-      // técnica já usada pelos antigos condicionais de Placa e pelos
-      // condicionais do Mundo 4. Sem SVG dedicado para "resgatar"/"coração"
-      // em `AppIcons` — reaproveita `Icons.favorite` do Material, mesma
-      // exceção documentada já usada no Mundo 4 (`Icons.functions`/
-      // `Icons.exposure_plus_1`).
-      return BlockChipStyle(
-        label: 'Se tiver, resgate',
-        background: AppColors.lilac,
-        foreground: AppColors.purpleDark,
-        shadowColor: AppColors.lilacShadow,
-        badgeText: 'RESGATE',
-        border: Border.all(color: AppColors.purpleDark, width: 3),
-        icon: (size) =>
-            Icon(Icons.favorite, size: size, color: AppColors.purpleDark),
       );
   }
 }

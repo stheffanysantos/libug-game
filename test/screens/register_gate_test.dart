@@ -50,7 +50,7 @@ void main() {
     // fase 12 nunca chega a ser construída e `find.text('12')` não acha
     // nada (mesmo cuidado de `tutorial_flow_test.dart`, `winLastWorld1Level`).
     // Também alta o bastante para a Gameplay (tabuleiro + painel
-    // "Resgatados"/"TRADUTOR DE BLOCOS" + 5 comandos + Play) caber sem
+    // "Resgatados"/abas de "Seu Programa" + 5 comandos + Play) caber sem
     // rolar, já que os toques abaixo não usam `ensureVisible`.
     await tester.binding.setSurfaceSize(const Size(400, 1700));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -74,17 +74,16 @@ void main() {
     await tester.pump();
     await pumpTransition(tester);
 
-    // `hintProgram` de `world2_level12`: Repetir 3×, Se tiver resgate,
-    // Virar ←, Repetir 3×, Se tiver resgate, Virar →, Se tiver resgate,
-    // Andar (8 blocos == maxBlocks).
+    // `hintProgram` de `world2_level12`: Repetir 3×, Andar, Virar ←,
+    // Repetir 3×, Andar, Virar →, Andar, Andar (8 blocos == maxBlocks).
     for (final label in [
       'Repetir 3×',
-      'Se tiver, resgate',
+      'Andar',
       'Virar ←',
       'Repetir 3×',
-      'Se tiver, resgate',
+      'Andar',
       'Virar →',
-      'Se tiver, resgate',
+      'Andar',
       'Andar',
     ]) {
       await tester.tap(find.widgetWithText(CommandButton, label));
@@ -112,8 +111,12 @@ void main() {
 
   testWidgets('terminar a Trilha 1 sem conta mostra o cadastro obrigatório, com saída pra continuar sem conta', (tester) async {
     final container = createTestContainer(overrides: [authServiceProvider.overrideWithValue(FakeAuthService())]);
-    container.read(onboardingNotifierProvider.notifier).markSeen(2);
-    final progressNotifier = container.read(progressNotifierProvider.notifier);
+    container.read(onboardingProvider.notifier).markSeen(2);
+    final progressNotifier = container.read(progressProvider.notifier);
+    // Com a trava de desbloqueio ativa, o Mundo 2 só abre com pontos no Mundo 1.
+    for (final level in world1Levels) {
+      progressNotifier.recordWin(level.id, stars: 3, blocksUsed: 1, points: 300);
+    }
     for (final level in world2Levels.sublist(0, world2Levels.length - 1)) {
       progressNotifier.recordWin(level.id, stars: 3, blocksUsed: 1, points: 300);
     }
@@ -140,8 +143,12 @@ void main() {
     final container = createTestContainer(
       overrides: [authServiceProvider.overrideWithValue(FakeAuthService(hasAccount: true, displayName: 'jogador@example.com'))],
     );
-    container.read(onboardingNotifierProvider.notifier).markSeen(2);
-    final progressNotifier = container.read(progressNotifierProvider.notifier);
+    container.read(onboardingProvider.notifier).markSeen(2);
+    final progressNotifier = container.read(progressProvider.notifier);
+    // Com a trava de desbloqueio ativa, o Mundo 2 só abre com pontos no Mundo 1.
+    for (final level in world1Levels) {
+      progressNotifier.recordWin(level.id, stars: 3, blocksUsed: 1, points: 300);
+    }
     for (final level in world2Levels.sublist(0, world2Levels.length - 1)) {
       progressNotifier.recordWin(level.id, stars: 3, blocksUsed: 1, points: 300);
     }

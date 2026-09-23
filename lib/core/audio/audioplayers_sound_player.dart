@@ -12,7 +12,4 @@ class AudioplayersSoundPlayer implements SoundPlayer {
 
   @override
   Future<void> play(String assetPath) => _player.play(AssetSource('audio/$assetPath'));
-
-  @override
-  Future<void> stop() => _player.stop();
 }

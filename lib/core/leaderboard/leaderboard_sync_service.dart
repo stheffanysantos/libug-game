@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../models/leaderboard_entry.dart';
@@ -22,7 +21,7 @@ class LeaderboardSyncService {
   final Ref _ref;
 
   Future<void> resync() async {
-    final progress = _ref.read(progressNotifierProvider);
+    final progress = _ref.read(progressProvider);
     if (!progress.hasSubmittedToLeaderboard) return;
     final auth = _ref.read(authServiceProvider);
     if (!auth.hasAccount) return;

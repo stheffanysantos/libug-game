@@ -6,57 +6,154 @@ part of 'audio_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(soundPlayer)
+const soundPlayerProvider = SoundPlayerProvider._();
+
+final class SoundPlayerProvider
+    extends $FunctionalProvider<SoundPlayer, SoundPlayer, SoundPlayer>
+    with $Provider<SoundPlayer> {
+  const SoundPlayerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'soundPlayerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$soundPlayerHash();
+
+  @$internal
+  @override
+  $ProviderElement<SoundPlayer> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SoundPlayer create(Ref ref) {
+    return soundPlayer(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SoundPlayer value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SoundPlayer>(value),
+    );
+  }
+}
+
 String _$soundPlayerHash() => r'ee9a60c66ba310d440a80097fa4306cd33b7c17e';
 
-/// See also [soundPlayer].
-@ProviderFor(soundPlayer)
-final soundPlayerProvider = Provider<SoundPlayer>.internal(
-  soundPlayer,
-  name: r'soundPlayerProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$soundPlayerHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+/// Estado de sessão só (mute não persiste entre aberturas do app — mesma
+/// decisão em aberto de persistência, ver `.claude/memory/decisions.md`).
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef SoundPlayerRef = ProviderRef<SoundPlayer>;
-String _$appSoundsHash() => r'4540702fa13c8e60bbd84dc0a23ecf1c6098ea61';
+@ProviderFor(Muted)
+const mutedProvider = MutedProvider._();
 
-/// See also [appSounds].
-@ProviderFor(appSounds)
-final appSoundsProvider = Provider<AppSoundsService>.internal(
-  appSounds,
-  name: r'appSoundsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$appSoundsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+/// Estado de sessão só (mute não persiste entre aberturas do app — mesma
+/// decisão em aberto de persistência, ver `.claude/memory/decisions.md`).
+final class MutedProvider extends $NotifierProvider<Muted, bool> {
+  /// Estado de sessão só (mute não persiste entre aberturas do app — mesma
+  /// decisão em aberto de persistência, ver `.claude/memory/decisions.md`).
+  const MutedProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'mutedProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef AppSoundsRef = ProviderRef<AppSoundsService>;
+  @override
+  String debugGetCreateSourceHash() => _$mutedHash();
+
+  @$internal
+  @override
+  Muted create() => Muted();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
 String _$mutedHash() => r'a24e9c6fdce0dd49e57e2728407876ac0bf03e20';
 
 /// Estado de sessão só (mute não persiste entre aberturas do app — mesma
 /// decisão em aberto de persistência, ver `.claude/memory/decisions.md`).
-///
-/// Copied from [Muted].
-@ProviderFor(Muted)
-final mutedProvider = NotifierProvider<Muted, bool>.internal(
-  Muted.new,
-  name: r'mutedProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$mutedHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
 
-typedef _$Muted = Notifier<bool>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+abstract class _$Muted extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
+
+@ProviderFor(appSounds)
+const appSoundsProvider = AppSoundsProvider._();
+
+final class AppSoundsProvider
+    extends
+        $FunctionalProvider<
+          AppSoundsService,
+          AppSoundsService,
+          AppSoundsService
+        >
+    with $Provider<AppSoundsService> {
+  const AppSoundsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appSoundsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appSoundsHash();
+
+  @$internal
+  @override
+  $ProviderElement<AppSoundsService> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  AppSoundsService create(Ref ref) {
+    return appSounds(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AppSoundsService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AppSoundsService>(value),
+    );
+  }
+}
+
+String _$appSoundsHash() => r'4540702fa13c8e60bbd84dc0a23ecf1c6098ea61';

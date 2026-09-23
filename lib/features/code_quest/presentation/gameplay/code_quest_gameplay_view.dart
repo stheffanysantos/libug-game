@@ -50,15 +50,13 @@ void _onResultPrimaryAction(BuildContext context, WidgetRef ref, CodeQuestResult
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => CodeQuestGameplayView(levelId: data.nextLevel!.id)));
     return;
   }
-  if (data.worldJustCompleted && !ref.read(onboardingNotifierProvider).hasSeenRecap(data.worldNumber)) {
-    final recap = recapSlidesFor(data.worldNumber);
+  if (data.worldJustCompleted && !ref.read(onboardingProvider).hasSeenRecap(data.worldNumber)) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TutorialView(
-        slides: recap.slides,
-        narrationAssets: recap.narrationAssets,
+        slides: recapSlidesFor(data.worldNumber),
         finalLabel: 'Concluir',
         onFinish: () {
-          ref.read(onboardingNotifierProvider.notifier).markRecapSeen(data.worldNumber);
+          ref.read(onboardingProvider.notifier).markRecapSeen(data.worldNumber);
           _returnToLevelSelect(context, ref, worldNumber: data.worldNumber, worldJustCompleted: data.worldJustCompleted);
         },
       ),
