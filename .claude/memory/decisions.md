@@ -1557,3 +1557,13 @@ Nenhum `collectibles` cai na célula `start` de sua fase (célula inicial nunca 
 
 **Como aplicar:** testes em `test/core/leaderboard/leaderboard_never_regresses_test.dart`. **As regras só valem depois de publicadas** (`firebase deploy --only firestore:rules --project debugaomascote`, exige `firebase login`); não foram publicadas nem validadas pela CLI nesta sessão (CLI sem login). Sem o deploy, a proteção vem só do app.
 
+---
+
+## 2026-09-22 — Splash: Lili programando no lugar da Lili de olhos fechados (issue #32)
+
+**Decisão:** no palco central da Splash (1º slide do revezamento com os ícones dos mundos), a Lili de olhos fechados (`MascotImage`, `mascot.png`) foi trocada pela arte `assets/images/mascot_coding.png` — Lili de rosto, programando num notebook, estilo adesivo com contorno branco (arte enviada pelo usuário, fundo já transparente, sem névoa). Mantida a animação `Bobbing`. O slide agora usa o mesmo tamanho dos ícones de mundo (antes o Mascote usava 92%).
+
+**Por quê:** pedido do usuário — a Lili de olhos fechados parecia dormindo na tela de abertura do estande.
+
+**Como aplicar:** só a Splash mudou; Gameplay dos Mundos 1/2/3, Vitória, Falha e Resultado continuam com `MascotImage`. A bolinha esmaecida do canto continua mostrando o ícone do Mundo 7. Teste em `test/screens/splash_coding_mascot_test.dart`.
+

@@ -123,6 +123,9 @@ flutter:
     # Personagem abelha (amarelo/roxo, gerado por IA) usado na tela do
     # Placar do Dia — ver .claude/memory/decisions.md.
     - assets/images/mascot_tutorial.png
+    - assets/images/mascot_coding.png
+    # Lili programando (closeup, estilo adesivo), usada no palco da Splash no
+    # lugar da Lili de olhos fechados — arte do usuário, issue #32.
     # Mascote de olhos abertos, usado só na TutorialScreen — gerado por IA,
     # ver .claude/memory/decisions.md.
     - assets/images/avatar_lili.png
