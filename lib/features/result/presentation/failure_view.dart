@@ -11,13 +11,13 @@ import '../../../widgets/dotted_background_widget.dart';
 import '../../../widgets/icon_action_button_widget.dart';
 import '../../../widgets/mascot_image_widget.dart';
 import '../../../widgets/primary_pill_button_widget.dart';
-import '../../../widgets/program_chip_grid_widget.dart';
 
 /// Tela de Tentativa Falha. Genérica entre motores de jogo (mesma ideia de
 /// `VictoryView` — ver `.claude/memory/decisions.md`, entrada "Mundo 2"):
-/// motivo da falha (`reasonText`) e Dica (`hintChips`) já vêm prontos de
-/// quem constrói a tela, a partir do resultado real da Execução (`GameOutcome`
-/// do Mundo 1 ou `BeltOutcome` do Mundo 2) — ver `.claude/docs/GAME_DESIGN.md`.
+/// motivo da falha (`reasonText`) e Dica (`hintText`) já vêm prontos de
+/// quem constrói a tela, a partir do resultado real da Execução
+/// (`GameOutcome`) — ver `.claude/docs/GAME_DESIGN.md`. A Dica é sempre
+/// texto (nunca os blocos da solução), ver `.claude/memory/decisions.md`.
 class FailureView extends ConsumerStatefulWidget {
   final int levelNumber;
   final int attempt;
@@ -26,12 +26,9 @@ class FailureView extends ConsumerStatefulWidget {
   /// partir do outcome do motor certo (`GameOutcome`/`BeltOutcome`).
   final String reasonText;
 
-  final int maxBlocks;
-
-  /// Chips da Dica (`hintProgram`), já construídos por quem chama (ex.:
-  /// `ProgramBlockChip` a partir de `styleForBlock`/`styleForBeltBlock`) —
-  /// esta tela só os organiza num `Wrap`.
-  final List<Widget> hintChips;
+  /// Dica escrita da fase (`Level.hintText`) — uma frase curta que aponta
+  /// como passar, sem entregar a resposta.
+  final String hintText;
 
   /// Chamado ao tocar o botão "Menu" — a tela nunca navega sozinha.
   final VoidCallback onBackToMenu;
@@ -41,8 +38,7 @@ class FailureView extends ConsumerStatefulWidget {
     required this.levelNumber,
     required this.attempt,
     required this.reasonText,
-    required this.maxBlocks,
-    required this.hintChips,
+    required this.hintText,
     required this.onBackToMenu,
   });
 
@@ -155,17 +151,9 @@ class _FailureViewState extends ConsumerState<FailureView> with SingleTickerProv
                           Text('DICA', style: AppText.eyebrow(size: 11)),
                           const SizedBox(height: 8),
                           Text(
-                            'Essa sequência resolve a fase dentro do limite de ${widget.maxBlocks} blocos:',
+                            widget.hintText,
                             style: AppText.style(size: 15, weight: FontWeight.w800, color: AppColors.white, height: 1.4),
                           ),
-                          const SizedBox(height: 8),
-                          // 2 colunas (não o padrão 4 de "Seu Programa") —
-                          // este card já tem padding próprio (16px) somado
-                          // ao da tela, deixando menos largura disponível;
-                          // com 4 colunas a célula ficava estreita demais e
-                          // o chip estourava (achado ao rodar
-                          // `no_overflow_test.dart`).
-                          ProgramChipGrid(chips: widget.hintChips, crossAxisCount: 2),
                         ],
                       ),
                     ),

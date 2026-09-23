@@ -1409,3 +1409,151 @@ Nenhum `collectibles` cai na célula `start` de sua fase (célula inicial nunca 
 **Por quê:** pedidos explícitos do usuário — a pontuação alta é um problema de escala real (corrigido); a duplicação relatada não pôde ser reproduzida contra o dado real de produção, então nada foi "corrigido" ali além de fechar a pendência antiga como não aplicável.
 
 **Como aplicar:** `flutter analyze` limpo; `flutter test` — `test/game/leaderboard_scoring_test.dart` com os números novos passando. Se a duplicação for observada de novo no futuro, reabrir a investigação lendo a coleção `scores` do jeito que foi feito aqui (leitura pública via REST, sem precisar de credencial) antes de assumir que é a mesma causa antiga.
+
+## 2026-09-18 — Sessão anônima estável na web: seam de `FirebaseAuth` (resolução preguiçosa), espera de `authStateChanges` com timeout, `setPersistence(LOCAL)` só na web
+
+**Decisão:** correção do bug de **identidade anônima volátil no boot web** (spec `sessao-anonima-estavel`). No Firebase Web a restauração da sessão anônima persistida (IndexedDB) é assíncrona; `currentUserId()` lia `FirebaseAuth.instance.currentUser` de forma síncrona no boot, via `null` (restauração ainda não concluída) e chamava `signInAnonymously()`, gerando um UID novo a cada acesso/aba — sessões órfãs, perda de progresso e entradas duplicadas no Placar (`scores/{uid}`). Três mudanças em `lib/core/firebase_device_identity.dart` + `lib/main.dart`:
+
+1. **Fix principal em `currentUserId()`**: mantém o atalho síncrono (`currentUser != null` → retorna `uid` imediatamente, sem tocar em `authStateChanges`/`signInAnonymously`); quando `currentUser == null`, aguarda o primeiro evento não-nulo de `authStateChanges()` (`.firstWhere((u) => u != null)`) com `.timeout(_restoreTimeout)` (constante `_restoreTimeout = 3s`), **reconfere** `currentUser` (se restaurou, reutiliza o UID — evita UID novo/volátil) e só chama `signInAnonymously()` se realmente não houver sessão (primeira execução real, ou degradação após timeout). O `TimeoutException` é tratado como "restauração não concluída → reconferir/criar" (não retorna `null`). Sem ramificação por `kIsWeb` dentro de `currentUserId()` (mesmo fluxo web/nativo).
+
+2. **Fix defensivo em `main.dart`**: somente na web (`if (kIsWeb)`), após `Firebase.initializeApp(...)` bem-sucedido e dentro do `try` de boot existente, `await FirebaseAuth.instance.setPersistence(Persistence.LOCAL)`. É o default do Firebase Web — não muda comportamento observável, só blinda contra regressão e documenta a intenção. Por estar no mesmo `try` que já captura falhas de boot, uma falha aqui **não** derruba o app (jogo segue jogável, Placar/sync degradam para off).
+
+3. **Seam de testabilidade sobre `FirebaseAuth`**: construtor `FirebaseDeviceIdentity({FirebaseAuth? auth})` para injetar um fake nos testes (que controla `currentUser`, o valor/momento emitido por `authStateChanges()` e se `signInAnonymously()` foi chamado), sem tocar no Firebase real e sem alterar a assinatura pública de `DeviceIdentity` nem o provider `@Riverpod(keepAlive: true)` (`FirebaseDeviceIdentity()` continua válido pelo default).
+
+**Refinamento sobre o design (resolução preguiçosa, não eager):** o design.md propunha o seam com default **no construtor** (`_auth = auth ?? FirebaseAuth.instance`). A implementação final **não** resolve `FirebaseAuth.instance` no construtor — guarda só a instância opcionalmente injetada (`final FirebaseAuth? _injectedAuth`) e resolve a instância real **preguiçosamente dentro de `currentUserId()`**, sob o `try/catch` (`final auth = _injectedAuth ?? FirebaseAuth.instance`). Motivo: tocar em `FirebaseAuth.instance` antes de `Firebase.initializeApp(...)` lança `[core/no-app]`; resolver eager no construtor arriscaria quebrar o contrato de que **a construção do provider e `currentUserId()` nunca lançam**. Resolvendo dentro do `try/catch`, qualquer falha (inclusive `[core/no-app]`) vira `null`, nunca exceção para fora.
+
+**Por quê:** o motivo é a identidade anônima volátil no boot web (bug real, agravado em estande/Feivest com muitos acessos). O contrato preservado é `Future<String?> currentUserId()` **nunca lança**, com `null` significando "identidade indisponível" — o Placar já trata `null` como indisponível sem crashar (3.5). Comportamento nativo (Android/iOS) inalterado (persistência automática, sem `setPersistence`). Nenhum package novo (`flutter_test` já disponível).
+
+**Como aplicar:** ao mexer em `FirebaseDeviceIdentity`, manter as três invariantes: (1) nada de tocar em `FirebaseAuth.instance` fora do `try/catch` de `currentUserId()` (resolução preguiçosa); (2) todo caminho de erro/timeout retorna `null`, nunca lança; (3) o atalho síncrono (`currentUser != null`) continua sem esperar `authStateChanges`. Para testar a lógica de decisão (esperar → reconferir → criar), injetar um fake de `FirebaseAuth` pelo construtor — não mockar Firebase real. Se um dia a restauração ficar mais lenta que `_restoreTimeout` em algum navegador, ajustar a constante (não trocar a estratégia): o timeout é degradação segura, não caminho de erro.
+
+---
+
+## 2026-09-20 — `boas-vindas-primeira-vez`: atrelar "já viu boas-vindas" ao estado sincronizado por conta
+
+**Decisão:** adicionado o campo `seenWelcome` sincronizado a `ProgressState` (persistido no Firestore em `players/{uid}`, mesma coleção do progresso por conta). `ProgressState.mergedWith` combina `seenWelcome` por **OR lógico** (`seenWelcome || other.seenWelcome`) — nunca regride `true → false`, mesmo espírito de `hasSubmittedToLeaderboard`/`gameCompleted`. `WelcomeView._finish` passa a fazer **marcação dupla**: marca o `seenWelcome` local (onboarding, `shared_preferences`) **e** o sincronizado (`progressNotifierProvider.markWelcomeSeen()`) — como `_finish` é o ponto único de "Pular"/"Jogar sem conta"/`onDone` do `RegisterView`, os três caminhos passam a marcar o campo por conta. A Splash decide exibir a `WelcomeView` por **OR**: só mostra quando `!(seenLocal || seenSynced)`.
+
+**Por quê:** na web o `shared_preferences` é volátil (some entre navegadores/sessões/entradas repetidas), então confiar só no `seenWelcome` local reexibia as boas-vindas para contas que já tinham visto — esse era o bug (issue #3). Atrelar o "já viu" à conta/UID no Firestore torna a decisão durável por conta e resiliente a essa volatilidade. Se o estado sincronizado ainda não hidratou (boot cedo/sem internet), `seenSynced` é `false` e a decisão recai no comportamento local — degradação segura, primeira vez real continua mostrando a `WelcomeView`.
+
+**Como aplicar:** depende de #1 / `sessao-anonima-estavel` — o campo é atrelado ao UID anônimo estável, então pressupõe uma sessão anônima estável para o "já viu boas-vindas" persistir por conta. `FirestoreProgressRepository.fetch()` usa fallback `data['seenWelcome'] as bool? ?? false` para documentos antigos (mesma técnica dos fallbacks legados); falhas de Firebase/rede/`currentUserId() == null` são engolidas mantendo o jogo jogável. `ProgressNotifier.markWelcomeSeen()` é idempotente (`if (state.seenWelcome) return`), grava via `_syncNow()` em `players/{uid}` e não muda a assinatura pública do provider. Como `ProgressState` é `@freezed`, qualquer mexida no campo exige `dart run build_runner build --delete-conflicting-outputs` (comando único) antes de `flutter analyze`/`flutter test`, com os `*.freezed.dart` comitados junto (`.claude/rules/git-workflow.md`).
+
+---
+
+## 2026-09-20 — "Tradutor de Blocos" dos Mundos 1/2/3 vira aba "Código" de "Seu Programa" (Cards | Código)
+
+**Decisão:** na Gameplay do motor de labirinto (`lib/features/maze/presentation/gameplay/gameplay_view.dart`), o painel roxo "TRADUTOR DE BLOCOS" deixou de ser um bloco empilhado acima de "Seu Programa". As duas visões do mesmo Programa — os Cards (chips só com ícone, como antes) e o Código (pseudo-código, `programCodeLinesFor`) — agora são abas de uma única área (`_ProgramTabs`, widget privado do arquivo): cabeçalho "SEU PROGRAMA" + LIMPAR, linha de abas Cards | Código, e a caixa com a visão escolhida. A paleta de comandos e o PLAY continuam fixos embaixo, fora das abas. Abre em Cards.
+
+**Por quê:** as duas visões mostravam o mesmo Programa ao mesmo tempo, gastando muita altura de tela em celular (a suíte já precisava de `setSurfaceSize(400, 1700)` para caber tudo). Como só uma delas é útil a cada momento, alternar por aba libera espaço sem perder a "porta de entrada" para código real.
+
+**Como aplicar:** a aba escolhida é estado de apresentação puro (`bool _showCode` no `State` de `_ProgramTabs`), não vai para o `GameplayViewModel` — some ao sair da tela e não afeta a partida. O botão de aba foi promovido para `lib/widgets/tab_toggle_button_widget.dart` (`TabToggleButton`) por ganhar um 2º uso; o Placar (`leaderboard_view.dart`) passou a usá-lo no lugar do `_TabButton` privado, sem mudança visual. O Mundo 4 ("Decisões em Bloco") mantém o painel próprio `codeLinesFor` — fora do escopo desta mudança. Teste novo em `test/features/maze/gameplay_program_tabs_test.dart`; a chave `mazeCodeTranslator` continua identificando a visão de código.
+
+**Complemento (mesmo dia) — comandos e PLAY fixos no rodapé; botões compactos, todos lado a lado:** pedido explícito do usuário, porque a tela como um todo passa a rolar. Em `GameplayView`, a paleta de comandos + PLAY (`_buildControls`) ficam **fora do scroll**, sempre visíveis no rodapé — no celular, cabeçalho/tabuleiro/"Seu Programa" rolam juntos e os controles ficam fixos embaixo; no tablet, "Seu Programa" rola dentro da coluna direita e os controles ficam fixos no fim dela. Os botões ficaram menores e cada comando ganhou uma coluna (`crossAxisCount = availableTypes.length`: 4 nos Mundos 1/3, 5 no Mundo 2, `maxCellHeight: 72`, antes 3 colunas com teto 100 no Mundo 2). Com 5 colunas a célula tem ~50px em 320px de largura, então `CommandButton` passou a **quebrar o rótulo em até 2 linhas** (sem reticências — o jogador precisa ler o comando inteiro) em vez de encolher a fonte até ficar ilegível; um `FittedBox(scaleDown)` em volta do conjunto ícone+texto só entra como rede de segurança contra overflow de altura (achado real: sem ele, "Se tiver, resgate" estourava 1,6px em 320×568). Teste novo `test/features/maze/gameplay_pinned_controls_test.dart` confirma que rolar a tela não move PLAY/comandos.
+
+---
+
+## 2026-09-20 — Configurações: some a linha "Conectado como"; o card "Conta" só aparece sem conta
+
+**Decisão:** em `SettingsView` (`lib/features/settings/presentation/settings_view.dart`), o texto "Conectado como <nome>" foi removido por enquanto — pedido explícito do usuário, a tela de configurações ainda está sendo repensada. Sem ele, o card "Conta" com conta logada ficaria só com o título e nenhuma ação dentro, então o card passou a existir **apenas sem conta** ("Conta" + link "Criar conta"). Com conta, sobram o link "Sair da conta" no fim da tela e o lápis do avatar.
+
+**Por quê:** não deixar uma caixa vazia na tela. O nome mostrado embaixo do avatar (`progress.username ?? authService.displayName`) é outro elemento e **ficou** — hoje é a única indicação de quem está logado.
+
+**Como aplicar:** as menções antigas a "Conectado como" neste arquivo (cadastro voluntário, `SettingsView` tela cheia) são histórico e continuam como estavam. Se a tela for redesenhada e voltar a precisar mostrar a conta conectada, reintroduzir a informação num lugar que não dependa de um card só com título.
+
+---
+
+## 2026-09-21 — Dica das fases vira frase escrita (`hintText`), nunca os blocos da solução
+
+**Decisão:** a Dica mostrada quando o jogador erra deixou de reproduzir a solução com os próprios chips/blocos e passou a ser uma **frase curta escrita por fase**. `Level` (Mundos 1/2/3) ganhou `hintText` (obrigatório, uma frase por fase — 36 no total) e `CodePuzzleLevel.reorder` (Mundo 7) ganhou `hintText` (8 fases; as `findBug` continuam explicando pelo `bugExplanation`, com `hintText` vazio). `FailureView` passou a receber `hintText: String` no lugar de `hintChips` (e perdeu `maxBlocks`, que só servia ao texto "dentro do limite de N blocos"); `CodePuzzleResultView` passou a receber `hintText: String?` no lugar de `correctOrderChips`. `CodePuzzleGameplayResultData.correctOrder` virou `hintText`, e `GameplayView`/`CodePuzzleGameplayView` deixaram de montar chips só para a Dica.
+
+**Por quê:** pedido explícito da tarefa — os chips da solução ocupavam muito espaço na tela de falha (já precisavam de `ProgramChipGrid` com 2 colunas para não estourar) e entregavam a resposta pronta, em vez de orientar. Uma dica é "como passar", não "a resposta".
+
+**Como aplicar:** `hintProgram` continua no `Level` porque os testes de catálogo o usam para provar que cada fase é solucionável, mas não vai mais para a UI. Fase nova precisa de `hintText` (o compilador obriga em `Level` e em `CodePuzzleLevel.reorder`), com no máximo 100 caracteres e sem dar a sequência exata — os testes de catálogo (`level_catalog_test`, `world2_level_catalog_test`, `world3_level_catalog_test`, `code_puzzle_catalog_test`) conferem preenchimento e tamanho. As 44 frases são um primeiro rascunho, pensadas para revisão de conteúdo. **Escopo:** Mundo 4 ("Missão de Código"), Mundo 5 ("Preveja a Saída"), Mundo 6 ("Complete o Código") e as fases `findBug` do Mundo 7 nunca tiveram dica em blocos — hoje explicam o resultado por texto (`explanation`/`bugExplanation`) — e não foram alteradas; se for desejada uma dica escrita também neles, é um campo novo por modelo, fora desta mudança.
+
+---
+
+## 2026-09-22 — Mundo 2: resgate automático ao `Andar`; bloco "Se tiver, resgate" removido (issue #10)
+
+**Decisão:** o bloco `BlockType.rescueIfCharacterHere` ("Se tiver um personagem aqui, resgate") saiu do jogo. Agora `Andar` resgata automaticamente o personagem perdido da casa onde chega, só na 1ª visita àquela casa (`ProgramExecutor.applyStep`, caso `walk`). O Mundo 2 passa a ter os mesmos 4 blocos dos Mundos 1 e 3, e o desafio vira planejar um caminho que passe por todos os personagens e termine no Alvo com a contagem certa (`collectTarget`/`GameOutcome.wrongCollectCount` continuam iguais).
+
+**Por quê:** issue #10. O bloco sempre andava 1 casa **e** resgatava, então o nome não batia com o comportamento e o jogador não entendia por que o mascote se movia. Foram apresentadas 4 opções ao usuário (renomear; separar em "Andar" + "Resgatar" parado; resgate automático; `Repetir` com vários blocos dentro). Ele escolheu o resgate automático, sabendo que o mundo perde a ideia de condição ("Se") em troca de ficar óbvio. Isso reverte a regra de 2026-09-18 ("Mundo 2 v4") de que `Andar` não resgatava.
+
+**Como aplicar:**
+- As 12 soluções de `world2Levels` trocaram o bloco de resgate por `Andar`. A geometria das fases não mudou, e uma busca exaustiva confirmou que `optimalBlocks` continua sendo o mínimo em todas.
+- Os 12 `hintText` do Mundo 2, o slide do tutorial (`worldTutorials[2]`) e a recapitulação foram reescritos. O texto de narração em `tool/generate_tutorial_narration.py` (`world2_*`, `recap2_0`) foi atualizado, mas **os `.mp3` não foram regerados** (sem `edge-tts` instalado nesta máquina) — rodar `pip install edge-tts` e `python tool/generate_tutorial_narration.py`.
+- Duas perguntas do Mundo 4 (`world4_level7` e `world4_level12`) usavam o bloco como opção. A do nível 7 virou uma pergunta de código sobre `else`; a do nível 12 agora tem `Andar` como resposta certa.
+- `BlockChipStyle.border` foi removido (só o bloco de resgate usava); `availableBlockTypesForWorld` devolve os 4 básicos para qualquer mundo; o flash curto de "passo sem efeito" (`_noEffectFlashDuration`) saiu do `GameplayViewModel`.
+
+---
+
+## 2026-09-22 — `Repetir 3×` fica desabilitado enquanto espera o comando que vai repetir
+
+**Decisão:** nos Mundos 1/2/3 (motor de labirinto), o botão `Repetir 3×` da paleta fica desabilitado (apagado, sem toque) quando o último bloco de "Seu Programa" já é um `Repetir`, ou quando só resta 1 vaga no `maxBlocks`. Volta a ficar habilitado assim que o jogador escolhe outro comando ou apaga o `Repetir`. A regra é a função pura `canAddRepeat` (`lib/game/program_executor.dart`), usada pelo botão (`GameplayView._commandButtonFor`) e por `GameplayViewModel.addBlock`, que recusa o bloco mesmo se a UI deixasse passar.
+
+**Por quê:** pedido explícito do usuário. O jogador tocava `Repetir` várias vezes seguidas sem entender que ele só repete o comando seguinte, e só descobria ao apertar Play. Das duas perguntas em aberto na tarefa, decidi: (1) a última vaga também desabilita o `Repetir`, porque ele ficaria sem comando para repetir; (2) só o visual apagado, sem mensagem ao tocar no botão desabilitado.
+
+**Complemento (mesmo pedido):** em "Seu Programa", o `Repetir 3×` e o comando que ele repete viraram um card só (`_repeatGroup` em `gameplay_view.dart`), do tamanho de um chip comum (1 coluna, mesma altura): "3×" à esquerda e o comando repetido ao lado, na mesma linha, no chip compacto (`ProgramBlockChip(compact: true)`: ícone de 14 px, mínimo 34×30, selo de seta menor). O ícone do `Repetir` não aparece no card — o amarelo e o "3×" já dizem que é repetição, e com ele o card não cabia numa coluna. Sem comando ainda, o card mostra um espaço vazio "?". Quem fica dentro de quem vem de `resolveProgramEntries`, a mesma regra do motor. Tocar no card remove o `Repetir`; tocar no comando de dentro remove só ele. O layout foi ajustado com o usuário em várias rodadas (2 colunas → vertical → em linha). No celular de 390 px o card cabe sem encolher (só o `Virar`, com selo, fica em 94%); no de 320 px ele encolhe para 70–79%.
+
+**Como aplicar:** `CommandButton` ganhou `enabled` (mesmo visual de `PrimaryPillButton`: opacidade reduzida e `onTap` nulo) e perdeu o `border`, que não tinha mais nenhum uso. Testes em `test/game/program_executor_test.dart` (`canAddRepeat`) e `test/features/maze/gameplay_repeat_lock_test.dart`.
+
+---
+
+## 2026-09-22 — Narração em voz dos tutoriais removida
+
+**Decisão:** os tutoriais de cada Mundo e as recapitulações de fim de Mundo (`TutorialView`) não tocam mais narração em áudio. Os slides continuam iguais (arte, título, texto em máquina de escrever, "Próximo"/"Pular"). Os efeitos sonoros do jogo (andar, virar, play, vitória, falha) continuam.
+
+**Por quê:** pedido explícito do usuário. A narração já estava dessincronizada do texto em vários slides (os áudios do Mundo 2 ainda falavam da antiga "Esteira"), e regerar a cada mudança de texto dependia de ferramenta externa (`edge-tts`) e internet.
+
+**Como aplicar:**
+- Removidos: `assets/audio/tutorial/` (40 `.mp3`, ~1,5 MB) e a linha no `pubspec.yaml`; `tool/generate_tutorial_narration.py`; `AppSoundsService.playNarration`/`stopNarration`; `SoundPlayer.stop()` (só a narração usava).
+- `tutorialSlidesFor`/`recapSlidesFor` (`lib/widgets/tutorial_content.dart`) devolvem só a lista de slides; `TutorialView` perdeu o parâmetro `narrationAssets` e virou `StatefulWidget` comum (não usava mais o Riverpod).
+- As entradas anteriores deste arquivo que falam da narração (SAPI/`edge-tts`, "narração continuava tocando depois de Pular") ficam como histórico.
+
+---
+
+## 2026-09-22 — Login por e-mail: nome antes do @ quando a conta não tem nome; "E-mail ou senha incorretos."
+
+**Decisão:**
+- O nome mostrado de uma conta vem de `accountDisplayName` (`lib/core/auth/auth_service.dart`): o nome salvo na conta; sem nome, a parte do e-mail antes do @ (`ana@exemplo.com` → `ana`), nunca o e-mail inteiro. Usado por `FirebaseAuthService.displayName` e pelo `FakeAuthService`. Vale para Configurações, Placar, Pesquisa e "Editar perfil", que já leem `displayName`.
+- Depois do cadastro por e-mail, `FirebaseAuthService.registerWithEmail` recarrega o usuário (`reload`) após `updateDisplayName`, para o nome digitado aparecer na hora. Uma falha nesse `reload` é ignorada — a conta já foi criada.
+- As mensagens de erro saíram de um método privado para `authErrorMessage(code)` (testável). `invalid-credential` (e `INVALID_LOGIN_CREDENTIALS`, formato antigo da web) agora dizem "E-mail ou senha incorretos.": com a proteção contra enumeração de e-mail do Firebase (padrão desde 2023), esse código vale tanto para e-mail sem conta quanto para senha errada. `wrong-password` e `user-not-found` mantêm as mensagens específicas, caso o projeto ainda as devolva.
+- A verificação de e-mail já cadastrado continua no envio do cadastro (`email-already-in-use`); o Firebase não oferece checagem confiável enquanto a pessoa digita.
+
+**Por quê:** pedido do usuário (verificar e-mail já existente; nome do login por e-mail sem o domínio). "Senha incorreta." para um e-mail sem conta confundia o jogador.
+
+**Como aplicar:** testes em `test/core/auth/account_display_name_test.dart`. Não foi conferido no console se a proteção contra enumeração de e-mail está ativa no projeto `debugaomascote` — a mensagem nova serve para os dois casos.
+
+---
+
+## 2026-09-22 — Mundo 7: cards de "LINHAS DISPONÍVEIS" na largura toda
+
+**Decisão:** nas fases de reordenar do Mundo 7 ("Modo Debug"), cada linha de "LINHAS DISPONÍVEIS" virou um card na largura toda da área, empilhado, com o texto à esquerda (`_buildReorderContent`, `code_puzzle_gameplay_view.dart`). Antes era um `Wrap` com cards do tamanho do texto. `ProgramBlockChip` ganhou `fullWidth` (sem o teto de largura calculado pela tela, conteúdo alinhado à esquerda); os outros usos do chip não mudam. Linhas longas continuam quebrando, sem corte.
+
+**Por quê:** pedido do usuário. Cards de tamanhos diferentes lado a lado não pareciam código e deixavam linhas curtas (`}`) com área de toque pequena. A tarefa pedia "Mundo 5", mas a seção só existe no Mundo 7 (o último mundo).
+
+**Como aplicar:** a área "SUA SEQUÊNCIA" (código montado pelo jogador) continua com o `Wrap` de cards do tamanho do texto — ficou em aberto na tarefa se ela também deve ir para a largura toda. Teste em `test/features/code_puzzle/available_lines_full_width_test.dart`.
+
+---
+
+## 2026-09-22 — Rejogar uma fase mantém sempre a maior pontuação (issue #6, validação)
+
+**Decisão:** o comportamento atual já atendia a issue #6; nada no código de jogo mudou, só entraram testes de regressão. Ao rejogar uma fase concluída:
+- por fase, `ProgressNotifier.recordWin` fica com o melhor de cada campo (mais estrelas, menos blocos, mais pontos) — o total de pontos do mundo (usado no desbloqueio de 60%) nunca cai;
+- no Placar Geral, `RecordLevelWinUseCase` só soma pontos de sessão na 1ª vitória da fase (`isFirstWin`), então rejogar não baixa nem infla a pontuação do Placar. Rejogar melhor atualiza a fase, mas não aumenta o Placar (decisão já existente, para não dar para "farmar" pontos rejogando).
+
+**Por quê:** issue #6 pedia confirmar em teste; a leitura do código indicava que já funcionava.
+
+**Como aplicar:** testes em `test/core/progress/record_level_win_usecase_test.dart` (grupo "rejogar uma fase já concluída"), um rejogando pior e outro rejogando melhor. Conferido que falham se `recordWin` sobrescrever o resultado ou se os pontos de sessão forem somados em toda vitória. Fora do escopo "rejogar" (não corrigido): `FirebaseLeaderboardRepository.submit` grava a pontuação enviada sem comparar com a já salva — se um aparelho enviar uma `sessionScore` menor antes de hidratar o progresso da conta, o Placar pode baixar.
+
+---
+
+## 2026-09-22 — Placar Geral nunca regride (issue #28)
+
+**Decisão:** a entrada de um jogador no Placar Geral (`scores/{uid}`) não pode mais baixar a pontuação nem "des-zerar" o jogo por causa de um envio com valores antigos.
+- Regra pura `mergeLeaderboardEntries` (`lib/models/leaderboard_entry.dart`): pontuação = maior entre a salva e a enviada; `gameCompleted` fica `true` se já estava; `completedAt` mantém a data da 1ª vez; nome, avatar, idade e `updatedAt` vêm do envio mais novo.
+- `FirebaseLeaderboardRepository.submit` lê e grava numa transação (`runTransaction`) aplicando essa regra — dois aparelhos da mesma conta não se atropelam. Documento salvo ilegível (formato antigo) conta como inexistente. Sem internet a transação falha e o envio se perde (antes o `set` ficava na fila offline do Firestore); a próxima vitória reenvia.
+- `LocalLeaderboardRepository` e o `FakeLeaderboardRepository` dos testes usam a mesma regra.
+- `firestore.rules`, em `scores/{uid}`: `create` como antes; `update` só se `score` não diminuir e se não tirar `gameCompleted` de quem já zerou (`resource.data.get(...)` com padrão, para documentos antigos sem esses campos).
+
+**Por quê:** issue #28, risco achado na validação da #6: um aparelho que ainda não carregou o progresso da conta (`ProgressNotifier._hydrate`) podia enviar uma `sessionScore` menor, e o `set(merge: true)` gravava por cima.
+
+**Como aplicar:** testes em `test/core/leaderboard/leaderboard_never_regresses_test.dart`. **As regras só valem depois de publicadas** (`firebase deploy --only firestore:rules --project debugaomascote`, exige `firebase login`); não foram publicadas nem validadas pela CLI nesta sessão (CLI sem login). Sem o deploy, a proteção vem só do app.
+

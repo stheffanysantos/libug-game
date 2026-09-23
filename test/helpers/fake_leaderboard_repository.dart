@@ -11,8 +11,9 @@ class FakeLeaderboardRepository implements LeaderboardRepository {
 
   @override
   Future<void> submit(LeaderboardEntry entry) async {
+    final saved = entries.where((e) => e.name == entry.name).firstOrNull;
     entries.removeWhere((e) => e.name == entry.name);
-    entries.add(entry);
+    entries.add(mergeLeaderboardEntries(saved: saved, incoming: entry));
   }
 
   @override

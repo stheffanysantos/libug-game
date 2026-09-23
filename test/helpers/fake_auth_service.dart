@@ -31,7 +31,7 @@ class FakeAuthService implements AuthService {
   Future<String?> signInWithEmail({required String email, required String password}) async {
     if (errorToReturn != null) return errorToReturn;
     _hasAccount = true;
-    _displayName = email;
+    _displayName = accountDisplayName(email: email);
     return null;
   }
 

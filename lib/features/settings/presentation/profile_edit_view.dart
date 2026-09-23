@@ -36,7 +36,7 @@ class _ProfileEditViewState extends ConsumerState<ProfileEditView> {
   @override
   void initState() {
     super.initState();
-    final progress = ref.read(progressNotifierProvider);
+    final progress = ref.read(progressProvider);
     final auth = ref.read(authServiceProvider);
     _nameController = TextEditingController(text: progress.username ?? auth.displayName ?? '');
     _selectedAvatarId = progress.displayAvatarId;
@@ -50,7 +50,7 @@ class _ProfileEditViewState extends ConsumerState<ProfileEditView> {
 
   void _save() {
     final name = _nameController.text.trim();
-    final notifier = ref.read(progressNotifierProvider.notifier);
+    final notifier = ref.read(progressProvider.notifier);
     if (name.isNotEmpty) notifier.setUsername(name);
     notifier.setAvatarId(_selectedAvatarId);
     Navigator.of(context).pop();

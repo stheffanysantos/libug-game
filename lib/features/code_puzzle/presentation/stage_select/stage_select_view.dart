@@ -31,7 +31,7 @@ class CodePuzzleStageSelectView extends ConsumerWidget {
   List<CodePuzzleLevel> get _levels => world.levels.cast<CodePuzzleLevel>();
 
   List<StageTileData> _stages(WidgetRef ref) {
-    final progress = ref.watch(progressNotifierProvider);
+    final progress = ref.watch(progressProvider);
     var currentAssigned = false;
     return _levels.map((level) {
       if (progress.isCompleted(level.id)) {
@@ -51,13 +51,11 @@ class CodePuzzleStageSelectView extends ConsumerWidget {
 
   void _openTutorial(BuildContext context, WidgetRef ref) {
     if (worldTutorials[world.number] == null) return;
-    final content = tutorialSlidesFor(world.number);
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TutorialView(
-        slides: content.slides,
-        narrationAssets: content.narrationAssets,
+        slides: tutorialSlidesFor(world.number),
         onFinish: () {
-          ref.read(onboardingNotifierProvider.notifier).markSeen(world.number);
+          ref.read(onboardingProvider.notifier).markSeen(world.number);
           Navigator.of(context).pop();
         },
       ),
@@ -66,7 +64,7 @@ class CodePuzzleStageSelectView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final totalStars = ref.watch(progressNotifierProvider).totalStars(_levels.map((l) => l.id));
+    final totalStars = ref.watch(progressProvider).totalStars(_levels.map((l) => l.id));
     final maxStars = _levels.length * 3;
 
     return Scaffold(
