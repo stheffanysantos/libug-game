@@ -46,13 +46,15 @@ void _onResultPrimaryAction(BuildContext context, WidgetRef ref, PredictOutputRe
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => PredictOutputGameplayView(levelId: data.nextLevel!.id)));
     return;
   }
-  if (data.worldJustCompleted && !ref.read(onboardingProvider).hasSeenRecap(data.worldNumber)) {
+  if (data.worldJustCompleted && !ref.read(onboardingNotifierProvider).hasSeenRecap(data.worldNumber)) {
+    final recap = recapSlidesFor(data.worldNumber);
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TutorialView(
-        slides: recapSlidesFor(data.worldNumber),
+        slides: recap.slides,
+        narrationAssets: recap.narrationAssets,
         finalLabel: 'Concluir',
         onFinish: () {
-          ref.read(onboardingProvider.notifier).markRecapSeen(data.worldNumber);
+          ref.read(onboardingNotifierProvider.notifier).markRecapSeen(data.worldNumber);
           _returnToLevelSelect(context, ref, worldNumber: data.worldNumber, worldJustCompleted: data.worldJustCompleted);
         },
       ),

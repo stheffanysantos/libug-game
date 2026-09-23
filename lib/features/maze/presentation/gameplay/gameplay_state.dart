@@ -13,7 +13,7 @@ part 'gameplay_state.freezed.dart';
 /// 3). `cursor`/cada campo espelham os antigos campos privados de
 /// `_GameplayScreenState`.
 @freezed
-abstract class GameplayState with _$GameplayState {
+class GameplayState with _$GameplayState {
   const factory GameplayState({
     required Level level,
     @Default(<Block>[]) List<Block> program,

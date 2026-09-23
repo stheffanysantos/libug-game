@@ -133,16 +133,6 @@ List<ProgramEntry> resolveProgramEntries(List<Block> program) {
   return entries;
 }
 
-/// `true` quando dá para acrescentar um `Repetir 3×` no fim do Programa.
-/// Não dá quando o último bloco já é um `Repetir` (ele ainda espera o
-/// comando que vai repetir) nem quando só resta 1 vaga no `maxBlocks` (não
-/// sobraria espaço para esse comando). Ver `.claude/memory/decisions.md`,
-/// entrada de 2026-09-22.
-bool canAddRepeat(List<Block> program, int maxBlocks) {
-  if (program.length >= maxBlocks - 1) return false;
-  return program.isEmpty || program.last.type != BlockType.repeat;
-}
-
 /// Interpretador do Programa contra uma Fase. Dart puro — sem Flutter (ver
 /// `.claude/rules/architecture.md`). Quem anima a Execução é a Screen,
 /// consumindo `expand`/`applyStep`/`evaluateFinal` passo a passo.
@@ -189,10 +179,26 @@ class ProgramExecutor {
       case BlockType.walk:
         final destination = _forward(cursor);
         if (destination == null) return StepOutcome(cursor: cursor, crashed: true);
+        return StepOutcome(
+          cursor: cursor.copyWith(
+            x: destination.x,
+            y: destination.y,
+            paintedTiles: {...cursor.paintedTiles, destination},
+          ),
+          crashed: false,
+        );
+      case BlockType.rescueIfCharacterHere:
+        // A ação-base ("andar") sempre acontece, com as mesmas regras de
+        // colisão de `walk` — só o resgate em si (`collectedCount`) é
+        // condicional, nunca a movimentação. Mesmo princípio de
+        // `BlockProgramBlockType.addToTotalIfEven`
+        // (`lib/game/block_program_executor.dart`): a ação-base
+        // ("consumir o próximo número") sempre roda; só o bônus condicional
+        // é que pode não fazer nada. Ver `.claude/memory/decisions.md`,
+        // entrada de 2026-09-18.
+        final destination = _forward(cursor);
+        if (destination == null) return StepOutcome(cursor: cursor, crashed: true);
         final paintedTiles = {...cursor.paintedTiles, destination};
-        // Mundo 2: chegar numa casa com personagem perdido resgata ele
-        // automaticamente, só na 1ª vez que a casa é visitada. Ver
-        // `.claude/memory/decisions.md`, entrada de 2026-09-22.
         if (level.collectibles.contains(destination) &&
             !cursor.collectedTiles.contains(destination)) {
           return StepOutcome(
@@ -222,7 +228,10 @@ class ProgramExecutor {
 
   /// Posição 1 casa na frente do cursor, na direção atual — `null` quando
   /// esse movimento colidiria com uma parede ou saísse do tabuleiro (quem
-  /// chama trata isso como `crashed: true`).
+  /// chama trata isso como `crashed: true`). Extraído porque `walk` e
+  /// `rescueIfCharacterHere` compartilham exatamente a mesma regra de
+  /// movimento/colisão — só o que acontece depois de chegar na casa de
+  /// destino é diferente.
   GridPosition? _forward(GameCursor cursor) {
     final dx = _dx[cursor.direction.index];
     final dy = _dy[cursor.direction.index];

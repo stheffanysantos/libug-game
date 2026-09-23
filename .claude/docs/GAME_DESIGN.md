@@ -31,8 +31,6 @@ para a 4ª iteração do Mundo 2 (era "Encruzilhada Colorida"/Placa, virou
 
 ## Regras do programa
 - Máximo de **8 blocos** por programa (`Repetir 3×` conta como 1 bloco do total, mesmo controlando 3 repetições do bloco seguinte).
-- O botão `Repetir 3×` fica **desabilitado** quando o último bloco do Programa já é um `Repetir` (ele ainda espera o comando que vai repetir) ou quando só resta 1 vaga no `maxBlocks` (não sobraria espaço para esse comando). Volta a ficar habilitado assim que o jogador escolhe outro comando ou apaga o `Repetir`. Regra em `canAddRepeat` (`lib/game/program_executor.dart`), aplicada no botão e em `GameplayViewModel.addBlock`.
-- Em "Seu Programa", o `Repetir 3×` aparece como um card amarelo, do tamanho de um chip comum, com o comando repetido **dentro** dele (mesma leitura da aba Código, `repetir (3) { andar(); }`). Enquanto não há comando, o card mostra um espaço vazio "?". Tocar no card remove o `Repetir`; tocar no comando de dentro remove só ele.
 - O programa é montado tocando os botões de comando; tocar um bloco já adicionado o remove.
 
 ## Execução
@@ -59,24 +57,36 @@ Implementado em `lib/game/scoring.dart` (`computeScore`), chamado só após uma 
 Pontos: 300 no ótimo, -50 por bloco extra, com piso de 50. Tela de Vitória (`VictoryScreen`) recebe `level`/`blocksUsed` reais da partida jogada em `GameplayScreen` — nada de números fixos de exemplo.
 
 ## Dica (tela de Tentativa Falha)
-- `Level.hintProgram` guarda uma solução válida conhecida da fase (não necessariamente a ótima) — usada só para provar nos testes que a fase é solucionável, **não** é mais mostrada ao jogador. A Dica na `FailureScreen` é `Level.hintText`: uma frase escrita, curta, que aponta como passar sem entregar a resposta (nunca os blocos da solução).
+- `Level.hintProgram` guarda uma solução válida conhecida da fase (não necessariamente a ótima) — `FailureScreen` renderiza essa sequência de verdade como Dica, a partir do `Level` realmente jogado.
 - O motivo da falha mostrado (`GameOutcome.crash` vs. `GameOutcome.farFromGoal`) também é o resultado real da Execução, não um texto de exemplo.
 
 ## Mundo 2 — Resgate de Personagens
 
-Mesmo motor e mesmos 4 blocos do Mundo 1 (`Level`/`ProgramExecutor`, `WorldGameType.maze`): `Andar`, `Virar ←`, `Virar →`, `Repetir 3×`. Além do tabuleiro/Alvo/paredes de sempre, algumas células têm um **personagem perdido** (`Level.collectibles`), e a fase pede uma contagem exata de resgates (`Level.collectTarget`). O desafio é **planejar um caminho** que passe por todos os personagens e termine no Alvo.
+Mesmo motor do Mundo 1 (`Level`/`ProgramExecutor`, `WorldGameType.maze`), acrescentando **decisão** (`Se`) sem adicionar mecânica nova de tabuleiro: além do tabuleiro/Alvo/paredes de sempre, algumas células têm um **personagem perdido** (`Level.collectibles: Set<GridPosition>`, mesmo acumulador de sempre — `Level.collectTarget: int?`). O jogador precisa usar o bloco condicional de resgate (`rescueIfCharacterHere`), normalmente combinado com `Repetir 3×`, para resgatar quem está pelo caminho.
 
-Histórico: esta é a 5ª iteração do Mundo 2 (Esteira → Encruzilhada Colorida com Placa → Encruzilhada+Moeda → Resgate com o bloco "Se tiver, resgate" → **resgate automático**, 2026-09-22). O bloco `rescueIfCharacterHere` ("Se tiver um personagem aqui, resgate") saiu do jogo: ele andava 1 casa **e** resgatava, então o nome não batia com o comportamento e confundia o jogador (issue #10). Ver `.claude/memory/decisions.md`, entrada de 2026-09-22.
+Esta é a 4ª iteração do Mundo 2 nesta sessão (Esteira → Encruzilhada Colorida com Placa → Encruzilhada+Moeda → **Resgate de Personagens**, 2026-09-18) — a Placa colorida (`Level.signs`/`SignColor`, blocos `turnLeftIfYellow`/`turnRightIfPurple`) **saiu de cena por completo**: como a fase é fixa e conhecida de antemão, o condicional de Placa nunca "decidia" nada de verdade (dava sempre no mesmo resultado de um `Virar` comum naquele ponto) — achado real do usuário ao testar. Ver `.claude/memory/decisions.md`, entrada de 2026-09-18 ("Mundo 2 v4"), inclusive o racional de por que a alternativa "decisão por parede" foi discutida e rejeitada antes de se chegar nesta mecânica.
 
 ### Estrutura da fase (personagem perdido)
 - `Level.collectibles: Set<GridPosition>` — células com um personagem perdido (Bit/Chip/Loopy/Libug — qual personagem aparece em cada célula é decisão cosmética da UI, não deste modelo).
-- `Level.collectTarget: int?` — quantos personagens o jogador precisa ter resgatado **ao chegar no Alvo** para vencer. `null` (Mundos 1 e 3) significa "não importa".
+- `Level.collectTarget: int?` — quantos personagens o jogador precisa ter resgatado **ao chegar no Alvo** para vencer. `null` (Mundo 1, e a maioria das fases do Mundo 3) significa "não importa".
 
-### Como o resgate acontece
-Não há bloco próprio de resgate. Quando `Andar` leva o Mascote a uma casa com personagem ainda não resgatado nesta Execução, ele é resgatado automaticamente (`GameCursor.collectedCount`/`collectedTiles`). Passar de novo pela mesma casa não conta outro resgate. A célula inicial nunca é alcançada por `Andar`, então nenhuma fase coloca personagem nela.
+### Comando disponível: "Se tiver um personagem aqui, resgate" (`rescueIfCharacterHere`)
+Condição embutida no próprio bloco-alvo (mesmo padrão de `addToTotalIfEven`/`countPlusOneIfOdd`, Mundo 4 — não é um modificador aninhado). Diferente da antiga Placa, este bloco **sempre move** o Mascote 1 casa na direção atual (mesmas regras de colisão de `Andar` — pode bater na parede/sair do tabuleiro) e, **na casa de destino**, resgata o personagem que estiver lá, se ainda não tiver sido resgatado nesta Execução:
+
+| Comando | Efeito |
+|---|---|
+| **Se tiver um personagem aqui, resgate** (`rescueIfCharacterHere`) | Anda 1 casa na direção atual (igual a `Andar`); se a casa de destino tiver um personagem ainda não resgatado, resgata (incrementa a contagem); senão, só anda — nunca falha por não haver personagem. |
+
+`Andar` (`walk`) **não resgata mais automaticamente** — desde esta iteração, resgatar é sempre uma escolha explícita do jogador (usar `rescueIfCharacterHere` em vez de `Andar` naquele passo), não um efeito colateral de qualquer movimento.
+
+### Por que o bloco sempre move (e não só "verifica parado")
+A ação-base ("andar") sempre acontece; só a ação-bônus (resgatar) é condicional — mesmo princípio de `addToTotalIfEven`/`countPlusOneIfOdd` (Mundo 4, `lib/game/block_program_executor.dart`): lá, consumir o próximo número da lista sempre acontece, só somar ao Total é condicional. Isso é o que permite `Repetir 3× + Se tiver um personagem aqui, resgate` (2 blocos) resolver um corredor inteiro de personagens espalhados de forma **irregular** ao longo de 3 casas, sem o jogador precisar saber exatamente em qual delas está cada um — sem o bloco mover, `Repetir` (que só multiplica 1 bloco seguinte, sem repetir uma sequência de vários) nunca conseguiria, por si só, processar 3 casas diferentes.
+
+### "Se" nunca falha
+Igual ao princípio já usado em "Enquanto" (histórico, Esteira), em `addToTotalIfEven`/`countPlusOneIfOdd` (Mundo 4) e na antiga Placa: não haver personagem na casa de destino não é uma falha de Execução — o Passo simplesmente não resgata (o Mascote anda normalmente) e o Programa segue pro próximo bloco. Isso não impede o jogador de "errar a fase" — só significa que o erro aparece no final (contagem de personagens errada ao chegar no Alvo, ou o Mascote nem chega lá), nunca como uma interrupção abrupta no meio do Passo condicional em si.
 
 ### Condição de vitória — chegar no Alvo não basta
-Quando a fase tem `collectTarget`, terminar exatamente na célula do Alvo **não garante** vitória por si só: `collectedCount` também precisa bater exatamente com esse valor.
+Quando a fase tem `collectTarget`, terminar um Passo exatamente na célula do Alvo **não garante** vitória por si só: `collectedCount` também precisa bater exatamente com esse valor.
 
 | Condição | Resultado |
 |---|---|
@@ -86,27 +96,27 @@ Quando a fase tem `collectTarget`, terminar exatamente na célula do Alvo **não
 `wrongCollectCount` é distinto de `farFromGoal` de propósito — a posição final está certa, o motivo do erro é outro (contagem de resgates), e a tela de Tentativa Falha precisa de um texto diferente para isso.
 
 ### Regras do programa / Execução
-Mesmas do Mundo 1 (`maxBlocks: 8`, `Repetir` conta 1 bloco, `expand`/`evaluateFinal` idênticos). A única diferença está em `applyStep` no caso `walk`: além de mover o cursor, ele resgata o personagem da casa de destino quando houver.
+Mesmas do Mundo 1 (`maxBlocks: 8`, `Repetir`/o condicional de resgate contam 1 bloco cada, `expand`/`evaluateFinal` idênticos). `applyStep` ganhou o case `rescueIfCharacterHere` (move como `Andar` — mesma checagem de colisão/borda, extraída num helper interno compartilhado `_forward` — e, na casa de destino, resgata condicionalmente); `Andar` (`walk`) voltou a só mover o cursor, sem nenhum efeito colateral de coleta.
 
 ### Condições de fim de execução
-Mesma tabela do Mundo 1, com o motivo extra `GameOutcome.wrongCollectCount` quando a fase tem `collectTarget` e o Mascote chega no Alvo com a contagem de resgates errada.
+Mesma tabela do Mundo 1, com o motivo extra `GameOutcome.wrongCollectCount` (ver acima) quando a fase tem `collectTarget` e o Mascote chega no Alvo com a contagem de resgates errada. Usar `rescueIfCharacterHere` numa casa sem personagem não falha por si só (ver acima); o Programa segue e falha do jeito de sempre ("bateu na parede"/"saiu do tabuleiro"/"não chegou ao alvo"/"resgatou a quantidade errada de personagens").
 
 ### Pontuação e estrelas
-Mesma fórmula do Mundo 1 (`computeScore`, blocos usados vs. `optimalBlocks`) — só chamada depois de uma vitória de verdade (`GameOutcome.win`, não `wrongCollectCount`).
+Mesma fórmula do Mundo 1 (`computeScore`, blocos usados vs. `optimalBlocks`), sem alteração — só chamada depois de uma vitória de verdade (`GameOutcome.win`, não `wrongCollectCount`).
 
 ### As 12 fases (`world2Levels`)
-Progressão de dificuldade (dados verificados em `test/game/world2_level_catalog_test.dart`, rodando o `ProgramExecutor` de verdade contra cada `hintProgram`). Nenhuma fase usa parede (`walls`). Ao trocar o bloco de resgate por `Andar`, a geometria e o `optimalBlocks` das 12 fases continuaram os mesmos (conferido por busca exaustiva de programas menores).
+Progressão de dificuldade (dados verificados em `test/game/world2_level_catalog_test.dart`, rodando o `ProgramExecutor` de verdade contra cada `hintProgram`) — nenhuma fase usa parede (`walls`), o desafio vem todo da posição irregular dos personagens dentro de cada corredor:
 
 | Fases | O que introduzem |
 |---|---|
-| 1 | 1 corredor (`Repetir 3× + Andar`) **e** uma virada de verdade depois dele. |
-| 2-4 | 1 único corredor de 3 casas com 1-2 personagens, seguido de um `Andar` até o Alvo. |
-| 5-9 | 2 corredores em sequência, com uma virada entre eles. |
-| 10-12 | 2 corredores **e** um personagem fora deles, preenchendo exatamente os 8 blocos do `maxBlocks`; a Fase 12 ("Fim do Mundo 2") é a mais densa. |
+| 1 | 1 corredor de resgate (`Repetir 3× + rescueIfCharacterHere`) **e** uma virada de verdade depois dele — pedido explícito do usuário para a Fase 1 ficar "um pouco mais difícil" que um primeiro contato isolado, já que o Mundo 2 é continuação direta do Mundo 1 (o jogador já deveria dominar Andar/Virar/Repetir). |
+| 2-4 | Isolam o conceito: 1 único corredor de 3 casas (`Repetir 3× + rescueIfCharacterHere`) com 1-2 personagens espalhados de forma irregular (nem toda casa do corredor tem um), seguido de um `Andar` até o Alvo. |
+| 5-9 | Encadeiam 2 corredores em sequência, com uma virada entre eles — cada corredor com personagens espalhados de forma diferente. |
+| 10-12 | Encadeiam 2 corredores **e** um resgate solto (fora de `Repetir`) no mesmo Programa, preenchendo exatamente os 8 blocos do `maxBlocks` — as 3 fases mais difíceis do mundo, sem espaço pra errar; a Fase 12 ("Fim do Mundo 2") é a mais densa (todas as 3 casas do 2º corredor têm personagem). |
 
 ## Mundo 3 — Desenho no Tabuleiro
 
-Mesmo motor do Mundo 1/2 (`Level`/`ProgramExecutor`), trocando o **critério de vitória** — sem adicionar bloco novo: os comandos disponíveis continuam exatamente os 4 do Mundo 1 (`Andar`/`Virar Esquerda`/`Virar Direita`/`Repetir 3×`, sem o acumulador de resgates do Mundo 2). Estilo Tartaruga/LOGO — o Mascote pinta cada célula por onde `Andar` passa, e o objetivo é reproduzir um desenho exato, não só chegar num alvo qualquer. Substituiu a mecânica anterior deste mundo ("Caça-Moedas", que migrou por completo para o Mundo 2) — ver `.claude/memory/decisions.md`, entrada de 2026-09-18.
+Mesmo motor do Mundo 1/2 (`Level`/`ProgramExecutor`), trocando o **critério de vitória** — sem adicionar bloco novo: os comandos disponíveis continuam exatamente os 4 do Mundo 1 (`Andar`/`Virar Esquerda`/`Virar Direita`/`Repetir 3×`, sem os condicionais do Mundo 2, sem acumulador do Mundo 2). Estilo Tartaruga/LOGO — o Mascote pinta cada célula por onde `Andar` passa, e o objetivo é reproduzir um desenho exato, não só chegar num alvo qualquer. Substituiu a mecânica anterior deste mundo ("Caça-Moedas", que migrou por completo para o Mundo 2) — ver `.claude/memory/decisions.md`, entrada de 2026-09-18.
 
 ### Estrutura da fase
 - `Level.paintTarget: Set<GridPosition>?` — o conjunto exato de células que precisam ficar pintadas ao final da Execução. `null` (Mundos 1/2) significa "esta fase não usa a mecânica de pintura".

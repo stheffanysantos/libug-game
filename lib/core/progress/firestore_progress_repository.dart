@@ -71,10 +71,6 @@ class FirestoreProgressRepository implements ProgressRepository {
         gameCompletedAt: data['gameCompletedAt'] != null ? DateTime.parse(data['gameCompletedAt'] as String) : null,
         username: data['username'] as String?,
         avatarId: data['avatarId'] as String?,
-        // Documentos antigos (antes do bugfix `boas-vindas-primeira-vez`,
-        // issue #3) não têm este campo — `false` é o fallback seguro, mesma
-        // técnica dos legados acima (`bestPoints`/`gameCompleted`).
-        seenWelcome: data['seenWelcome'] as bool? ?? false,
       );
     } catch (_) {
       // Sem internet/erro qualquer — segue com o progresso local (zerado ou
@@ -110,7 +106,6 @@ class FirestoreProgressRepository implements ProgressRepository {
         'gameCompletedAt': state.gameCompletedAt?.toIso8601String(),
         'username': state.username,
         'avatarId': state.avatarId,
-        'seenWelcome': state.seenWelcome,
       }, SetOptions(merge: true));
     } catch (_) {
       // Idem — falha de rede aqui nunca deve aparecer pro jogador.

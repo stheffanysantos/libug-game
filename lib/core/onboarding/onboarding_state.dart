@@ -7,7 +7,7 @@ part 'onboarding_state.freezed.dart';
 /// — persistido por `OnboardingRepository` (device-local, `shared_preferences`),
 /// sobrevive a reabrir o app/recarregar a página. Ver `.claude/memory/decisions.md`.
 @freezed
-abstract class OnboardingState with _$OnboardingState {
+class OnboardingState with _$OnboardingState {
   const factory OnboardingState({
     @Default({}) Set<int> seenWorldNumbers,
     @Default({}) Set<int> seenRecapWorldNumbers,

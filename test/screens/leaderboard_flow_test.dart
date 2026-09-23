@@ -58,7 +58,7 @@ void main() {
 
   testWidgets('Placar com pontuação de sessão e conta já logada leva direto pra Pesquisa', (tester) async {
     final container = buildContainer(auth: FakeAuthService(hasAccount: true, displayName: 'Ana'));
-    container.read(progressProvider.notifier).addSessionPoints(450);
+    container.read(progressNotifierProvider.notifier).addSessionPoints(450);
 
     await tester.pumpWidget(wrapForTest(container, const LeaderboardView()));
     await tester.pump();
@@ -75,7 +75,7 @@ void main() {
 
   testWidgets('Placar com pontuação de sessão sem conta pede login antes da Pesquisa', (tester) async {
     final container = buildContainer();
-    container.read(progressProvider.notifier).addSessionPoints(450);
+    container.read(progressNotifierProvider.notifier).addSessionPoints(450);
 
     await tester.pumpWidget(wrapForTest(container, const LeaderboardView()));
     await tester.pump();
@@ -102,7 +102,7 @@ void main() {
 
   testWidgets('botão "Ver meu Placar" só habilita com idade e resposta preenchidos', (tester) async {
     final container = buildContainer(auth: FakeAuthService(hasAccount: true, displayName: 'Ana'));
-    container.read(progressProvider.notifier).addSessionPoints(450);
+    container.read(progressNotifierProvider.notifier).addSessionPoints(450);
     await tester.pumpWidget(wrapForTest(container, const SurveyView()));
     await tester.pump();
 
@@ -120,7 +120,7 @@ void main() {
 
   testWidgets('idade absurda (acima de 120) não habilita o botão', (tester) async {
     final container = buildContainer(auth: FakeAuthService(hasAccount: true, displayName: 'Ana'));
-    container.read(progressProvider.notifier).addSessionPoints(450);
+    container.read(progressNotifierProvider.notifier).addSessionPoints(450);
     await tester.pumpWidget(wrapForTest(container, const SurveyView()));
     await tester.pump();
 
@@ -138,7 +138,7 @@ void main() {
 
   testWidgets('enviar a pesquisa registra a entrada no Placar (nome da conta) e navega mostrando o ranking', (tester) async {
     final container = buildContainer(auth: FakeAuthService(hasAccount: true, displayName: 'Ana'));
-    container.read(progressProvider.notifier).addSessionPoints(450);
+    container.read(progressNotifierProvider.notifier).addSessionPoints(450);
     await tester.pumpWidget(wrapForTest(container, const SurveyView()));
     await tester.pump();
 
@@ -163,7 +163,7 @@ void main() {
     expect(entry.age, 10);
     expect(entry.hasProgrammedBefore, isTrue);
     expect(entry.score, 450);
-    expect(container.read(progressProvider).hasSubmittedToLeaderboard, isTrue);
+    expect(container.read(progressNotifierProvider).hasSubmittedToLeaderboard, isTrue);
 
     expect(find.byType(LeaderboardView), findsOneWidget);
     expect(find.text('Ana'), findsOneWidget);
@@ -180,7 +180,7 @@ void main() {
     // tela nova reusava o resultado cacheado de ANTES do envio, ver
     // `.claude/memory/decisions.md`).
     final container = buildContainer(auth: FakeAuthService(hasAccount: true, displayName: 'Ana'));
-    container.read(progressProvider.notifier).addSessionPoints(450);
+    container.read(progressNotifierProvider.notifier).addSessionPoints(450);
 
     await tester.pumpWidget(wrapForTest(container, const LeaderboardView()));
     await tester.pump();

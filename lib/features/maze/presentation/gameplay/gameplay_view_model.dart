@@ -33,6 +33,15 @@ class GameplayViewModel extends _$GameplayViewModel {
 
   static const _stepDuration = Duration(milliseconds: 460);
 
+  /// Flash mais curto para o bloco condicional de resgate
+  /// (`rescueIfCharacterHere`) quando ele anda mas não resgata ninguém — a
+  /// casa de destino não tinha personagem (ou já tinha sido resgatada
+  /// antes). Sem isso, esse bloco ficava destacado pela mesma duração de um
+  /// passo que resgatou de verdade, sem nenhum sinal de "andei e não tinha
+  /// ninguém aqui" (mesmo achado do UX Reviewer já aplicado à antiga Placa
+  /// e ao Mundo 4). Ver `.claude/memory/decisions.md`, entrada de
+  /// 2026-09-18.
+  static const _noEffectFlashDuration = Duration(milliseconds: 250);
   static const _startDelay = Duration(milliseconds: 200);
 
   /// Pausa curta depois do último passo (vitória ou falha) antes de navegar
@@ -53,7 +62,6 @@ class GameplayViewModel extends _$GameplayViewModel {
 
   void addBlock(BlockType type) {
     if (state.running || state.program.length >= state.level.maxBlocks) return;
-    if (type == BlockType.repeat && !canAddRepeat(state.program, state.level.maxBlocks)) return;
     state = state.copyWith(program: [...state.program, Block(type)]);
   }
 
@@ -88,9 +96,17 @@ class GameplayViewModel extends _$GameplayViewModel {
 
     for (final step in steps) {
       if (_disposed) return;
-      final outcome = _executor.applyStep(state.cursor, step.type);
+      final cursorBefore = state.cursor;
+      final outcome = _executor.applyStep(cursorBefore, step.type);
+      final isRescueBlock = step.type == BlockType.rescueIfCharacterHere;
+      // Bloco condicional de resgate: sempre move o cursor (mesma regra de
+      // colisão de `walk`) — só "resgatou de verdade" se a contagem de
+      // personagens mudou; senão a casa de destino não tinha personagem
+      // (ou já tinha sido resgatado antes nesta Execução). Nunca é falha
+      // (ver `ProgramExecutor.applyStep`).
+      final rescueHappened = isRescueBlock && outcome.cursor.collectedCount != cursorBefore.collectedCount;
 
-      if (step.type == BlockType.walk) {
+      if (step.type == BlockType.walk || isRescueBlock) {
         ref.read(appSoundsProvider).walk();
       } else if (step.type == BlockType.turnLeft || step.type == BlockType.turnRight) {
         ref.read(appSoundsProvider).turn();
@@ -103,7 +119,8 @@ class GameplayViewModel extends _$GameplayViewModel {
       }
 
       state = state.copyWith(cursor: outcome.cursor, currentStepBlockIndex: step.blockIndex);
-      await Future.delayed(_stepDuration);
+      final wasNoOp = isRescueBlock && !rescueHappened;
+      await Future.delayed(wasNoOp ? _noEffectFlashDuration : _stepDuration);
     }
 
     if (_disposed) return;

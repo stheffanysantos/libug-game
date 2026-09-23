@@ -33,9 +33,8 @@ class LocalLeaderboardRepository implements LeaderboardRepository {
   @override
   Future<void> submit(LeaderboardEntry entry) async {
     final all = await _readAll();
-    final saved = all.where((e) => e.name == entry.name).firstOrNull;
     all.removeWhere((e) => e.name == entry.name);
-    all.add(mergeLeaderboardEntries(saved: saved, incoming: entry));
+    all.add(entry);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_storageKey, jsonEncode(all.map((e) => e.toJson()).toList()));
   }

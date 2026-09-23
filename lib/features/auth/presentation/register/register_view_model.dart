@@ -49,7 +49,7 @@ class RegisterViewModel extends _$RegisterViewModel {
     // mesmo UID anônimo de antes (linkado, progresso já é o mesmo), mas se
     // a conta já existia noutro aparelho/sessão, isso puxa o progresso de
     // verdade daquela conta (ver `.claude/memory/decisions.md`).
-    await ref.read(progressProvider.notifier).rehydrate();
+    await ref.read(progressNotifierProvider.notifier).rehydrate();
     if (_disposed) return false;
     state = state.copyWith(submitting: false);
     return true;

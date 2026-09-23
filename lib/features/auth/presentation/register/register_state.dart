@@ -9,7 +9,7 @@ enum AuthMode { register, login }
 /// `TextEditingController`s continuam na `RegisterView` (não são amigáveis a
 /// um estado imutável, e o Flutter já os gerencia bem ali).
 @freezed
-abstract class RegisterState with _$RegisterState {
+class RegisterState with _$RegisterState {
   const factory RegisterState({
     @Default(AuthMode.register) AuthMode mode,
     @Default(false) bool submitting,

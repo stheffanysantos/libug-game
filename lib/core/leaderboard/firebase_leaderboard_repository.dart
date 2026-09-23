@@ -63,31 +63,10 @@ class FirebaseLeaderboardRepository implements LeaderboardRepository {
     try {
       final uid = await _deviceIdentity.currentUserId();
       if (uid == null) return;
-      final doc = _scores.doc(uid);
-      // Lê e grava na mesma transação para dois aparelhos da mesma conta
-      // não se atropelarem: o Placar nunca regride (pontuação menor ou
-      // "des-zerar"), ver `mergeLeaderboardEntries`. As regras do
-      // Firestore também recusam essa regressão. Sem internet a transação
-      // falha e o envio se perde; a próxima vitória reenvia.
-      await _firestore.runTransaction((transaction) async {
-        final snapshot = await transaction.get(doc);
-        final merged = mergeLeaderboardEntries(saved: _parseOrNull(snapshot.data()), incoming: entry);
-        transaction.set(doc, {...merged.toJson(), 'uid': uid}, SetOptions(merge: true));
-      });
+      await _scores.doc(uid).set({...entry.toJson(), 'uid': uid}, SetOptions(merge: true));
     } catch (_) {
       // Sem internet/Firestore indisponível — a UI já trata "não enviou"
       // sem travar a sessão (ver SurveyView).
-    }
-  }
-
-  /// Documento salvo, ou `null` se não existir ou estiver num formato que
-  /// não dá para ler (ex.: documentos antigos, de antes do Placar Geral).
-  LeaderboardEntry? _parseOrNull(Map<String, dynamic>? data) {
-    if (data == null) return null;
-    try {
-      return LeaderboardEntry.fromJson(data);
-    } catch (_) {
-      return null;
     }
   }
 }

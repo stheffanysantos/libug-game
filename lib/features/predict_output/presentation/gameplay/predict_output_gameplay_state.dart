@@ -8,7 +8,7 @@ part 'predict_output_gameplay_state.freezed.dart';
 /// tentativa (sem passo a passo/animação, diferente de Mundo 1/2): o
 /// jogador escolhe uma opção e confirma.
 @freezed
-abstract class PredictOutputGameplayState with _$PredictOutputGameplayState {
+class PredictOutputGameplayState with _$PredictOutputGameplayState {
   const factory PredictOutputGameplayState({
     required PredictOutputLevel level,
     int? selectedOptionIndex,

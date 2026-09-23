@@ -1,7 +1,10 @@
 /// Conteúdo textual do tutorial, mostrado por `TutorialView`
 /// (`lib/features/tutorial/presentation/tutorial_view.dart`). Texto já
 /// revisado contra as regras reais de cada motor — não alterar sem
-/// confirmar com o usuário (ver `.claude/memory/decisions.md`).
+/// confirmar com o usuário (ver `.claude/memory/decisions.md`). Se o texto
+/// de um slide mudar, a narração gerada em `assets/audio/tutorial/`
+/// (`tool/generate_tutorial_narration.py`) precisa ser regerada — os dois
+/// ficam dessincronizados senão.
 class TutorialSlide {
   /// `null` num slide de continuação (só o corpo, sem título novo).
   final String? title;
@@ -15,9 +18,16 @@ class TutorialSlide {
   const TutorialSlide({this.title, required this.body, this.imageAsset = 'assets/images/mascot_tutorial.png'});
 }
 
-/// Slides do tutorial de um Mundo — usado por `WorldSelectView`/telas de
-/// Seleção de Fases. Lista vazia se o Mundo não tiver tutorial.
-List<TutorialSlide> tutorialSlidesFor(int worldNumber) => worldTutorials[worldNumber] ?? const [];
+String _worldNarrationAsset(int worldNumber, int index) => 'tutorial/world${worldNumber}_$index.mp3';
+
+/// Monta os slides + narração do tutorial de um Mundo — usado por
+/// `WorldSelectView`/telas de Seleção de Fases para não duplicar essa
+/// composição em cada chamador.
+({List<TutorialSlide> slides, List<String> narrationAssets}) tutorialSlidesFor(int worldNumber) {
+  final worldSlides = worldTutorials[worldNumber] ?? const [];
+  final narrationAssets = [for (var i = 0; i < worldSlides.length; i++) _worldNarrationAsset(worldNumber, i)];
+  return (slides: worldSlides, narrationAssets: narrationAssets);
+}
 
 /// Intro de boas-vindas — mostrado uma única vez (`OnboardingState.seenWelcome`),
 /// ao tocar "JOGAR" na Splash pela 1ª vez, antes de entrar na Seleção de
@@ -28,6 +38,8 @@ List<TutorialSlide> tutorialSlidesFor(int worldNumber) => worldTutorials[worldNu
 /// botões de escolha no lugar do botão "Próximo" no último slide).
 /// Substitui o antigo `programmingConceptSlides` (mostrado por Mundo) —
 /// pedido explícito do usuário, ver `.claude/memory/decisions.md`.
+/// Sem narração gerada ainda (`TutorialView` tolera `narrationAssets`
+/// vazio, só não toca nada).
 const welcomeSlides = <TutorialSlide>[
   TutorialSlide(
     title: 'Oi, eu sou o Libug!',
@@ -55,7 +67,7 @@ const worldTutorials = <int, List<TutorialSlide>>{
     TutorialSlide(title: 'Como jogar: Resgate de Personagens', body: 'Vamos aprender rapidinho:'),
     TutorialSlide(body: 'Pelo caminho tem personagens perdidos — Bit, Chip, Loopy e Libug estão esperando por você!'),
     TutorialSlide(
-      body: 'Pra resgatar alguém, é só Andar até a casa dele. Planeje um caminho que passe por todos até chegar no alvo.',
+      body: "O bloco 'Se tiver, resgate' anda 1 casa e resgata quem estiver lá — combine com Repetir 3× pra resgatar um corredor inteiro de uma vez, sem precisar saber exatamente onde cada um está.",
     ),
     TutorialSlide(body: "Chegar no alvo com a quantidade errada de resgates também é falha — o painel 'Resgatados: X/Y' mostra quantos você já tem."),
   ],
@@ -108,7 +120,7 @@ const worldRecapSlides = <int, List<TutorialSlide>>{
   2: [
     TutorialSlide(
       title: 'Trilha 1 completa!',
-      body: 'Você aprendeu a planejar o caminho — passar por todos os personagens perdidos antes de chegar. Agora vem a Trilha Construtores de Lógica: pintar desenhos no tabuleiro e montar programas que resolvem contas de verdade!',
+      body: 'Você aprendeu Decisão — resgatar personagens perdidos pelo caminho. Agora vem a Trilha Construtores de Lógica: pintar desenhos no tabuleiro e montar programas que resolvem contas de verdade!',
     ),
   ],
   3: [
@@ -143,6 +155,13 @@ const worldRecapSlides = <int, List<TutorialSlide>>{
   ],
 };
 
-/// Slides da recapitulação de fim de um Mundo. Lista vazia se o Mundo não
-/// tiver recapitulação.
-List<TutorialSlide> recapSlidesFor(int worldNumber) => worldRecapSlides[worldNumber] ?? const [];
+String _recapNarrationAsset(int worldNumber, int index) => 'tutorial/recap${worldNumber}_$index.mp3';
+
+/// Monta os slides + narração da recapitulação de um Mundo — mesmo espírito
+/// de `tutorialSlidesFor`, mas sem a opção de incluir a intro geral (a
+/// recapitulação nunca reexplica "o que é programar").
+({List<TutorialSlide> slides, List<String> narrationAssets}) recapSlidesFor(int worldNumber) {
+  final slides = worldRecapSlides[worldNumber] ?? const [];
+  final narrationAssets = [for (var i = 0; i < slides.length; i++) _recapNarrationAsset(worldNumber, i)];
+  return (slides: slides, narrationAssets: narrationAssets);
+}

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/onboarding/onboarding_notifier.dart';
-import '../../../core/progress/progress_notifier.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_shadows.dart';
 import '../../../theme/app_text.dart';
@@ -33,8 +32,7 @@ class WelcomeView extends ConsumerWidget {
   /// caminho de quem já tinha visto o intro). Usado por "Pular", "Jogar
   /// sem conta" e pelo `onDone` do `RegisterView` (criar conta/entrar).
   static void _finish(BuildContext context, WidgetRef ref) {
-    ref.read(onboardingProvider.notifier).markWelcomeSeen();
-    ref.read(progressProvider.notifier).markWelcomeSeen();
+    ref.read(onboardingNotifierProvider.notifier).markWelcomeSeen();
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const WorldSelectView()),
       (route) => route.isFirst,
@@ -58,6 +56,7 @@ class WelcomeView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return TutorialView(
       slides: welcomeSlides,
+      narrationAssets: const [],
       onFinish: () => _finish(context, ref),
       finalActionsBuilder: (context) => _AccountChoices(
         onCreateAccount: () => _openRegister(context, ref, AuthMode.register),
