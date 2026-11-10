@@ -1227,6 +1227,12 @@ class GameWorld {
   /// `LevelSelectScreen`/`BlockProgramStageSelectView`) e faz o cast lá.
   final List<GameLevel> levels;
 
+  /// Quantas fases deste mundo o jogador precisa **concluir** para liberar o
+  /// próximo mundo (na ordem de `worlds`, inclusive entre trilhas). Não
+  /// precisa terminar todas — o jogo é rápido; as fases restantes continuam
+  /// acessíveis depois. Pedido explícito do usuário (2026-11-10).
+  final int levelsToUnlockNext;
+
   const GameWorld({
     required this.number,
     required this.name,
@@ -1235,6 +1241,7 @@ class GameWorld {
     required this.gameType,
     required this.comingSoon,
     required this.levels,
+    this.levelsToUnlockNext = 4,
   });
 }
 

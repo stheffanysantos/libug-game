@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'auth_service.dart';
 
@@ -96,14 +97,19 @@ class FirebaseAuthService implements AuthService {
 
   @override
   Future<String?> signInWithGoogle() async {
-    // `signInWithProvider`/`linkWithProvider` (GoogleAuthProvider) é o
-    // método universal do firebase_auth — funciona em Web (popup), Android
-    // e iOS (fluxo nativo), sem precisar do pacote `google_sign_in` nem de
-    // nenhum botão especial por plataforma (ver `.claude/memory/decisions.md`).
+    // Android/iOS: `linkWithProvider`/`signInWithProvider` (fluxo nativo).
+    // Web: essas duas NÃO são implementadas pelo `firebase_auth_web` (lançam
+    // `UnimplementedError`, que caía no `catch` genérico abaixo) — lá o
+    // caminho é `linkWithPopup`/`signInWithPopup`. Sem o pacote
+    // `google_sign_in` (ver `.claude/memory/decisions.md`).
     final provider = GoogleAuthProvider();
     try {
       final current = await _ensureAnonymousUser();
-      await current.linkWithProvider(provider);
+      if (kIsWeb) {
+        await current.linkWithPopup(provider);
+      } else {
+        await current.linkWithProvider(provider);
+      }
       return null;
     } on FirebaseAuthException catch (e) {
       // A pessoa já tem conta Google vinculada a outro UID (aparelho/sessão
@@ -119,7 +125,11 @@ class FirebaseAuthService implements AuthService {
         final anonymousUid = _currentAnonymousUidOrNull();
         if (anonymousUid != null) await _deleteOrphanedAnonymousDoc(anonymousUid);
         try {
-          await FirebaseAuth.instance.signInWithProvider(provider);
+          if (kIsWeb) {
+            await FirebaseAuth.instance.signInWithPopup(provider);
+          } else {
+            await FirebaseAuth.instance.signInWithProvider(provider);
+          }
           return null;
         } on FirebaseAuthException catch (e2) {
           return authErrorMessage(e2.code);
