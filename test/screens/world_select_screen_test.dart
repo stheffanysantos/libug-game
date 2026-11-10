@@ -213,13 +213,14 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
     });
 
-    testWidgets('Mundo 2 abre com 60% dos pontos possíveis do Mundo 1', (tester) async {
+    final required = worlds[0].levelsToUnlockNext;
+
+    testWidgets('Mundo 2 abre ao concluir $required fases do Mundo 1 (não precisa das 12)', (tester) async {
       final container = await pumpWorldSelect(tester, completeAll: false);
       container.read(onboardingProvider.notifier).markSeen(worlds[1].number);
       final progress = container.read(progressProvider.notifier);
-      // 12 fases × 300 = 3600 possíveis; 60% = 2160, ou seja, 8 fases com 300 (2400).
-      for (final level in world1Levels.take(8)) {
-        progress.recordWin(level.id, stars: 3, blocksUsed: 1, points: 300);
+      for (final level in world1Levels.take(required)) {
+        progress.recordWin(level.id, stars: 1, blocksUsed: 1, points: 50);
       }
       await tester.pump();
 
@@ -227,19 +228,31 @@ void main() {
       expect(find.byType(StageSelectView), findsOneWidget);
     });
 
-    testWidgets('1º mundo da Trilha 2 fica bloqueado até a Trilha 1 estar 100% completa', (tester) async {
+    testWidgets('com 1 fase a menos que o necessário, o Mundo 2 segue bloqueado e o aviso diz quantas faltam', (tester) async {
       final container = await pumpWorldSelect(tester, completeAll: false);
-      container.read(onboardingProvider.notifier).markSeen(worlds[2].number);
+      container.read(onboardingProvider.notifier).markSeen(worlds[1].number);
       final progress = container.read(progressProvider.notifier);
-      // Mundo 1 completo e Mundo 2 quase completo (falta a última fase).
-      for (final level in [...world1Levels, ...world2Levels.take(world2Levels.length - 1)]) {
+      for (final level in world1Levels.take(required - 1)) {
         progress.recordWin(level.id, stars: 3, blocksUsed: 1, points: 300);
       }
       await tester.pump();
 
-      await tapWorld(tester, 2);
+      await tapWorld(tester, 1);
       expect(find.byType(StageSelectView), findsNothing);
-      expect(find.text('Complete a Trilha 1 primeiro para desbloquear.'), findsOneWidget);
+      expect(find.text('Falta 1 fase no Mundo 1 para desbloquear.'), findsOneWidget);
+    });
+
+    testWidgets('a regra vale também entre trilhas: Mundo 3 (Trilha 2) abre com $required fases do Mundo 2', (tester) async {
+      final container = await pumpWorldSelect(tester, completeAll: false);
+      container.read(onboardingProvider.notifier).markSeen(worlds[2].number);
+      final progress = container.read(progressProvider.notifier);
+      for (final level in world2Levels.take(worlds[1].levelsToUnlockNext)) {
+        progress.recordWin(level.id, stars: 1, blocksUsed: 1, points: 50);
+      }
+      await tester.pump();
+
+      await tapWorld(tester, 2);
+      expect(find.byType(StageSelectView), findsOneWidget);
     });
   });
 }

@@ -73,7 +73,7 @@ final class CodeQuestGameplayViewModelProvider
 }
 
 String _$codeQuestGameplayViewModelHash() =>
-    r'bc47175504f656286ef71d6ec9e3aad6c5f15829';
+    r'6e2c6a07910a9c1aef09c8fdacc0ed444592e27f';
 
 /// ViewModel da Gameplay do Mundo 4 ("Missão de Código") — sem passo a
 /// passo/grid (diferente de `GameplayViewModel`): cada `confirm()` avança

@@ -41,11 +41,10 @@ void main() {
 
     expect(find.byType(CodePuzzleResultView), findsOneWidget);
     expect(onResult(find.text('FASE 1 CONCLUÍDA')), findsOneWidget);
-    // `totalAttempts` soma as tentativas de TODAS as perguntas da fase (ver
-    // `.claude/docs/GAME_DESIGN.md`, "Mundo 4 — Missão de Código") — mesmo
-    // acertando as 3 perguntas de primeira, o total já é 3, não 1.
-    expect(onResult(find.text('3')), findsOneWidget, reason: 'TENTATIVAS deve mostrar 3 (uma por pergunta, todas na 1ª tentativa)');
-    expect(onResult(find.text('100')), findsOneWidget, reason: 'computeCodePuzzleScore(attempts: 3) => 300 - 2*100 = 100');
+    // Só respostas erradas contam como tentativa extra: acertar as 3
+    // perguntas de primeira é "1 tentativa" (3 estrelas, 300 pontos).
+    expect(onResult(find.text('1')), findsOneWidget, reason: 'TENTATIVAS deve mostrar 1 (nenhum erro)');
+    expect(onResult(find.text('300')), findsOneWidget, reason: 'computeCodePuzzleScore(attempts: 1) => 300');
   });
 
   testWidgets('responder errado soma tentativa e mostra o feedback inline, sem avançar nem sair da tela', (tester) async {
@@ -64,8 +63,8 @@ void main() {
     await answer(tester, 0);
     await answer(tester, 2);
 
-    expect(onResult(find.text('4')), findsOneWidget, reason: 'TENTATIVAS deve contar a errada também');
-    expect(onResult(find.text('50')), findsOneWidget, reason: 'PONTOS penalizados pela tentativa extra');
+    expect(onResult(find.text('2')), findsOneWidget, reason: 'TENTATIVAS deve contar o erro: 1 erro + 1');
+    expect(onResult(find.text('200')), findsOneWidget, reason: 'PONTOS penalizados pela tentativa extra: 300 - 100');
   });
 
   testWidgets('Confirmar fica desabilitado até uma opção ser escolhida', (tester) async {
@@ -90,7 +89,7 @@ void main() {
       await answer(tester, 1);
       await answer(tester, 0);
       await answer(tester, 2);
-      expect(onResult(find.text('3')), findsOneWidget);
+      expect(onResult(find.text('1')), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('codePuzzleResultReplayButton')));
       await tester.pump();
@@ -103,8 +102,8 @@ void main() {
       await answer(tester, 1);
       await answer(tester, 0);
       await answer(tester, 2);
-      expect(onResult(find.text('3')), findsOneWidget, reason: 'TENTATIVAS não deveria ter herdado nada da sessão anterior');
-      expect(onResult(find.text('100')), findsOneWidget, reason: 'PONTOS deve voltar ao mesmo valor de uma sessão limpa (attempts: 3), não continuar caindo');
+      expect(onResult(find.text('1')), findsOneWidget, reason: 'TENTATIVAS não deveria ter herdado nada da sessão anterior');
+      expect(onResult(find.text('300')), findsOneWidget, reason: 'PONTOS deve voltar ao mesmo valor de uma sessão limpa, não continuar caindo');
     },
   );
 }

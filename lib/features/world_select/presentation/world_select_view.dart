@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/onboarding/onboarding_notifier.dart';
 import '../../../core/progress/progress_notifier.dart';
-import '../../../game/scoring.dart';
 import '../../../models/game_track.dart';
 import '../../../models/level.dart';
 import '../../../theme/app_colors.dart';
@@ -45,36 +44,28 @@ const _debugUnlockAllWorlds = false;
 class WorldSelectView extends ConsumerWidget {
   const WorldSelectView({super.key});
 
-  /// Um mundo N>1 desbloqueia quando o mundo anterior (na mesma trilha) já
-  /// rendeu pontos suficientes — `_worldUnlockPointsThreshold`, 60% da
-  /// pontuação máxima possível do mundo — **não** exige jogar/vencer as 12
-  /// fases; fases não jogadas continuam acessíveis normalmente depois. O 1º
-  /// mundo de uma trilha segue uma regra diferente, um nível acima:
-  /// desbloqueia só quando a trilha anterior está 100% completa
-  /// (`isTrackCompleted`) — o 1º mundo da 1ª trilha está sempre desbloqueado.
-  /// Isso é o que faz a Trilha 2 (Mundos 4-5, mais difíceis — já manipulam
-  /// código de verdade) esperar a Trilha 1 inteira, não só o mundo anterior
-  /// por número — pedido explícito do usuário, ver `.claude/memory/decisions.md`.
+  /// Um mundo desbloqueia quando o jogador concluiu `levelsToUnlockNext`
+  /// fases do mundo anterior (ordem de `worlds`, vale também na passagem de
+  /// uma trilha para a outra) — **não** exige as 12 fases; as restantes
+  /// continuam acessíveis depois. O Mundo 1 está sempre desbloqueado.
+  /// Pedido explícito do usuário, ver `.claude/memory/decisions.md`.
   bool _isWorldUnlocked(WidgetRef ref, GameTrack track, GameWorld world) {
-    final progress = ref.watch(progressProvider);
-    final index = track.worlds.indexWhere((w) => w.number == world.number);
-    if (index > 0) {
-      final previousWorld = track.worlds[index - 1];
-      final levelIds = previousWorld.levels.map((l) => l.id);
-      return _debugUnlockAllWorlds || progress.totalPoints(levelIds) >= _worldUnlockPointsThreshold(previousWorld);
-    }
-    final trackIndex = tracks.indexOf(track);
-    if (trackIndex <= 0) return true;
-    return _debugUnlockAllWorlds || progress.isTrackCompleted(tracks[trackIndex - 1]);
+    if (_debugUnlockAllWorlds) return true;
+    final index = worlds.indexWhere((w) => w.number == world.number);
+    if (index <= 0) return true;
+    final previousWorld = worlds[index - 1];
+    return _completedLevelCount(ref, previousWorld) >= _levelsRequired(previousWorld);
   }
 
-  /// 60% da pontuação máxima possível do mundo (`maxLevelPoints` por fase,
-  /// `lib/game/scoring.dart`) — limiar escolhido explicitamente pelo usuário
-  /// pra liberar o próximo Mundo sem precisar terminar as 12 fases (ver
-  /// `.claude/memory/decisions.md`). Se um mundo tiver `levels: const []`
-  /// (hoje só mundos `comingSoon`, que nunca são "o mundo anterior" de um
-  /// mundo jogável), o limiar vira 0 — nunca bloqueia por engano.
-  int _worldUnlockPointsThreshold(GameWorld world) => (world.levels.length * maxLevelPoints * 0.6).round();
+  int _completedLevelCount(WidgetRef ref, GameWorld world) {
+    final progress = ref.watch(progressProvider);
+    return world.levels.where((l) => progress.isCompleted(l.id)).length;
+  }
+
+  /// Nunca exige mais fases do que o mundo tem (e 0 fases → 0, nunca bloqueia
+  /// por engano).
+  int _levelsRequired(GameWorld world) =>
+      world.levelsToUnlockNext < world.levels.length ? world.levelsToUnlockNext : world.levels.length;
 
   /// Cada `WorldGameType` tem sua própria tela de Seleção de Fases (motor
   /// diferente, ver `.claude/plans/Mundos.md`) — decide qual empilhar. Os
@@ -160,14 +151,12 @@ class WorldSelectView extends ConsumerWidget {
     if (world.comingSoon) {
       message = 'Em breve! Esse mundo ainda está em construção.';
     } else {
-      final index = track.worlds.indexWhere((w) => w.number == world.number);
-      if (index > 0) {
-        final previousWorld = track.worlds[index - 1];
-        message = 'Ganhe mais pontos no Mundo ${previousWorld.number} para desbloquear.';
-      } else {
-        final trackIndex = tracks.indexOf(track);
-        message = 'Complete a Trilha ${tracks[trackIndex - 1].number} primeiro para desbloquear.';
-      }
+      final index = worlds.indexWhere((w) => w.number == world.number);
+      final previousWorld = worlds[index - 1];
+      final remaining = _levelsRequired(previousWorld) - _completedLevelCount(ref, previousWorld);
+      message = remaining == 1
+          ? 'Falta 1 fase no Mundo ${previousWorld.number} para desbloquear.'
+          : 'Faltam $remaining fases no Mundo ${previousWorld.number} para desbloquear.';
     }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: AppColors.purpleDark,

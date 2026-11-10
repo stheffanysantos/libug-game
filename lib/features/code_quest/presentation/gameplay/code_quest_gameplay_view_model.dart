@@ -71,13 +71,19 @@ class CodeQuestGameplayViewModel extends _$CodeQuestGameplayViewModel {
 
     // Última pergunta respondida certo — a Missão termina aqui, sempre em
     // vitória (nunca existe "perder" esta fase, ver `CodeQuestLevel`).
-    final score = computeCodePuzzleScore(attempts: totalAttempts);
+    // `totalAttempts` conta toda confirmação (certa ou errada) de TODAS as
+    // perguntas — acertar tudo de primeira já dá `questions.length`, não 1.
+    // `computeCodePuzzleScore` espera "tentativas até acertar" (1 = perfeito),
+    // então só as respostas erradas entram: erradas + 1.
+    final wrongAnswers = totalAttempts - level.questions.length;
+    final attempts = wrongAnswers + 1;
+    final score = computeCodePuzzleScore(attempts: attempts);
     final world = worlds.firstWhere((w) => w.number == level.world);
     final result = ref.read(recordLevelWinUseCaseProvider).call(
           levelId: level.id,
           world: world,
           score: score,
-          blocksUsedOrAttempts: totalAttempts,
+          blocksUsedOrAttempts: attempts,
           elapsedSeconds: _levelStopwatch.elapsed.inSeconds,
         );
 
@@ -90,7 +96,7 @@ class CodeQuestGameplayViewModel extends _$CodeQuestGameplayViewModel {
       pendingEffect: CodeQuestGameplayEffect.showResult(
         data: CodeQuestResultData(
           levelNumber: level.number,
-          attempts: totalAttempts,
+          attempts: attempts,
           stars: score.stars,
           points: score.points,
           worldNumber: level.world,
